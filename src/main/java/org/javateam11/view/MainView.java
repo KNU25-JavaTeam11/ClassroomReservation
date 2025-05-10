@@ -147,13 +147,19 @@ public class MainView extends JFrame {
      * - 비어있음: 초록색 배경 + 검정 글씨
      * - 사용중: 빨간색 배경 + 흰색 글씨
      * - macOS 등 일부 환경에서 색상 적용이 잘 안될 경우 setOpaque(true), setBorderPainted(false)로 강제 적용
+     *
+     * TODO: [실습] 아래 버튼 색상/글자색 지정 부분을 직접 구현해보세요.
      */
     private JButton createRoomButton(String name, boolean available) {
         JButton btn = new JButton(name + (available ? " (비어있음)" : " (사용중)"));
-        btn.setBackground(available ? Color.GREEN : Color.RED);
-        btn.setForeground(available ? Color.BLACK : Color.WHITE);
-        btn.setOpaque(true); // macOS 등에서 색상 강제 적용
-        btn.setBorderPainted(false);
+        // TODO: [실습] 아래 두 줄을 구현하세요:
+        // 1. available이 true면 초록색 배경+검정 글씨, false면 빨간색 배경+흰색 글씨로 설정
+        // 2. macOS 등에서 색상 적용이 잘 안될 경우 setOpaque(true), setBorderPainted(false)도 적용
+        // 예시:
+        // btn.setBackground( ... );
+        // btn.setForeground( ... );
+        // btn.setOpaque(true);
+        // btn.setBorderPainted(false);
         return btn;
     }
 

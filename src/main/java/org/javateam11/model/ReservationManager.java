@@ -25,34 +25,25 @@ public class ReservationManager {
      * @param classroom 강의실 객체
      * @param newReservation 새로 시도하는 예약 정보
      * @return 예약 가능 여부 (true: 가능, false: 불가)
+     *
+     * TODO:[실습] 아래 함수 내용을 직접 구현해보세요.
+     * - 같은 날짜에 시간이 겹치는 예약이 있으면 false, 아니면 true를 반환
      */
     public boolean isAvailable(Classroom classroom, Reservation newReservation) {
-        // 강의실의 모든 기존 예약을 순회하면서
-        for (Reservation r : classroom.getReservations()) {
-            // 같은 날짜의 예약이 있는지 확인
-            if (r.getDate().equals(newReservation.getDate())) {
-                // 시간 겹침 여부 확인
-                // 새로운 예약의 종료 시간이 기존 예약의 시작 시간보다 이전이거나
-                // 새로운 예약의 시작 시간이 기존 예약의 종료 시간보다 이후인 경우가 아닌 경우
-                // (즉, 시간이 겹치는 경우) 예약 불가능
-                if (!(newReservation.getEndTime().isBefore(r.getStartTime()) || 
-                     newReservation.getStartTime().isAfter(r.getEndTime()))) {
-                    return false;
-                }
-            }
-        }
-        // 모든 기존 예약과 겹치지 않으면 예약 가능
-        return true;
+        // TODO: [실습] 구현: classroom.getReservations()를 순회하며 날짜/시간 겹침 여부 확인
+        return false; // 임시 반환값 (실습 후 수정)
     }
 
     /**
      * 강의실에 예약을 추가하고 전체 예약 리스트에도 추가합니다.
      * @param classroom 강의실 객체
      * @param reservation 예약 정보
+     *
+     * TODO: [실습] 아래 함수 내용을 직접 구현해보세요.
+     * - classroom에 예약 추가, 전체 리스트에도 추가
      */
     public void addReservation(Classroom classroom, Reservation reservation) {
-        classroom.addReservation(reservation);
-        reservations.add(reservation);
+        // TODO:[실습] 구현: classroom.addReservation, reservations.add 등
     }
 
     /**
