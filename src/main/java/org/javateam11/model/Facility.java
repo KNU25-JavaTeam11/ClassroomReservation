@@ -1,8 +1,5 @@
 package org.javateam11.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Facility 클래스는 프린터, 빔프로젝터 등 강의실 외의 시설물 정보를 표현합니다.
  * Place(공통 필드) 상속.
