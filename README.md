@@ -42,7 +42,7 @@ ClassroomReservation/
 ```
 
 ## 실행 방법
-1. **JDK 17+**이 설치되어 있어야 합니다.
+1. **JDK 17 이상**이 설치되어 있어야 합니다.
 2. IntelliJ IDEA를 사용하여 실행하는 것을 권장합니다:
    - IntelliJ IDEA에서 프로젝트를 열고 `src/main/java/org/javateam11/Main.java`를 실행하세요.
    
