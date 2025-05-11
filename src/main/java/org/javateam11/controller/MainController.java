@@ -45,17 +45,15 @@ public class MainController {
      * @param classroom 클릭된 강의실 객체
      */
     public void onRoomClicked(Classroom classroom) {
-        view.showReservationDialog(classroom.getName(), (reserver, date, start, end) -> {
-            Reservation reservation = new Reservation(reserver, date, start, end, classroom.getName());
-            if (reservationManager.isAvailable(classroom, reservation)) {
-                reservationManager.addReservation(classroom, reservation);
-                classroom.setAvailable(false);
-                JOptionPane.showMessageDialog(view, "예약이 완료되었습니다.");
-                view.repaint();
-            } else {
-                JOptionPane.showMessageDialog(view, "해당 시간에 이미 예약이 있습니다.");
-            }
-        });
+        // TODO: 강의실 예약 다이얼로그를 띄우고, 예약 정보를 받아온 뒤 예약 가능 여부를 확인하세요.
+        // 힌트: view.showReservationDialog를 사용해 예약 정보를 입력받고,
+        //       ReservationManager의 isAvailable, addReservation 등을 활용하세요.
+        //       예약 성공/실패 결과는 JOptionPane.showMessageDialog로 알릴 수 있습니다.
+        // 예시)
+        // view.showReservationDialog(classroom.getName(), (reserver, date, start, end) -> {
+        //     Reservation reservation = new Reservation(...);
+        //     if (reservationManager.isAvailable(...)) { ... }
+        // });
     }
 
     /**
@@ -64,17 +62,14 @@ public class MainController {
      * @param facility 클릭된 시설물 객체
      */
     public void onFacilityClicked(Facility facility) {
-        view.showReservationDialog(facility.getName(), (reserver, date, start, end) -> {
-            Reservation reservation = new Reservation(reserver, date, start, end, facility.getName());
-            // 시설물 예약 로직은 강의실과 동일하게 처리
-            if (facility.isAvailable()) {
-                facility.addReservation(reservation);
-                facility.setAvailable(false);
-                JOptionPane.showMessageDialog(view, "예약이 완료되었습니다.");
-                view.repaint();
-            } else {
-                JOptionPane.showMessageDialog(view, "해당 시간에 이미 예약이 있습니다.");
-            }
-        });
+        // TODO: 시설물 예약 다이얼로그를 띄우고, 예약 정보를 받아온 뒤 예약 가능 여부를 확인하세요.
+        // 힌트: view.showReservationDialog를 사용해 예약 정보를 입력받고,
+        //       Facility의 isAvailable, addReservation, setAvailable 등을 활용하세요.
+        //       예약 성공/실패 결과는 JOptionPane.showMessageDialog로 알릴 수 있습니다.
+        // 예시)
+        // view.showReservationDialog(facility.getName(), (reserver, date, start, end) -> {
+        //     Reservation reservation = new Reservation(...);
+        //     if (facility.isAvailable()) { ... }
+        // });
     }
 } 
