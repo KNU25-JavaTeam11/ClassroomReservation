@@ -1,7 +1,7 @@
-package org.javateam11.view;
+package org.javateam11.ClassroomReservation.view;
 
-import org.javateam11.model.*;
-import org.javateam11.controller.MainController;
+import org.javateam11.ClassroomReservation.model.*;
+import org.javateam11.ClassroomReservation.controller.MainController;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;

@@ -1,7 +1,7 @@
-package org.javateam11.controller;
+package org.javateam11.ClassroomReservation.controller;
 
-import org.javateam11.model.*;
-import org.javateam11.view.MainView;
+import org.javateam11.ClassroomReservation.model.*;
+import org.javateam11.ClassroomReservation.view.MainView;
 import javax.swing.*;
 import java.util.List;
 

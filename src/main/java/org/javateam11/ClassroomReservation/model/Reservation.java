@@ -1,4 +1,4 @@
-package org.javateam11.model;
+package org.javateam11.ClassroomReservation.model;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
