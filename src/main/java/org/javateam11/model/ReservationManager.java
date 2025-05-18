@@ -11,7 +11,6 @@ public class ReservationManager {
 
     // 전체 예약 리스트
     private List<Reservation> reservations;
-
     /**
      * ReservationManager 생성자
      * 예약 리스트를 초기화합니다.
@@ -29,9 +28,30 @@ public class ReservationManager {
      * TODO:[실습] 아래 함수 내용을 직접 구현해보세요.
      * - 같은 날짜에 시간이 겹치는 예약이 있으면 false, 아니면 true를 반환
      */
+
+
+    public boolean isAvailable(Place place, Reservation newReservation) {
+
+        for (Reservation existing : place.getReservations()) {
+            //날짜 같은지 판단
+            if (existing.getDate().isEqual(newReservation.getDate())) {
+                //시간이 겹치는지 판단
+                if (!(newReservation.getEndTime().isBefore(existing.getStartTime()) ||
+                        newReservation.getStartTime().isAfter(existing.getEndTime())))
+                {return false; }
+            }
+        }
+        return true;
+    }
+
+    //강의실 업 캐스팅
     public boolean isAvailable(Classroom classroom, Reservation newReservation) {
-        // TODO: [실습] 구현: classroom.getReservations()를 순회하며 날짜/시간 겹침 여부 확인
-        return false; // 임시 반환값 (실습 후 수정)
+        return isAvailable((Place) classroom, newReservation);
+    }
+
+    //시설물 업 캐스팅
+    public boolean isAvailable(Facility facility, Reservation newReservation) {
+        return isAvailable((Place) facility, newReservation);
     }
 
     /**
@@ -42,8 +62,21 @@ public class ReservationManager {
      * TODO: [실습] 아래 함수 내용을 직접 구현해보세요.
      * - classroom에 예약 추가, 전체 리스트에도 추가
      */
+
+    //예약추가
+    public void addReservation(Place place, Reservation reservation) {
+        place.addReservation(reservation);
+        reservations.add(reservation);
+    }
+
+    //강의실
     public void addReservation(Classroom classroom, Reservation reservation) {
-        // TODO:[실습] 구현: classroom.addReservation, reservations.add 등
+        addReservation((Place) classroom, reservation);
+    }
+
+    //시설물
+    public void addReservation(Facility facility, Reservation reservation) {
+        addReservation((Place) facility, reservation);
     }
 
     /**
