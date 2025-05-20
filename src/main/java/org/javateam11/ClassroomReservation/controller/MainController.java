@@ -1,7 +1,10 @@
-package org.javateam11.controller;
+package org.javateam11.ClassroomReservation.controller;
 
-import org.javateam11.model.*;
-import org.javateam11.view.MainView;
+import org.javateam11.ClassroomReservation.model.*;
+import org.javateam11.ClassroomReservation.view.MainView;
+
+import org.javateam11.ClassroomReservation.view.MainView.ReservationHandler;
+
 import javax.swing.*;
 import java.util.List;
 
@@ -45,15 +48,19 @@ public class MainController {
      * @param classroom 클릭된 강의실 객체
      */
     public void onRoomClicked(Classroom classroom) {
-        // TODO: 강의실 예약 다이얼로그를 띄우고, 예약 정보를 받아온 뒤 예약 가능 여부를 확인하세요.
-        // 힌트: view.showReservationDialog를 사용해 예약 정보를 입력받고,
-        //       ReservationManager의 isAvailable, addReservation 등을 활용하세요.
-        //       예약 성공/실패 결과는 JOptionPane.showMessageDialog로 알릴 수 있습니다.
-        // 예시)
-        // view.showReservationDialog(classroom.getName(), (reserver, date, start, end) -> {
-        //     Reservation reservation = new Reservation(...);
-        //     if (reservationManager.isAvailable(...)) { ... }
-        // });
+    	//강의실 예약 다이얼로그 띄우기, 예약 정보 받아오기
+    	view.showReservationDialog(classroom.getName(), (reserver, date, start, end) -> {
+    		Reservation reservation = new Reservation(reserver, date, start, end, classroom.getName());
+    		//예약 가능여부 확인
+    		if (reservationManager.isAvailable(classroom, reservation)) { //예약가능
+    			//예약하기
+    			reservationManager.addReservation(classroom, reservation);
+    			JOptionPane.showMessageDialog(view,  "예약이 완료되었습니다.");
+    		}
+    		else { //예약불가
+    			JOptionPane.showMessageDialog(view,  "이미 예약된 시간이므로 예약할 수 없습니다.");
+    		}
+    	});
     }
 
     /**
@@ -62,14 +69,18 @@ public class MainController {
      * @param facility 클릭된 시설물 객체
      */
     public void onFacilityClicked(Facility facility) {
-        // TODO: 시설물 예약 다이얼로그를 띄우고, 예약 정보를 받아온 뒤 예약 가능 여부를 확인하세요.
-        // 힌트: view.showReservationDialog를 사용해 예약 정보를 입력받고,
-        //       Facility의 isAvailable, addReservation, setAvailable 등을 활용하세요.
-        //       예약 성공/실패 결과는 JOptionPane.showMessageDialog로 알릴 수 있습니다.
-        // 예시)
-        // view.showReservationDialog(facility.getName(), (reserver, date, start, end) -> {
-        //     Reservation reservation = new Reservation(...);
-        //     if (facility.isAvailable()) { ... }
-        // });
+    	//강의실 예약 다이얼로그 띄우기, 예약 정보 받아오기
+    	view.showReservationDialog(facility.getName(), (reserver, date, start, end) -> {
+    		Reservation reservation = new Reservation(reserver, date, start, end, facility.getName());
+    		//예약 가능여부 확인
+    		if (facility.isAvailable()) { //예약가능
+    			//예약하기
+    			facility.addReservation(reservation);
+    			JOptionPane.showMessageDialog(view,  "예약이 완료되었습니다.");
+    		}
+    		else { //예약불가
+    			JOptionPane.showMessageDialog(view,  "이미 예약된 시간이므로 예약할 수 없습니다.");
+    		}
+    	});
     }
 } 

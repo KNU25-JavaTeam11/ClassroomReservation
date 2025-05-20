@@ -1,4 +1,4 @@
-package org.javateam11.model;
+package org.javateam11.ClassroomReservation.model;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -11,6 +11,8 @@ public class Reservation {
 
     // 예약자 이름
     private String reserver;
+
+    public String test;
 
     // 예약 날짜
     private LocalDate date;

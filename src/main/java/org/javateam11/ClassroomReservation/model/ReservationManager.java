@@ -1,4 +1,4 @@
-package org.javateam11.model;
+package org.javateam11.ClassroomReservation.model;
 
 import java.util.ArrayList;
 import java.util.List;
