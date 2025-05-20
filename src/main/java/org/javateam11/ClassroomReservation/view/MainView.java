@@ -154,12 +154,16 @@ public class MainView extends JFrame {
         JButton btn = new JButton(name + (available ? " (비어있음)" : " (사용중)"));
         // TODO: [실습] 아래 두 줄을 구현하세요:
         // 1. available이 true면 초록색 배경+검정 글씨, false면 빨간색 배경+흰색 글씨로 설정
+        if (available) {
+			btn.setBackground(Color.GREEN);
+			btn.setForeground(Color.BLACK);
+		} else {
+			btn.setBackground(Color.RED);
+			btn.setForeground(Color.WHITE);
+		}
         // 2. macOS 등에서 색상 적용이 잘 안될 경우 setOpaque(true), setBorderPainted(false)도 적용
-        // 예시:
-        // btn.setBackground( ... );
-        // btn.setForeground( ... );
-        // btn.setOpaque(true);
-        // btn.setBorderPainted(false);
+        btn.setOpaque(true);
+		btn.setBorderPainted(false);
         return btn;
     }
 
