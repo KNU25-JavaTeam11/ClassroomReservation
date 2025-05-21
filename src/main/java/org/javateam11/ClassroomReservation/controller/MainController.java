@@ -2,6 +2,7 @@ package org.javateam11.ClassroomReservation.controller;
 
 import org.javateam11.ClassroomReservation.model.*;
 import org.javateam11.ClassroomReservation.view.MainView;
+import org.javateam11.ClassroomReservation.view.LoginView;
 
 import org.javateam11.ClassroomReservation.view.MainView.ReservationHandler;
 
@@ -23,6 +24,7 @@ public class MainController {
 
     // 메인 뷰 (UI)
     private MainView view;
+    
 
     /**
      * MainController 생성자
@@ -82,5 +84,12 @@ public class MainController {
     			JOptionPane.showMessageDialog(view,  "이미 예약된 시간이므로 예약할 수 없습니다.");
     		}
     	});
+    }
+    
+    //테스트용 login객체 생성 메서드
+    public void onLoginButtonClicked() {
+    	LoginController logincontroller = new LoginController();
+    	LoginView loginView = new LoginView(logincontroller);
+    	loginView.setVisible(true);
     }
 } 
