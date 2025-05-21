@@ -1,6 +1,10 @@
 package org.javateam11.ClassroomReservation.view;
 
 import org.javateam11.ClassroomReservation.model.*;
+
+import org.javateam11.ClassroomReservation.model.Building;
+import org.javateam11.ClassroomReservation.model.User;
+
 import org.javateam11.ClassroomReservation.controller.MainController;
 import javax.swing.*;
 import java.awt.*;
@@ -26,6 +30,15 @@ public class MainView extends JFrame {
 
     // 컨트롤러 (이벤트 콜백 연결, 예약 처리 등)
     private MainController controller;
+    
+    //현재 사용자 (임시로 새 User 생성 대입해둠)
+    private User currentUser = new User("심채연", "2024009663");
+	
+    //내 예약창
+    private MyReservationView myResView = new MyReservationView(currentUser); 
+	//내 정보창
+    private MyInformationView myInfoView = new MyInformationView(currentUser); 
+
 
     /**
      * MainView 생성자
@@ -45,16 +58,33 @@ public class MainView extends JFrame {
         setLocationRelativeTo(null); // 화면 중앙에 배치
         setLayout(new BorderLayout()); // BorderLayout 사용
 
-        // 상단: 건물, 층 선택 UI
-        JPanel topPanel = new JPanel();
-        buildingCombo = new JComboBox<>(); // 건물 선택 콤보박스
-        for (Building b : buildings) buildingCombo.addItem(b.getName()); // 건물명 추가
-        floorCombo = new JComboBox<>(); // 층 선택 콤보박스
-        topPanel.add(new JLabel("건물: ")); // 라벨
-        topPanel.add(buildingCombo);
-        topPanel.add(new JLabel("층: "));
-        topPanel.add(floorCombo);
-        add(topPanel, BorderLayout.NORTH); // 상단에 배치
+        	//상단
+      		JPanel topPanel = new JPanel();
+      		topPanel.setLayout(new BorderLayout());
+      		
+      		//상단 좌측 메뉴바
+      		JPanel topMenu = new JPanel();
+      		JButton MyRes = new JButton("내 예약");
+      		MyRes.addActionListener(e -> myResView.setVisible(true)); //클릭이벤트 연결
+      		JButton MyInfo = new JButton("내 정보");
+      		MyInfo.addActionListener(e -> myInfoView.setVisible(true)); //클릭이벤트 연결
+      		topMenu.add(MyRes);
+      		topMenu.add(MyInfo);
+      		topPanel.add(topMenu, BorderLayout.WEST);
+      		
+      		//상단 중앙 콤보박스
+      		JPanel topRoom = new JPanel();
+      		buildingCombo = new JComboBox<>(); //건물 선택 콤보박스
+      		for (Building b : buildings) buildingCombo.addItem(b.getName()); //건물명 추가
+      		floorCombo = new JComboBox<>(); //층 선택 콤봡ㄱ스
+      		topRoom.add(new JLabel("건물: ")); //라벨
+      		topRoom.add(buildingCombo);
+      		topRoom.add(new JLabel("층: "));
+      		topRoom.add(floorCombo);
+      		topPanel.add(topRoom, BorderLayout.CENTER);
+      		
+      		add(topPanel, BorderLayout.NORTH); //상단에 배치
+      		
 
         // 중앙: 2D 도면 패널 (null 레이아웃으로 버튼 위치 직접 지정)
         mapPanel = new JPanel(null);
