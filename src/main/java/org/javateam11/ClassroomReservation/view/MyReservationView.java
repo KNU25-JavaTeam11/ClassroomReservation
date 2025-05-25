@@ -30,7 +30,7 @@ public class MyReservationView extends JFrame {
 			contents[i][0] = reservations.get(i).getReserver();
 			contents[i][1] = reservations.get(i).getClassroomName();
 			contents[i][2] = reservations.get(i).getDate().toString();
-			contents[i][3] = reservations.get(i).getStartTime().toString() + reservations.get(i).getEndTime().toString();
+			contents[i][3] = reservations.get(i).getStartTime().toString() + " - " + reservations.get(i).getEndTime().toString();
 		}
 		JTable reservationTable = new JTable(contents, header);
 		//스크롤
