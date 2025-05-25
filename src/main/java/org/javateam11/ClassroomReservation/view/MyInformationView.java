@@ -23,12 +23,17 @@ public class MyInformationView extends JFrame {
 		JPanel[] gridBlank = new JPanel[12];
 		for (int i = 0; i < 12; i++) gridBlank[i] = new JPanel(); //중앙: 1, 4, 7, 10
 		
+		//기본 정보 표시
 		JLabel name = new JLabel("이름: " + currentUser.getUsername());
 		gridBlank[1].add(name);
 		JLabel number = new JLabel("학번: " + currentUser.getStudentNumber());
 		gridBlank[4].add(number);
+		
+		//로그아웃 버튼
 		JButton logout = new JButton("로그아웃");
 		gridBlank[7].add(logout);
+		
+		//비밀번호 변경 버튼
 		JButton changePW = new JButton("비밀번호 변경");
 		//changePW.addActionListener(e -> /*비밀번호 변경 창 개발*/);
 		gridBlank[10].add(changePW);
