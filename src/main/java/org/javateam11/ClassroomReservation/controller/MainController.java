@@ -3,6 +3,8 @@ package org.javateam11.ClassroomReservation.controller;
 import org.javateam11.ClassroomReservation.model.*;
 import org.javateam11.ClassroomReservation.view.MainView;
 import org.javateam11.ClassroomReservation.view.ReservationDetailView;
+import org.javateam11.ClassroomReservation.view.SignUpView;
+import org.javateam11.ClassroomReservation.view.LoginView;
 
 import org.javateam11.ClassroomReservation.view.MainView.ReservationHandler;
 
@@ -24,6 +26,7 @@ public class MainController {
 
     // 메인 뷰 (UI)
     private MainView view;
+    
 
     /**
      * MainController 생성자
@@ -98,5 +101,21 @@ public class MainController {
         RDview.setController(RDcontroller); // setter로 controller 주입
         RDview.setVisible(true);
     }
-
+    
+    /**
+     * 회원가입 버튼 클릭시 호출되는 메서드
+     * 회원가입 창을 띄웁니다.
+     */
+    public void onSignUpClicked() {
+    	SignUpController signup_con = new SignUpController();
+    	SignUpView signup_view = new SignUpView(signup_con);
+    	signup_view.setVisible(true);
+    }
+  
+    //테스트용 login객체 생성 메서드
+    public void onLoginButtonClicked() {
+    	LoginController logincontroller = new LoginController();
+    	LoginView loginView = new LoginView(logincontroller);
+    	loginView.setVisible(true);
+    }
 } 
