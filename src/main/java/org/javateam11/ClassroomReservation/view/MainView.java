@@ -65,6 +65,11 @@ public class MainView extends JFrame {
         mapPanel = new JPanel(null);
         mapPanel.setBackground(Color.WHITE);
         add(mapPanel, BorderLayout.CENTER);
+        
+        //회원가입창 테스트 버튼
+        JButton signUp = new JButton("회원가입 테스트");
+        topPanel.add(signUp);
+        signUp.addActionListener(e -> controller.onSignUpClicked());
 
         // 콤보박스 선택 이벤트 연결
         // 건물 선택 시 해당 건물의 층 목록으로 갱신
