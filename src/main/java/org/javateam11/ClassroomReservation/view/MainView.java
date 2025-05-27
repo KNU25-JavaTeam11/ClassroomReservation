@@ -55,6 +55,11 @@ public class MainView extends JFrame {
         topPanel.add(new JLabel("층: "));
         topPanel.add(floorCombo);
         add(topPanel, BorderLayout.NORTH); // 상단에 배치
+        
+        //로그인 테스트용 버튼
+        JButton testButton = new JButton("로그인 테스트 버튼");
+        testButton.addActionListener(e -> controller.onLoginButtonClicked());
+        topPanel.add(testButton);
 
         // 중앙: 2D 도면 패널 (null 레이아웃으로 버튼 위치 직접 지정)
         mapPanel = new JPanel(null);
