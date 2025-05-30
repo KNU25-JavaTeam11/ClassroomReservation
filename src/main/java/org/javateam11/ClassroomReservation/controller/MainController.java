@@ -2,6 +2,7 @@ package org.javateam11.ClassroomReservation.controller;
 
 import org.javateam11.ClassroomReservation.model.*;
 import org.javateam11.ClassroomReservation.view.MainView;
+import org.javateam11.ClassroomReservation.view.ReservationDetailView;
 import org.javateam11.ClassroomReservation.view.SignUpView;
 import org.javateam11.ClassroomReservation.view.LoginView;
 
@@ -25,10 +26,11 @@ public class MainController {
 
     // 메인 뷰 (UI)
     private MainView view;
-    
+
 
     /**
      * MainController 생성자
+     *
      * @param buildings 건물 리스트 (샘플 데이터 등)
      */
     public MainController(List<Building> buildings) {
@@ -46,63 +48,76 @@ public class MainController {
     }
 
     /**
-     * 강의실 버튼 클릭 시 호출되는 메서드
+     * 예약 상세정보 창에서 예약하기 버튼 클릭 시 호출되는 메서드
      * 예약 다이얼로그를 띄우고, 예약 가능 여부를 확인 후 처리합니다.
+     *
      * @param classroom 클릭된 강의실 객체
      */
-    public void onRoomClicked(Classroom classroom) {
-    	//강의실 예약 다이얼로그 띄우기, 예약 정보 받아오기
-    	view.showReservationDialog(classroom.getName(), (reserver, date, start, end) -> {
-    		Reservation reservation = new Reservation(reserver, date, start, end, classroom.getName());
-    		//예약 가능여부 확인
-    		if (reservationManager.isAvailable(classroom, reservation)) { //예약가능
-    			//예약하기
-    			reservationManager.addReservation(classroom, reservation);
-    			JOptionPane.showMessageDialog(view,  "예약이 완료되었습니다.");
-    		}
-    		else { //예약불가
-    			JOptionPane.showMessageDialog(view,  "이미 예약된 시간이므로 예약할 수 없습니다.");
-    		}
-    	});
+    public void onRoomClicked(Classroom classroom, ReservationDetailView detailView) {
+        //강의실 예약 다이얼로그 띄우기, 예약 정보 받아오기
+        view.showReservationDialog(classroom.getName(), (reserver, date, start, end) -> {
+            Reservation reservation = new Reservation(reserver, date, start, end, classroom.getName());
+            //예약 가능여부 확인
+            if (reservationManager.isAvailable(classroom, reservation)) { //예약가능
+                //예약하기
+                reservationManager.addReservation(classroom, reservation);
+                JOptionPane.showMessageDialog(view, "예약이 완료되었습니다.");
+                detailView.dispose();
+            } else { //예약불가
+                JOptionPane.showMessageDialog(view, "이미 예약된 시간이므로 예약할 수 없습니다.");
+            }
+        });
     }
 
     /**
-     * 시설물 버튼 클릭 시 호출되는 메서드
+     * 예약 상세정보 창에서 예약하기 버튼 클릭 시 호출되는 메서드
      * 예약 다이얼로그를 띄우고, 예약 가능 여부를 확인 후 처리합니다.
+     *
      * @param facility 클릭된 시설물 객체
      */
-    public void onFacilityClicked(Facility facility) {
-    	//강의실 예약 다이얼로그 띄우기, 예약 정보 받아오기
-    	view.showReservationDialog(facility.getName(), (reserver, date, start, end) -> {
-    		Reservation reservation = new Reservation(reserver, date, start, end, facility.getName());
-    		//예약 가능여부 확인
-    		if (facility.isAvailable()) { //예약가능
-    			//예약하기
-    			facility.addReservation(reservation);
-    			JOptionPane.showMessageDialog(view,  "예약이 완료되었습니다.");
-    		}
-    		else { //예약불가
-    			JOptionPane.showMessageDialog(view,  "이미 예약된 시간이므로 예약할 수 없습니다.");
-    		}
-    	});
+    public void onFacilityClicked(Facility facility, ReservationDetailView detailView) {
+        //강의실 예약 다이얼로그 띄우기, 예약 정보 받아오기
+        view.showReservationDialog(facility.getName(), (reserver, date, start, end) -> {
+            Reservation reservation = new Reservation(reserver, date, start, end, facility.getName());
+            //예약 가능여부 확인
+            if (reservationManager.isAvailable(facility, reservation)) { //예약가능
+                //예약하기
+                reservationManager.addReservation(facility, reservation);
+                JOptionPane.showMessageDialog(view, "예약이 완료되었습니다.");
+                detailView.dispose();
+            } else { //예약불가
+                JOptionPane.showMessageDialog(view, "이미 예약된 시간이므로 예약할 수 없습니다.");
+            }
+        });
     }
-    
-    
-    
+
+    /**
+     * 강의실, 시설물 클릭 시 호출되는 메서드
+     * 예약 상세정보 창을 띄웁니다.
+     *
+     * @param place 클릭된 시설물, 강의실 객체
+     */
+    public void onReservationClicked(Place place) {
+        ReservationDetailView reservationDetailView = new ReservationDetailView(); // 먼저 생성
+        ReservationDetailController reservationDetailController = new ReservationDetailController(reservationManager, place, this, reservationDetailView);
+        reservationDetailView.setController(reservationDetailController); // setter로 controller 주입
+        reservationDetailView.setVisible(true);
+    }
+
     /**
      * 회원가입 버튼 클릭시 호출되는 메서드
      * 회원가입 창을 띄웁니다.
      */
     public void onSignUpClicked() {
-    	SignUpController signup_con = new SignUpController();
-    	SignUpView signup_view = new SignUpView(signup_con);
-    	signup_view.setVisible(true);
+        SignUpController signup_con = new SignUpController();
+        SignUpView signup_view = new SignUpView(signup_con);
+        signup_view.setVisible(true);
     }
-  
+
     //테스트용 login객체 생성 메서드
     public void onLoginButtonClicked() {
-    	LoginController logincontroller = new LoginController();
-    	LoginView loginView = new LoginView(logincontroller);
-    	loginView.setVisible(true);
+        LoginController logincontroller = new LoginController();
+        LoginView loginView = new LoginView(logincontroller);
+        loginView.setVisible(true);
     }
 } 

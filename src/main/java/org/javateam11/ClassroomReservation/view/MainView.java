@@ -144,7 +144,7 @@ public class MainView extends JFrame {
      * @param buildings 건물 리스트
      *
      * - 각 강의실/시설물의 좌표(x, y)에 버튼을 배치
-     * - 버튼 클릭 시 컨트롤러의 onRoomClicked/onFacilityClicked 호출
+     * - 버튼 클릭 시 컨트롤러의 onReservationClicked 호출
      * - 가용 상태에 따라 색상/텍스트 다르게 표시
      */
     private void updateMap(List<Building> buildings) {
@@ -161,7 +161,7 @@ public class MainView extends JFrame {
                     if (c.getFloor() == selectedFloor) {
                         JButton btn = createRoomButton(c.getName(), c.isAvailable());
                         btn.setBounds(c.getX(), c.getY(), 100, 50); // 위치/크기 지정
-                        btn.addActionListener(e -> controller.onRoomClicked(c)); // 클릭 이벤트 연결
+                        btn.addActionListener(e -> controller.onReservationClicked(c)); // 클릭 이벤트 연결
                         mapPanel.add(btn);
                     }
                 }
@@ -171,7 +171,7 @@ public class MainView extends JFrame {
                     if (f.getFloor() == selectedFloor) {
                         JButton btn = createRoomButton(f.getName(), f.isAvailable());
                         btn.setBounds(f.getX(), f.getY(), 100, 50);
-                        btn.addActionListener(e -> controller.onFacilityClicked(f));
+                        btn.addActionListener(e -> controller.onReservationClicked(f));
                         mapPanel.add(btn);
                     }
                 }
