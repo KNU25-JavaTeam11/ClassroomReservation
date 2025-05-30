@@ -2,8 +2,14 @@ package org.javateam11.ClassroomReservation.view;
 
 import org.javateam11.ClassroomReservation.model.*;
 import org.javateam11.ClassroomReservation.controller.MainController;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -22,7 +28,7 @@ public class MainView extends JFrame {
     private JComboBox<Integer> floorCombo;
 
     // 강의실/시설물 2D 배치 패널 (실제 버튼들이 배치되는 공간)
-    private JPanel mapPanel;
+    private MapPanel mapPanel;
 
     // 컨트롤러 (이벤트 콜백 연결, 예약 처리 등)
     private MainController controller;
@@ -42,6 +48,7 @@ public class MainView extends JFrame {
         setTitle("강의실/시설물 예약 시스템"); // 윈도우 타이틀
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 창 닫기 시 프로그램 종료
         setSize(900, 700); // 창 크기
+        setResizable(false); // 화면 크기 고정
         setLocationRelativeTo(null); // 화면 중앙에 배치
         setLayout(new BorderLayout()); // BorderLayout 사용
 
@@ -57,8 +64,8 @@ public class MainView extends JFrame {
         add(topPanel, BorderLayout.NORTH); // 상단에 배치
 
         // 중앙: 2D 도면 패널 (null 레이아웃으로 버튼 위치 직접 지정)
-        mapPanel = new JPanel(null);
-        mapPanel.setBackground(Color.WHITE);
+        mapPanel = new MapPanel();
+        mapPanel.setLayout(null);
         add(mapPanel, BorderLayout.CENTER);
 
         // 콤보박스 선택 이벤트 연결
@@ -103,6 +110,7 @@ public class MainView extends JFrame {
      * - 각 강의실/시설물의 좌표(x, y)에 버튼을 배치
      * - 버튼 클릭 시 컨트롤러의 onRoomClicked/onFacilityClicked 호출
      * - 가용 상태에 따라 색상/텍스트 다르게 표시
+     * - 콤보박스 변경에 따라 건물/층 구조도 png 변경
      */
     private void updateMap(List<Building> buildings) {
         mapPanel.removeAll(); // 기존 버튼 제거
@@ -115,10 +123,17 @@ public class MainView extends JFrame {
                 // 강의실 버튼 배치
                 for (Classroom c : b.getClassrooms()) {
                     if (c.getFloor() == selectedFloor) {
-                        JButton btn = createRoomButton(c.getName(), c.isAvailable());
-                        btn.setBounds(c.getX(), c.getY(), 100, 50); // 위치/크기 지정
-                        btn.addActionListener(e -> controller.onRoomClicked(c)); // 클릭 이벤트 연결
-                        mapPanel.add(btn);
+                    	try {
+                            String imagePath = "C:\\Users\\minso\\OneDrive\\문서\\건물 구조도\\" + selectedBuilding + "_" + selectedFloor + "F.png";
+                            BufferedImage img = ImageIO.read(new File(imagePath));
+                            mapPanel.setBackgroundImage(img);
+                            JButton btn = createRoomButton(c.getName(), c.isAvailable());
+                            btn.setBounds(c.getX(), c.getY(), 100, 50); // 위치/크기 지정
+                            btn.addActionListener(e -> controller.onRoomClicked(c)); // 클릭 이벤트 연결
+                            mapPanel.add(btn);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
 
