@@ -6,10 +6,9 @@ import org.javateam11.ClassroomReservation.controller.MainController;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -55,7 +54,8 @@ public class MainView extends JFrame {
         // 상단: 건물, 층 선택 UI
         JPanel topPanel = new JPanel();
         buildingCombo = new JComboBox<>(); // 건물 선택 콤보박스
-        for (Building b : buildings) buildingCombo.addItem(b.getName()); // 건물명 추가
+        for (Building b : buildings)
+            buildingCombo.addItem(b.getName()); // 건물명 추가
         floorCombo = new JComboBox<>(); // 층 선택 콤보박스
         topPanel.add(new JLabel("건물: ")); // 라벨
         topPanel.add(buildingCombo);
@@ -95,8 +95,10 @@ public class MainView extends JFrame {
         for (Building b : buildings) {
             if (b.getName().equals(selectedBuilding)) {
                 // 해당 건물의 모든 층을 콤보박스에 추가
-                for (Integer f : b.getFloors()) floorCombo.addItem(f);
-                if (!b.getFloors().isEmpty()) floorCombo.setSelectedIndex(0); // 첫 층 자동 선택
+                for (Integer f : b.getFloors())
+                    floorCombo.addItem(f);
+                if (!b.getFloors().isEmpty())
+                    floorCombo.setSelectedIndex(0); // 첫 층 자동 선택
                 updateMap(buildings); // 도면 갱신
                 break;
             }
@@ -116,16 +118,18 @@ public class MainView extends JFrame {
         mapPanel.removeAll(); // 기존 버튼 제거
         String selectedBuilding = (String) buildingCombo.getSelectedItem();
         Integer selectedFloor = (Integer) floorCombo.getSelectedItem();
-        if (selectedFloor == null) return; // 층이 선택되지 않은 경우 종료
+        if (selectedFloor == null)
+            return; // 층이 선택되지 않은 경우 종료
 
         for (Building b : buildings) {
             if (b.getName().equals(selectedBuilding)) {
                 // 강의실 버튼 배치
                 for (Classroom c : b.getClassrooms()) {
                     if (c.getFloor() == selectedFloor) {
-                    	try {
-                            String imagePath = "C:\\Users\\minso\\OneDrive\\문서\\건물 구조도\\" + selectedBuilding + "_" + selectedFloor + "F.png";
-                            BufferedImage img = ImageIO.read(new File(imagePath));
+                        try {
+                            String imageFileName = selectedBuilding + "_" + selectedFloor + "F.png";
+                            URL imageUrl = getClass().getResource("/images/" + imageFileName);
+                            BufferedImage img = ImageIO.read(imageUrl);
                             mapPanel.setBackgroundImage(img);
                             JButton btn = createRoomButton(c.getName(), c.isAvailable());
                             btn.setBounds(c.getX(), c.getY(), 100, 50); // 위치/크기 지정
@@ -170,15 +174,15 @@ public class MainView extends JFrame {
         // TODO: [실습] 아래 두 줄을 구현하세요:
         // 1. available이 true면 초록색 배경+검정 글씨, false면 빨간색 배경+흰색 글씨로 설정
         if (available) {
-			btn.setBackground(Color.GREEN);
-			btn.setForeground(Color.BLACK);
-		} else {
-			btn.setBackground(Color.RED);
-			btn.setForeground(Color.WHITE);
-		}
+            btn.setBackground(Color.GREEN);
+            btn.setForeground(Color.BLACK);
+        } else {
+            btn.setBackground(Color.RED);
+            btn.setForeground(Color.WHITE);
+        }
         // 2. macOS 등에서 색상 적용이 잘 안될 경우 setOpaque(true), setBorderPainted(false)도 적용
         btn.setOpaque(true);
-		btn.setBorderPainted(false);
+        btn.setBorderPainted(false);
         return btn;
     }
 
@@ -197,10 +201,14 @@ public class MainView extends JFrame {
         JTextField startField = new JTextField("09:00"); // 시작 시간 입력
         JTextField endField = new JTextField("10:00"); // 종료 시간 입력
 
-        panel.add(new JLabel("예약자 이름:")); panel.add(reserverField);
-        panel.add(new JLabel("날짜(yyyy-MM-dd):")); panel.add(dateField);
-        panel.add(new JLabel("시작 시간(HH:mm):")); panel.add(startField);
-        panel.add(new JLabel("종료 시간(HH:mm):")); panel.add(endField);
+        panel.add(new JLabel("예약자 이름:"));
+        panel.add(reserverField);
+        panel.add(new JLabel("날짜(yyyy-MM-dd):"));
+        panel.add(dateField);
+        panel.add(new JLabel("시작 시간(HH:mm):"));
+        panel.add(startField);
+        panel.add(new JLabel("종료 시간(HH:mm):"));
+        panel.add(endField);
 
         // 다이얼로그 표시 (OK/Cancel)
         int result = JOptionPane.showConfirmDialog(this, panel, name + " 예약", JOptionPane.OK_CANCEL_OPTION);
@@ -231,4 +239,4 @@ public class MainView extends JFrame {
          */
         void onReserve(String reserver, LocalDate date, LocalTime start, LocalTime end);
     }
-} 
+}
