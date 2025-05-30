@@ -8,16 +8,16 @@ import org.javateam11.ClassroomReservation.view.*;
  * ReservationDetailController는 ReservationDetailView의 로직을 담당합니다.
  */
 public class ReservationDetailController {
-	private ReservationManager RM;
+	private ReservationManager reservationManager;
 	private Place place;
-	private MainController MC;
-	private ReservationDetailView RDview;
+	private MainController mainController;
+	private ReservationDetailView reservationDetailView;
 	
-	public ReservationDetailController(ReservationManager RM, Place place, MainController maincontroller, ReservationDetailView RDview) {
-		this.RM = RM;
+	public ReservationDetailController(ReservationManager reservationManager, Place place, MainController maincontroller, ReservationDetailView reservationDetailView) {
+		this.reservationManager = reservationManager;
 		this.place = place;
-		this.MC = maincontroller;
-		this.RDview = RDview;
+		this.mainController = maincontroller;
+		this.reservationDetailView = reservationDetailView;
 	}
 	
 	/**
@@ -34,10 +34,10 @@ public class ReservationDetailController {
 	 */
 	public void onDetailReserveClicked() {
 		if (place instanceof Classroom) {
-			MC.onRoomClicked((Classroom) place, RDview);
+			mainController.onRoomClicked((Classroom) place, reservationDetailView);
 		}
 		else {
-			MC.onFacilityClicked((Facility) place, RDview);
+			mainController.onFacilityClicked((Facility) place, reservationDetailView);
 		}
 	}
 }
