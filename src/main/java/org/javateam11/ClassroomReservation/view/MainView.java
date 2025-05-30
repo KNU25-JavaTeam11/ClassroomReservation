@@ -1,6 +1,10 @@
 package org.javateam11.ClassroomReservation.view;
 
 import org.javateam11.ClassroomReservation.model.*;
+
+import org.javateam11.ClassroomReservation.model.Building;
+import org.javateam11.ClassroomReservation.model.User;
+
 import org.javateam11.ClassroomReservation.controller.MainController;
 
 import javax.imageio.ImageIO;
@@ -32,6 +36,14 @@ public class MainView extends JFrame {
     // 컨트롤러 (이벤트 콜백 연결, 예약 처리 등)
     private MainController controller;
 
+    // 현재 사용자 (임시로 새 User 생성 대입해둠)
+    private User currentUser = new User("심채연", "2024009663");
+
+    // 내 예약창
+    private MyReservationView myResView = new MyReservationView(currentUser);
+    // 내 정보창
+    private MyInformationView myInfoView = new MyInformationView(currentUser);
+
     /**
      * MainView 생성자
      * @param controller 이벤트 처리를 위한 컨트롤러 (MVC의 Controller)
@@ -51,16 +63,44 @@ public class MainView extends JFrame {
         setLocationRelativeTo(null); // 화면 중앙에 배치
         setLayout(new BorderLayout()); // BorderLayout 사용
 
-        // 상단: 건물, 층 선택 UI
+        // 상단
         JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BorderLayout());
+
+        // 상단 좌측 메뉴바
+        JPanel topMenu = new JPanel();
+        JButton MyRes = new JButton("내 예약");
+        MyRes.addActionListener(e -> myResView.setVisible(true)); // 클릭이벤트 연결
+        JButton MyInfo = new JButton("내 정보");
+        MyInfo.addActionListener(e -> myInfoView.setVisible(true)); // 클릭이벤트 연결
+        topMenu.add(MyRes);
+        topMenu.add(MyInfo);
+        topPanel.add(topMenu, BorderLayout.WEST);
+
+        // 상단 중앙 콤보박스
+        JPanel topRoom = new JPanel();
         buildingCombo = new JComboBox<>(); // 건물 선택 콤보박스
         for (Building b : buildings)
             buildingCombo.addItem(b.getName()); // 건물명 추가
         floorCombo = new JComboBox<>(); // 층 선택 콤보박스
-        topPanel.add(new JLabel("건물: ")); // 라벨
-        topPanel.add(buildingCombo);
-        topPanel.add(new JLabel("층: "));
-        topPanel.add(floorCombo);
+        topRoom.add(new JLabel("건물: ")); // 라벨
+        topRoom.add(buildingCombo);
+        topRoom.add(new JLabel("층: "));
+        topRoom.add(floorCombo);
+        topPanel.add(topRoom, BorderLayout.CENTER);
+
+        // 상단 우측 버튼들
+        JPanel topButtons = new JPanel();
+        JButton testButton = new JButton("로그인 테스트 버튼");
+        testButton.addActionListener(e -> controller.onLoginButtonClicked());
+        topButtons.add(testButton);
+
+        JButton signUp = new JButton("회원가입 테스트");
+        signUp.addActionListener(e -> controller.onSignUpClicked());
+        topButtons.add(signUp);
+
+        topPanel.add(topButtons, BorderLayout.EAST);
+
         add(topPanel, BorderLayout.NORTH); // 상단에 배치
 
         // 중앙: 2D 도면 패널 (null 레이아웃으로 버튼 위치 직접 지정)
@@ -110,7 +150,7 @@ public class MainView extends JFrame {
      * @param buildings 건물 리스트
      *
      * - 각 강의실/시설물의 좌표(x, y)에 버튼을 배치
-     * - 버튼 클릭 시 컨트롤러의 onRoomClicked/onFacilityClicked 호출
+     * - 버튼 클릭 시 컨트롤러의 onReservationClicked 호출
      * - 가용 상태에 따라 색상/텍스트 다르게 표시
      * - 콤보박스 변경에 따라 건물/층 구조도 png 변경
      */
@@ -146,7 +186,7 @@ public class MainView extends JFrame {
                     if (f.getFloor() == selectedFloor) {
                         JButton btn = createRoomButton(f.getName(), f.isAvailable());
                         btn.setBounds(f.getX(), f.getY(), 100, 50);
-                        btn.addActionListener(e -> controller.onFacilityClicked(f));
+                        btn.addActionListener(e -> controller.onReservationClicked(f));
                         mapPanel.add(btn);
                     }
                 }

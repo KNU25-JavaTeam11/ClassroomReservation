@@ -39,9 +39,6 @@ public class Main {
         it5.addFacility(new Facility("프린터", "IT5", 2, 700, 10)); // 2층 프린터
         buildings.add(it5);
 
-        //사용자
-        User student = new User("손민영", "2024005810");
-
         // 컨트롤러 실행 (MVC 구조의 시작점)
         new MainController(buildings).show();
     }

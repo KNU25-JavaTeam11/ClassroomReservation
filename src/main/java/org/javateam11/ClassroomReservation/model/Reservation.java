@@ -12,8 +12,6 @@ public class Reservation {
     // 예약자 이름
     private String reserver;
 
-    public String test;
-
     // 예약 날짜
     private LocalDate date;
 
@@ -25,6 +23,9 @@ public class Reservation {
 
     // 예약 대상 강의실/시설물 이름
     private String classroomName;
+
+    //예약자가 누군지 기억
+    private User reservedBy;
 
     /**
      * Reservation 생성자
@@ -40,6 +41,7 @@ public class Reservation {
         this.startTime = startTime;
         this.endTime = endTime;
         this.classroomName = classroomName;
+        this.reservedBy = reservedBy; //로그인 하려는 유저ㅎ
     }
 
     // 각 필드의 getter
@@ -48,4 +50,5 @@ public class Reservation {
     public LocalTime getStartTime() { return startTime; }
     public LocalTime getEndTime() { return endTime; }
     public String getClassroomName() { return classroomName; }
+    public User getReservedBy() { return reservedBy; }
 } 
