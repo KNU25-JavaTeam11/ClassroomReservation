@@ -1,5 +1,6 @@
 package org.javateam11.ClassroomReservation.model;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,20 +64,32 @@ public class ReservationManager {
      * - classroom에 예약 추가, 전체 리스트에도 추가
      */
 
-    //예약추가
+    //강의실 (오버로드)
+    public void addReservation(Classroom classroom, Reservation reservation) {
+        addReservation((Place) classroom, reservation);
+    }
+
+    //시설물 (오버로드)
+    public void addReservation(Facility facility, Reservation reservation) {
+        addReservation((Place) facility, reservation);
+    }
+
+    //예약추가 (공통)
     public void addReservation(Place place, Reservation reservation) {
         place.addReservation(reservation);
         reservations.add(reservation);
     }
 
-    //강의실
-    public void addReservation(Classroom classroom, Reservation reservation) {
-        addReservation((Place) classroom, reservation);
-    }
 
-    //시설물
-    public void addReservation(Facility facility, Reservation reservation) {
-        addReservation((Place) facility, reservation);
+    //예약상황 함수
+    public List<Reservation> getReservationsByUser(User user) {
+        List<Reservation> result = new ArrayList<>();
+        for (Reservation r : reservations) {
+            if (user.equals(r.getReservedBy())) {
+                result.add(r);
+            }
+        }
+        return result;
     }
 
     /**
@@ -85,5 +98,29 @@ public class ReservationManager {
      */
     public List<Reservation> getReservations() {
         return reservations;
+    }
+
+    //예약취소 함수
+    public boolean cancelReservation(User user, Reservation reservation) {
+        // 유저가 다를 경우
+        if (!user.equals(reservation.getReservedBy())) {
+            return false;
+        }
+        boolean removedFromManager = reservations.remove(reservation);
+        return removedFromManager;
+    }
+
+    //특정 날짜의 특정 시설의 예약 상황 함수
+    public List<Reservation> getReservationsByPlaceAndDate(Place place, LocalDate date) {
+        List<Reservation> result = new ArrayList<>();
+
+        for (Reservation r : reservations) {
+            //모두 일치하는 경우(장소, 이름, 날짜) 필터링
+            if (r.getClassroomName().equals(place.getName()) && r.getDate().isEqual(date)) {
+                result.add(r);
+            }
+        }
+
+        return result;
     }
 } 
