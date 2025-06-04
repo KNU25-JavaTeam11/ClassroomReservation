@@ -173,7 +173,7 @@ public class MainView extends JFrame {
                             mapPanel.setBackgroundImage(img);
                             JButton btn = createRoomButton(c.getName(), c.isAvailable());
                             btn.setBounds(c.getX(), c.getY(), 100, 50); // 위치/크기 지정
-                            btn.addActionListener(e -> controller.onRoomClicked(c)); // 클릭 이벤트 연결
+                            btn.addActionListener(e -> controller.onReservationClicked(c)); // 클릭 이벤트 연결
                             mapPanel.add(btn);
                         } catch (IOException e) {
                             e.printStackTrace();
