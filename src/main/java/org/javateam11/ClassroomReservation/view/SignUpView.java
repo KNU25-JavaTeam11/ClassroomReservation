@@ -1,6 +1,7 @@
 package org.javateam11.ClassroomReservation.view;
 
 import org.javateam11.ClassroomReservation.controller.ISignUpController;
+import org.javateam11.ClassroomReservation.util.FontUtils;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -45,7 +46,7 @@ public class SignUpView extends JFrame {
 
         // 타이틀
         JLabel titleLabel = new JLabel("회원가입");
-        titleLabel.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+        titleLabel.setFont(FontUtils.getTitleFont());
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         titleLabel.setForeground(new Color(51, 51, 51));
 
@@ -57,14 +58,14 @@ public class SignUpView extends JFrame {
 
         // 이름 라벨과 필드
         JLabel nameLabel = new JLabel("이름:");
-        nameLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        nameLabel.setFont(FontUtils.getLabelFont());
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.WEST;
         inputPanel.add(nameLabel, gbc);
 
         nameField = new JTextField(15);
-        nameField.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        nameField.setFont(FontUtils.getPlainFont());
         nameField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(200, 200, 200)),
                 BorderFactory.createEmptyBorder(8, 10, 8, 10)));
@@ -75,14 +76,14 @@ public class SignUpView extends JFrame {
 
         // 학번 라벨과 필드
         JLabel stuNumLabel = new JLabel("학번:");
-        stuNumLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        stuNumLabel.setFont(FontUtils.getLabelFont());
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.fill = GridBagConstraints.NONE;
         inputPanel.add(stuNumLabel, gbc);
 
         stuNumField = new JTextField(15);
-        stuNumField.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        stuNumField.setFont(FontUtils.getPlainFont());
         stuNumField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(200, 200, 200)),
                 BorderFactory.createEmptyBorder(8, 10, 8, 10)));
@@ -93,14 +94,14 @@ public class SignUpView extends JFrame {
 
         // 비밀번호 라벨과 필드
         JLabel passwordLabel = new JLabel("비밀번호:");
-        passwordLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        passwordLabel.setFont(FontUtils.getLabelFont());
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.fill = GridBagConstraints.NONE;
         inputPanel.add(passwordLabel, gbc);
 
         passwordField = new JPasswordField(15);
-        passwordField.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        passwordField.setFont(FontUtils.getPlainFont());
         passwordField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(200, 200, 200)),
                 BorderFactory.createEmptyBorder(8, 10, 8, 10)));
@@ -111,14 +112,14 @@ public class SignUpView extends JFrame {
 
         // 비밀번호 확인 라벨과 필드
         JLabel confirmPasswordLabel = new JLabel("비밀번호 확인:");
-        confirmPasswordLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        confirmPasswordLabel.setFont(FontUtils.getLabelFont());
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.fill = GridBagConstraints.NONE;
         inputPanel.add(confirmPasswordLabel, gbc);
 
         confirmPasswordField = new JPasswordField(15);
-        confirmPasswordField.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        confirmPasswordField.setFont(FontUtils.getPlainFont());
         confirmPasswordField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(200, 200, 200)),
                 BorderFactory.createEmptyBorder(8, 10, 8, 10)));
@@ -132,7 +133,7 @@ public class SignUpView extends JFrame {
         buttonPanel.setBackground(Color.WHITE);
 
         submitButton = new JButton("회원가입");
-        submitButton.setFont(new Font("맑은 고딕", Font.BOLD, 14));
+        submitButton.setFont(FontUtils.getButtonFont());
         submitButton.setPreferredSize(new Dimension(100, 35));
         submitButton.setBackground(new Color(70, 130, 180));
         submitButton.setForeground(Color.WHITE);
@@ -140,7 +141,7 @@ public class SignUpView extends JFrame {
         submitButton.setFocusPainted(false);
 
         cancelButton = new JButton("취소");
-        cancelButton.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        cancelButton.setFont(FontUtils.getPlainFont());
         cancelButton.setPreferredSize(new Dimension(100, 35));
         cancelButton.setBackground(new Color(240, 240, 240));
         cancelButton.setForeground(new Color(70, 70, 70));
@@ -152,7 +153,7 @@ public class SignUpView extends JFrame {
 
         // 상태 라벨
         statusLabel = new JLabel(" ");
-        statusLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+        statusLabel.setFont(FontUtils.getSmallFont());
         statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         statusLabel.setForeground(Color.RED);
 

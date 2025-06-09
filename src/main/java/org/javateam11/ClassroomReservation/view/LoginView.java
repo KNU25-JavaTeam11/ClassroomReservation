@@ -3,6 +3,7 @@ package org.javateam11.ClassroomReservation.view;
 import org.javateam11.ClassroomReservation.service.AuthService;
 import org.javateam11.ClassroomReservation.controller.ControllerFactory;
 import org.javateam11.ClassroomReservation.Main;
+import org.javateam11.ClassroomReservation.util.FontUtils;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -44,7 +45,7 @@ public class LoginView extends JFrame {
 
 		// 타이틀
 		JLabel titleLabel = new JLabel("컴퓨터학부 강의실/시설물 예약 시스템");
-		titleLabel.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+		titleLabel.setFont(FontUtils.getTitleFont());
 		titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		titleLabel.setForeground(new Color(51, 51, 51));
 
@@ -56,14 +57,14 @@ public class LoginView extends JFrame {
 
 		// 학번 라벨과 필드
 		JLabel stuNumLabel = new JLabel("학번:");
-		stuNumLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+		stuNumLabel.setFont(FontUtils.getLabelFont());
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 		gbc.anchor = GridBagConstraints.WEST;
 		inputPanel.add(stuNumLabel, gbc);
 
 		idField = new JTextField(15);
-		idField.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+		idField.setFont(FontUtils.getPlainFont());
 		idField.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createLineBorder(new Color(200, 200, 200)),
 				BorderFactory.createEmptyBorder(8, 10, 8, 10)));
@@ -74,14 +75,14 @@ public class LoginView extends JFrame {
 
 		// 비밀번호 라벨과 필드
 		JLabel passwordLabel = new JLabel("비밀번호:");
-		passwordLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+		passwordLabel.setFont(FontUtils.getLabelFont());
 		gbc.gridx = 0;
 		gbc.gridy = 1;
 		gbc.fill = GridBagConstraints.NONE;
 		inputPanel.add(passwordLabel, gbc);
 
 		passwordField = new JPasswordField(15);
-		passwordField.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+		passwordField.setFont(FontUtils.getPlainFont());
 		passwordField.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createLineBorder(new Color(200, 200, 200)),
 				BorderFactory.createEmptyBorder(8, 10, 8, 10)));
@@ -95,7 +96,7 @@ public class LoginView extends JFrame {
 		buttonPanel.setBackground(Color.WHITE);
 
 		loginButton = new JButton("로그인");
-		loginButton.setFont(new Font("맑은 고딕", Font.BOLD, 14));
+		loginButton.setFont(FontUtils.getButtonFont());
 		loginButton.setPreferredSize(new Dimension(100, 35));
 		loginButton.setBackground(new Color(25, 118, 210));
 		loginButton.setForeground(Color.WHITE);
@@ -121,7 +122,7 @@ public class LoginView extends JFrame {
 		});
 
 		signUpButton = new JButton("회원가입");
-		signUpButton.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+		signUpButton.setFont(FontUtils.getPlainFont());
 		signUpButton.setPreferredSize(new Dimension(100, 35));
 		signUpButton.setBackground(new Color(245, 245, 245));
 		signUpButton.setForeground(new Color(60, 60, 60));
@@ -146,7 +147,7 @@ public class LoginView extends JFrame {
 
 		// 상태 라벨
 		statusLabel = new JLabel(" ");
-		statusLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+		statusLabel.setFont(FontUtils.getSmallFont());
 		statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		statusLabel.setForeground(Color.RED);
 
