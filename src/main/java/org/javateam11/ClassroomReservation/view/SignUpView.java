@@ -135,18 +135,49 @@ public class SignUpView extends JFrame {
         submitButton = new JButton("회원가입");
         submitButton.setFont(FontUtils.getButtonFont());
         submitButton.setPreferredSize(new Dimension(100, 35));
-        submitButton.setBackground(new Color(70, 130, 180));
+        submitButton.setBackground(new Color(25, 118, 210));
         submitButton.setForeground(Color.WHITE);
         submitButton.setBorder(BorderFactory.createEmptyBorder());
         submitButton.setFocusPainted(false);
+        submitButton.setOpaque(true);
+        submitButton.setBorderPainted(false);
+
+        submitButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if (submitButton.isEnabled()) {
+                    submitButton.setBackground(new Color(21, 101, 192));
+                }
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if (submitButton.isEnabled()) {
+                    submitButton.setBackground(new Color(25, 118, 210));
+                }
+            }
+        });
 
         cancelButton = new JButton("취소");
         cancelButton.setFont(FontUtils.getPlainFont());
         cancelButton.setPreferredSize(new Dimension(100, 35));
-        cancelButton.setBackground(new Color(240, 240, 240));
-        cancelButton.setForeground(new Color(70, 70, 70));
-        cancelButton.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        cancelButton.setBackground(new Color(245, 245, 245));
+        cancelButton.setForeground(new Color(60, 60, 60));
+        cancelButton.setBorder(BorderFactory.createLineBorder(new Color(180, 180, 180)));
         cancelButton.setFocusPainted(false);
+        cancelButton.setOpaque(true);
+
+        cancelButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cancelButton.setBackground(new Color(235, 235, 235));
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cancelButton.setBackground(new Color(245, 245, 245));
+            }
+        });
 
         buttonPanel.add(submitButton);
         buttonPanel.add(cancelButton);
