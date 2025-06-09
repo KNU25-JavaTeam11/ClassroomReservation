@@ -40,13 +40,43 @@ public abstract class Place {
     }
 
     // 공통 getter/setter 및 예약 관련 메서드
-    public String getName() { return name; }
-    public String getBuilding() { return building; }
-    public int getFloor() { return floor; }
-    public int getX() { return x; }
-    public int getY() { return y; }
-    public boolean isAvailable() { return available; }
-    public void setAvailable(boolean available) { this.available = available; }
-    public List<Reservation> getReservations() { return reservations; }
-    public void addReservation(Reservation reservation) { this.reservations.add(reservation); }
-} 
+    public String getName() {
+        return name;
+    }
+
+    public String getBuilding() {
+        return building;
+    }
+
+    public String getBuildingName() {
+        return building;
+    }
+
+    public int getFloor() {
+        return floor;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
+
+    public List<Reservation> getReservations() {
+        return reservations;
+    }
+
+    public void addReservation(Reservation reservation) {
+        this.reservations.add(reservation);
+    }
+}
