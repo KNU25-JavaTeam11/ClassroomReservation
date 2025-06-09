@@ -20,7 +20,7 @@ import java.util.List;
  * 강의실/시설물 클릭 이벤트 처리 및 예약 로직을 관리합니다.
  * Spring 백엔드와의 비동기 통신을 지원합니다.
  */
-public class MainController {
+public class MainController implements IMainController {
     private static final Logger logger = LoggerFactory.getLogger(MainController.class);
 
     // 전체 건물 리스트
@@ -209,11 +209,10 @@ public class MainController {
      *
      * @param place 클릭된 시설물, 강의실 객체
      */
+    @Override
     public void onReservationClicked(Place place) {
-        ReservationDetailView reservationDetailView = new ReservationDetailView(); // 먼저 생성
-        ReservationDetailController reservationDetailController = new ReservationDetailController(
-                place, this, reservationDetailView);
-        reservationDetailView.setController(reservationDetailController); // setter로 controller 주입
+        ReservationDetailView reservationDetailView = ControllerFactory.getInstance()
+                .createReservationDetailView(place, this);
         reservationDetailView.setVisible(true);
     }
 
@@ -221,16 +220,16 @@ public class MainController {
      * 회원가입 버튼 클릭시 호출되는 메서드
      * 회원가입 창을 띄웁니다.
      */
+    @Override
     public void onSignUpClicked() {
-        SignUpController signup_con = new SignUpController();
-        SignUpView signup_view = new SignUpView(signup_con);
-        signup_view.setVisible(true);
+        SignUpView signUpView = ControllerFactory.getInstance().createSignUpView();
+        signUpView.setVisible(true);
     }
 
     // 테스트용 login객체 생성 메서드
+    @Override
     public void onLoginButtonClicked() {
-        LoginController logincontroller = new LoginController();
-        LoginView loginView = new LoginView(logincontroller);
+        LoginView loginView = ControllerFactory.getInstance().createLoginView();
         loginView.setVisible(true);
     }
 }

@@ -63,6 +63,43 @@ public class ApiService {
     }
 
     /**
+     * 인증된 GET 요청을 비동기로 실행
+     */
+    public <T> CompletableFuture<T> getAuthenticatedAsync(String endpoint, Class<T> responseType) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                TokenManager tokenManager = TokenManager.getInstance();
+                if (!tokenManager.isAuthenticated()) {
+                    throw new RuntimeException("인증되지 않은 상태입니다. 로그인이 필요합니다.");
+                }
+
+                Request request = new Request.Builder()
+                        .url(BASE_URL + endpoint)
+                        .addHeader("Authorization", tokenManager.getAuthorizationHeader())
+                        .get()
+                        .build();
+
+                try (Response response = client.newCall(request).execute()) {
+                    if (!response.isSuccessful()) {
+                        if (response.code() == 401) {
+                            throw new RuntimeException("인증이 만료되었습니다. 다시 로그인해주세요.");
+                        }
+                        throw new RuntimeException("API 요청 실패: " + response.code() + " " + response.message());
+                    }
+
+                    String responseBody = response.body().string();
+                    logger.debug("GET {} 응답: {}", endpoint, responseBody);
+
+                    return objectMapper.readValue(responseBody, responseType);
+                }
+            } catch (IOException e) {
+                logger.error("GET {} 요청 중 오류 발생", endpoint, e);
+                throw new RuntimeException("API 요청 중 오류 발생", e);
+            }
+        });
+    }
+
+    /**
      * POST 요청을 비동기로 실행
      */
     public <T> CompletableFuture<T> postAsync(String endpoint, Object requestBody, Class<T> responseType) {
@@ -78,6 +115,46 @@ public class ApiService {
 
                 try (Response response = client.newCall(request).execute()) {
                     if (!response.isSuccessful()) {
+                        throw new RuntimeException("API 요청 실패: " + response.code() + " " + response.message());
+                    }
+
+                    String responseBody = response.body().string();
+                    logger.debug("POST {} 응답: {}", endpoint, responseBody);
+
+                    return objectMapper.readValue(responseBody, responseType);
+                }
+            } catch (IOException e) {
+                logger.error("POST {} 요청 중 오류 발생", endpoint, e);
+                throw new RuntimeException("API 요청 중 오류 발생", e);
+            }
+        });
+    }
+
+    /**
+     * 인증된 POST 요청을 비동기로 실행
+     */
+    public <T> CompletableFuture<T> postAuthenticatedAsync(String endpoint, Object requestBody, Class<T> responseType) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                TokenManager tokenManager = TokenManager.getInstance();
+                if (!tokenManager.isAuthenticated()) {
+                    throw new RuntimeException("인증되지 않은 상태입니다. 로그인이 필요합니다.");
+                }
+
+                String jsonBody = objectMapper.writeValueAsString(requestBody);
+                logger.debug("POST {} 요청: {}", endpoint, jsonBody);
+
+                Request request = new Request.Builder()
+                        .url(BASE_URL + endpoint)
+                        .addHeader("Authorization", tokenManager.getAuthorizationHeader())
+                        .post(RequestBody.create(jsonBody, JSON))
+                        .build();
+
+                try (Response response = client.newCall(request).execute()) {
+                    if (!response.isSuccessful()) {
+                        if (response.code() == 401) {
+                            throw new RuntimeException("인증이 만료되었습니다. 다시 로그인해주세요.");
+                        }
                         throw new RuntimeException("API 요청 실패: " + response.code() + " " + response.message());
                     }
 
@@ -125,6 +202,46 @@ public class ApiService {
     }
 
     /**
+     * 인증된 PUT 요청을 비동기로 실행
+     */
+    public <T> CompletableFuture<T> putAuthenticatedAsync(String endpoint, Object requestBody, Class<T> responseType) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                TokenManager tokenManager = TokenManager.getInstance();
+                if (!tokenManager.isAuthenticated()) {
+                    throw new RuntimeException("인증되지 않은 상태입니다. 로그인이 필요합니다.");
+                }
+
+                String jsonBody = objectMapper.writeValueAsString(requestBody);
+                logger.debug("PUT {} 요청: {}", endpoint, jsonBody);
+
+                Request request = new Request.Builder()
+                        .url(BASE_URL + endpoint)
+                        .addHeader("Authorization", tokenManager.getAuthorizationHeader())
+                        .put(RequestBody.create(jsonBody, JSON))
+                        .build();
+
+                try (Response response = client.newCall(request).execute()) {
+                    if (!response.isSuccessful()) {
+                        if (response.code() == 401) {
+                            throw new RuntimeException("인증이 만료되었습니다. 다시 로그인해주세요.");
+                        }
+                        throw new RuntimeException("API 요청 실패: " + response.code() + " " + response.message());
+                    }
+
+                    String responseBody = response.body().string();
+                    logger.debug("PUT {} 응답: {}", endpoint, responseBody);
+
+                    return objectMapper.readValue(responseBody, responseType);
+                }
+            } catch (IOException e) {
+                logger.error("PUT {} 요청 중 오류 발생", endpoint, e);
+                throw new RuntimeException("API 요청 중 오류 발생", e);
+            }
+        });
+    }
+
+    /**
      * DELETE 요청을 비동기로 실행
      */
     public CompletableFuture<Void> deleteAsync(String endpoint) {
@@ -137,6 +254,39 @@ public class ApiService {
 
                 try (Response response = client.newCall(request).execute()) {
                     if (!response.isSuccessful()) {
+                        throw new RuntimeException("API 요청 실패: " + response.code() + " " + response.message());
+                    }
+                    logger.debug("DELETE {} 성공", endpoint);
+                }
+            } catch (IOException e) {
+                logger.error("DELETE {} 요청 중 오류 발생", endpoint, e);
+                throw new RuntimeException("API 요청 중 오류 발생", e);
+            }
+        });
+    }
+
+    /**
+     * 인증된 DELETE 요청을 비동기로 실행
+     */
+    public CompletableFuture<Void> deleteAuthenticatedAsync(String endpoint) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                TokenManager tokenManager = TokenManager.getInstance();
+                if (!tokenManager.isAuthenticated()) {
+                    throw new RuntimeException("인증되지 않은 상태입니다. 로그인이 필요합니다.");
+                }
+
+                Request request = new Request.Builder()
+                        .url(BASE_URL + endpoint)
+                        .addHeader("Authorization", tokenManager.getAuthorizationHeader())
+                        .delete()
+                        .build();
+
+                try (Response response = client.newCall(request).execute()) {
+                    if (!response.isSuccessful()) {
+                        if (response.code() == 401) {
+                            throw new RuntimeException("인증이 만료되었습니다. 다시 로그인해주세요.");
+                        }
                         throw new RuntimeException("API 요청 실패: " + response.code() + " " + response.message());
                     }
                     logger.debug("DELETE {} 성공", endpoint);

@@ -1,11 +1,11 @@
 package org.javateam11.ClassroomReservation.view;
 
+import org.javateam11.ClassroomReservation.controller.IMainController;
+import org.javateam11.ClassroomReservation.controller.ControllerFactory;
 import org.javateam11.ClassroomReservation.model.*;
 
 import org.javateam11.ClassroomReservation.model.Building;
 import org.javateam11.ClassroomReservation.model.User;
-
-import org.javateam11.ClassroomReservation.controller.MainController;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -34,26 +34,26 @@ public class MainView extends JFrame {
     private MapPanel mapPanel;
 
     // 컨트롤러 (이벤트 콜백 연결, 예약 처리 등)
-    private MainController controller;
+    private IMainController controller;
 
     // 현재 사용자 (임시로 새 User 생성 대입해둠)
     private User currentUser = new User("심채연", "2024009663");
 
-    // 내 예약창
-    private MyReservationView myResView = new MyReservationView(currentUser);
-    // 내 정보창
-    private MyInformationView myInfoView = new MyInformationView(currentUser);
+    // 내 예약창과 내 정보창 (지연 초기화)
+    private MyReservationView myResView;
+    private MyInformationView myInfoView;
 
     /**
      * MainView 생성자
+     * 
      * @param controller 이벤트 처리를 위한 컨트롤러 (MVC의 Controller)
-     * @param buildings 건물 리스트 (Model에서 전달받음)
+     * @param buildings  건물 리스트 (Model에서 전달받음)
      *
-     * - UI 컴포넌트 초기화 및 레이아웃 설정
-     * - 콤보박스 선택 이벤트 연결
-     * - 최초 실행 시 첫 건물/층을 자동 선택
+     *                   - UI 컴포넌트 초기화 및 레이아웃 설정
+     *                   - 콤보박스 선택 이벤트 연결
+     *                   - 최초 실행 시 첫 건물/층을 자동 선택
      */
-    public MainView(MainController controller, List<Building> buildings) {
+    public MainView(IMainController controller, List<Building> buildings) {
         this.controller = controller;
 
         setTitle("강의실/시설물 예약 시스템"); // 윈도우 타이틀
@@ -70,9 +70,19 @@ public class MainView extends JFrame {
         // 상단 좌측 메뉴바
         JPanel topMenu = new JPanel();
         JButton MyRes = new JButton("내 예약");
-        MyRes.addActionListener(e -> myResView.setVisible(true)); // 클릭이벤트 연결
+        MyRes.addActionListener(e -> {
+            if (myResView == null) {
+                myResView = ControllerFactory.getInstance().createMyReservationView(currentUser);
+            }
+            myResView.setVisible(true);
+        });
         JButton MyInfo = new JButton("내 정보");
-        MyInfo.addActionListener(e -> myInfoView.setVisible(true)); // 클릭이벤트 연결
+        MyInfo.addActionListener(e -> {
+            if (myInfoView == null) {
+                myInfoView = ControllerFactory.getInstance().createMyInformationView(currentUser);
+            }
+            myInfoView.setVisible(true);
+        });
         topMenu.add(MyRes);
         topMenu.add(MyInfo);
         topPanel.add(topMenu, BorderLayout.WEST);
@@ -123,10 +133,11 @@ public class MainView extends JFrame {
 
     /**
      * 선택된 건물에 따라 층 콤보박스를 갱신합니다.
+     * 
      * @param buildings 건물 리스트
      *
-     * - 사용자가 건물을 바꿀 때마다 해당 건물의 층 목록으로 콤보박스를 갱신
-     * - 층이 바뀌면 자동으로 2D 도면도 갱신
+     *                  - 사용자가 건물을 바꿀 때마다 해당 건물의 층 목록으로 콤보박스를 갱신
+     *                  - 층이 바뀌면 자동으로 2D 도면도 갱신
      */
     private void updateFloors(List<Building> buildings) {
         String selectedBuilding = (String) buildingCombo.getSelectedItem();
@@ -147,12 +158,13 @@ public class MainView extends JFrame {
 
     /**
      * 선택된 건물/층에 따라 2D 도면에 강의실/시설물 버튼을 배치합니다.
+     * 
      * @param buildings 건물 리스트
      *
-     * - 각 강의실/시설물의 좌표(x, y)에 버튼을 배치
-     * - 버튼 클릭 시 컨트롤러의 onReservationClicked 호출
-     * - 가용 상태에 따라 색상/텍스트 다르게 표시
-     * - 콤보박스 변경에 따라 건물/층 구조도 png 변경
+     *                  - 각 강의실/시설물의 좌표(x, y)에 버튼을 배치
+     *                  - 버튼 클릭 시 컨트롤러의 onReservationClicked 호출
+     *                  - 가용 상태에 따라 색상/텍스트 다르게 표시
+     *                  - 콤보박스 변경에 따라 건물/층 구조도 png 변경
      */
     private void updateMap(List<Building> buildings) {
         mapPanel.removeAll(); // 기존 버튼 제거
@@ -167,7 +179,7 @@ public class MainView extends JFrame {
                 for (Classroom c : b.getClassrooms()) {
                     if (c.getFloor() == selectedFloor) {
                         try {
-                        	String imageFileName = selectedBuilding + "_" + selectedFloor + "F.png";
+                            String imageFileName = selectedBuilding + "_" + selectedFloor + "F.png";
                             URL imageUrl = getClass().getResource("/images/" + imageFileName);
                             BufferedImage img = ImageIO.read(imageUrl);
                             mapPanel.setBackgroundImage(img);
@@ -199,15 +211,17 @@ public class MainView extends JFrame {
 
     /**
      * 강의실/시설물 버튼을 생성하고 상태에 따라 색상/글자색을 지정합니다.
-     * @param name 강의실/시설물 이름
+     * 
+     * @param name      강의실/시설물 이름
      * @param available 가용 여부 (true: 비어있음, false: 사용중)
      * @return JButton 객체
      *
-     * - 비어있음: 초록색 배경 + 검정 글씨
-     * - 사용중: 빨간색 배경 + 흰색 글씨
-     * - macOS 등 일부 환경에서 색상 적용이 잘 안될 경우 setOpaque(true), setBorderPainted(false)로 강제 적용
+     *         - 비어있음: 초록색 배경 + 검정 글씨
+     *         - 사용중: 빨간색 배경 + 흰색 글씨
+     *         - macOS 등 일부 환경에서 색상 적용이 잘 안될 경우 setOpaque(true),
+     *         setBorderPainted(false)로 강제 적용
      *
-     * TODO: [실습] 아래 버튼 색상/글자색 지정 부분을 직접 구현해보세요.
+     *         TODO: [실습] 아래 버튼 색상/글자색 지정 부분을 직접 구현해보세요.
      */
     private JButton createRoomButton(String name, boolean available) {
         JButton btn = new JButton(name + (available ? " (비어있음)" : " (사용중)"));
@@ -228,11 +242,12 @@ public class MainView extends JFrame {
 
     /**
      * 예약 다이얼로그를 띄워 사용자 입력을 받고, ReservationHandler로 결과를 전달합니다.
-     * @param name 강의실/시설물 이름
+     * 
+     * @param name    강의실/시설물 이름
      * @param handler 예약 처리 콜백 (예약 입력값을 컨트롤러로 전달)
      *
-     * - 사용자에게 예약자, 날짜, 시작/종료 시간 입력을 받음
-     * - 입력값이 올바르지 않으면 경고 메시지 출력
+     *                - 사용자에게 예약자, 날짜, 시작/종료 시간 입력을 받음
+     *                - 입력값이 올바르지 않으면 경고 메시지 출력
      */
     public void showReservationDialog(String name, ReservationHandler handler) {
         JPanel panel = new JPanel(new GridLayout(5, 2));
@@ -272,10 +287,11 @@ public class MainView extends JFrame {
     public interface ReservationHandler {
         /**
          * 예약 입력값을 전달받아 처리합니다.
+         * 
          * @param reserver 예약자 이름
-         * @param date 예약 날짜
-         * @param start 시작 시간
-         * @param end 종료 시간
+         * @param date     예약 날짜
+         * @param start    시작 시간
+         * @param end      종료 시간
          */
         void onReserve(String reserver, LocalDate date, LocalTime start, LocalTime end);
     }

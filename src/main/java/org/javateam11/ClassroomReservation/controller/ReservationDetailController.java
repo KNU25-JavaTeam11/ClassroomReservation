@@ -6,7 +6,7 @@ import org.javateam11.ClassroomReservation.view.*;
 /**
  * ReservationDetailController는 ReservationDetailView의 로직을 담당합니다.
  */
-public class ReservationDetailController {
+public class ReservationDetailController implements IReservationDetailController {
 	private Place place;
 	private MainController mainController;
 	private ReservationDetailView reservationDetailView;
@@ -23,6 +23,7 @@ public class ReservationDetailController {
 	 * 
 	 * @return place객체의 name반환.
 	 */
+	@Override
 	public String getName() {
 		return place.getName();
 	}
@@ -31,6 +32,7 @@ public class ReservationDetailController {
 	 * 시설/시설물 버튼 클릭 시 작동되는 메서드
 	 * 클릭 시 그 객체가 시설/시설물인지 판단하여 시설이면 onRoomClicked, 시설물이면 onFacilityClicked 호출.
 	 */
+	@Override
 	public void onDetailReserveClicked() {
 		if (place instanceof Classroom) {
 			mainController.onRoomClicked((Classroom) place, reservationDetailView);

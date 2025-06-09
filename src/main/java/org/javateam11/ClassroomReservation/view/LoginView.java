@@ -1,41 +1,223 @@
 package org.javateam11.ClassroomReservation.view;
 
-import org.javateam11.ClassroomReservation.controller.*;
-import org.javateam11.ClassroomReservation.model.*;
+import org.javateam11.ClassroomReservation.service.AuthService;
+import org.javateam11.ClassroomReservation.controller.ControllerFactory;
+import org.javateam11.ClassroomReservation.Main;
 import javax.swing.*;
 import java.awt.*;
-
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 /**
  * LoginView는 로그인 창 UI를 담당합니다.
  * 학번, 비밀번호를 입력받아 로그인하는 기능을 합니다.
  */
-
 public class LoginView extends JFrame {
-	
-	private LoginController logincontroller;
-	
-	public LoginView(LoginController logincontroller) {
-		this.logincontroller = logincontroller;
-		setTitle("로그인 창");
-		setSize(300, 200);
-		setLayout(null);
-		setResizable(false); // 로그인 창 크기 고정
-		
-		JLabel stuNum = new JLabel("학번");
-		stuNum.setBounds(20, 20, 80 ,30);
-		JTextField id = new JTextField();
-		id.setBounds(100, 20, 100, 30);
-		JLabel password = new JLabel("비밀번호");
-		password.setBounds(20, 75, 80, 30);
-		JPasswordField pw = new JPasswordField();
-		pw.setBounds(100, 75, 100, 30);
-		JButton login = new JButton("로그인");
-		login.setBounds(100, 120, 80 ,30);
-		
-		add(stuNum); add(id);
-		add(password); add(pw);
-		add(login);
+	private final AuthService authService;
+	private JTextField idField;
+	private JPasswordField passwordField;
+	private JButton loginButton;
+	private JButton signUpButton;
+	private JLabel statusLabel;
+
+	public LoginView() {
+		this.authService = new AuthService();
+		initializeUI();
+		setupEventListeners();
 	}
-	
+
+	private void initializeUI() {
+		setTitle("강의실 예약 시스템 - 로그인");
+		setSize(400, 350);
+		setLocationRelativeTo(null);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setResizable(false);
+		setLayout(new BorderLayout());
+
+		// 메인 패널
+		JPanel mainPanel = new JPanel();
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+		mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
+		mainPanel.setBackground(Color.WHITE);
+
+		// 타이틀
+		JLabel titleLabel = new JLabel("강의실 예약 시스템");
+		titleLabel.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+		titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		titleLabel.setForeground(new Color(51, 51, 51));
+
+		// 입력 패널
+		JPanel inputPanel = new JPanel(new GridBagLayout());
+		inputPanel.setBackground(Color.WHITE);
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(10, 5, 10, 5);
+
+		// 학번 라벨과 필드
+		JLabel stuNumLabel = new JLabel("학번:");
+		stuNumLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.anchor = GridBagConstraints.WEST;
+		inputPanel.add(stuNumLabel, gbc);
+
+		idField = new JTextField(15);
+		idField.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+		idField.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createLineBorder(new Color(200, 200, 200)),
+				BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+		gbc.gridx = 1;
+		gbc.gridy = 0;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		inputPanel.add(idField, gbc);
+
+		// 비밀번호 라벨과 필드
+		JLabel passwordLabel = new JLabel("비밀번호:");
+		passwordLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.fill = GridBagConstraints.NONE;
+		inputPanel.add(passwordLabel, gbc);
+
+		passwordField = new JPasswordField(15);
+		passwordField.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+		passwordField.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createLineBorder(new Color(200, 200, 200)),
+				BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+		gbc.gridx = 1;
+		gbc.gridy = 1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		inputPanel.add(passwordField, gbc);
+
+		// 버튼 패널
+		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+		buttonPanel.setBackground(Color.WHITE);
+
+		loginButton = new JButton("로그인");
+		loginButton.setFont(new Font("맑은 고딕", Font.BOLD, 14));
+		loginButton.setPreferredSize(new Dimension(100, 35));
+		loginButton.setBackground(new Color(70, 130, 180));
+		loginButton.setForeground(Color.WHITE);
+		loginButton.setBorder(BorderFactory.createEmptyBorder());
+		loginButton.setFocusPainted(false);
+
+		signUpButton = new JButton("회원가입");
+		signUpButton.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+		signUpButton.setPreferredSize(new Dimension(100, 35));
+		signUpButton.setBackground(new Color(240, 240, 240));
+		signUpButton.setForeground(new Color(70, 70, 70));
+		signUpButton.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+		signUpButton.setFocusPainted(false);
+
+		buttonPanel.add(loginButton);
+		buttonPanel.add(signUpButton);
+
+		// 상태 라벨
+		statusLabel = new JLabel(" ");
+		statusLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+		statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		statusLabel.setForeground(Color.RED);
+
+		// 컴포넌트들을 메인 패널에 추가
+		mainPanel.add(titleLabel);
+		mainPanel.add(Box.createVerticalStrut(30));
+		mainPanel.add(inputPanel);
+		mainPanel.add(Box.createVerticalStrut(20));
+		mainPanel.add(buttonPanel);
+		mainPanel.add(Box.createVerticalStrut(10));
+		mainPanel.add(statusLabel);
+
+		add(mainPanel, BorderLayout.CENTER);
+	}
+
+	private void setupEventListeners() {
+		// 로그인 버튼 클릭 이벤트
+		loginButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				performLogin();
+			}
+		});
+
+		// 회원가입 버튼 클릭 이벤트
+		signUpButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				openSignUpView();
+			}
+		});
+
+		// Enter 키로 로그인
+		KeyListener enterKeyListener = new KeyListener() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					performLogin();
+				}
+			}
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+		};
+
+		idField.addKeyListener(enterKeyListener);
+		passwordField.addKeyListener(enterKeyListener);
+	}
+
+	private void performLogin() {
+		String username = idField.getText().trim();
+		String password = new String(passwordField.getPassword());
+
+		if (username.isEmpty() || password.isEmpty()) {
+			showStatus("학번과 비밀번호를 모두 입력해주세요.", Color.RED);
+			return;
+		}
+
+		// 로그인 버튼 비활성화
+		loginButton.setEnabled(false);
+		signUpButton.setEnabled(false);
+		showStatus("로그인 중...", Color.BLUE);
+
+		authService.login(username, password)
+				.thenAccept(response -> {
+					SwingUtilities.invokeLater(() -> {
+						showStatus("로그인 성공!", Color.GREEN);
+						dispose();
+						Main.startMainApplication();
+					});
+				})
+				.exceptionally(throwable -> {
+					SwingUtilities.invokeLater(() -> {
+						loginButton.setEnabled(true);
+						signUpButton.setEnabled(true);
+						String errorMessage = throwable.getMessage();
+						if (errorMessage.contains("401") || errorMessage.contains("Unauthorized")) {
+							showStatus("학번 또는 비밀번호가 잘못되었습니다.", Color.RED);
+						} else if (errorMessage.contains("Connection") || errorMessage.contains("timeout")) {
+							showStatus("서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.", Color.RED);
+						} else {
+							showStatus("로그인 실패: " + errorMessage, Color.RED);
+						}
+					});
+					return null;
+				});
+	}
+
+	private void openSignUpView() {
+		SwingUtilities.invokeLater(() -> {
+			SignUpView signUpView = ControllerFactory.getInstance().createSignUpView();
+			signUpView.setVisible(true);
+		});
+	}
+
+	private void showStatus(String message, Color color) {
+		statusLabel.setText(message);
+		statusLabel.setForeground(color);
+	}
 }

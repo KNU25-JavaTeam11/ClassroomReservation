@@ -1,64 +1,250 @@
 package org.javateam11.ClassroomReservation.view;
 
-import org.javateam11.ClassroomReservation.controller.*;
+import org.javateam11.ClassroomReservation.controller.ISignUpController;
 import javax.swing.*;
 import java.awt.*;
-
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 /**
- * SignUpView는 회원가입창 UI를 담당합니다. 
+ * SignUpView는 회원가입창 UI를 담당합니다.
  * 학번, 이름, 비밀번호, 비밀번호 확인을 입력란으로 입력받습니다.
- * SignUpController에서 회원가입 창의 로직을 담당합니다.
+ * ISignUpController 인터페이스를 통해 회원가입 로직을 처리합니다.
  */
 public class SignUpView extends JFrame {
-	public SignUpView(SignUpController signupcontroller){
-		setTitle("회원가입");
-        setSize(400, 300);
+    private final ISignUpController signUpController;
+    private JTextField nameField;
+    private JTextField stuNumField;
+    private JPasswordField passwordField;
+    private JPasswordField confirmPasswordField;
+    private JButton submitButton;
+    private JButton cancelButton;
+    private JLabel statusLabel;
+
+    public SignUpView(ISignUpController signUpController) {
+        this.signUpController = signUpController;
+        initializeUI();
+        setupEventListeners();
+    }
+
+    private void initializeUI() {
+        setTitle("강의실 예약 시스템 - 회원가입");
+        setSize(450, 450);
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(false);
-        setLayout(null);
-        
-        JPanel inputInfo = new JPanel();
-        inputInfo.setLayout(null);
-        inputInfo.setBounds(0, 0, 400, 210);
-        JLabel n = new JLabel("            이름");
-        n.setBounds(50, 30, 100, 25);
-        JTextField name = new JTextField();
-        name.setBounds(150, 30, 180, 25);
+        setLayout(new BorderLayout());
 
-        JLabel sn = new JLabel("            학번");
-        sn.setBounds(50, 70, 100, 25);
-        JTextField stuNum = new JTextField();
-        stuNum.setBounds(150, 70, 180, 25);
+        // 메인 패널
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
+        mainPanel.setBackground(Color.WHITE);
 
-        JLabel p = new JLabel("     비밀번호");
-        p.setBounds(50, 110, 100, 25);
-        JTextField password = new JTextField();
-        password.setBounds(150, 110, 180, 25);
+        // 타이틀
+        JLabel titleLabel = new JLabel("회원가입");
+        titleLabel.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        titleLabel.setForeground(new Color(51, 51, 51));
 
-        JLabel pr = new JLabel("비밀번호 재확인");
-        pr.setBounds(30, 150, 120, 25);
-        JTextField pw_recheck = new JTextField();
-        pw_recheck.setBounds(150, 150, 180, 25);
+        // 입력 패널
+        JPanel inputPanel = new JPanel(new GridBagLayout());
+        inputPanel.setBackground(Color.WHITE);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 5, 10, 5);
 
-        inputInfo.add(n);
-        inputInfo.add(name);
-        inputInfo.add(sn);
-        inputInfo.add(stuNum);
-        inputInfo.add(p);
-        inputInfo.add(password);
-        inputInfo.add(pr);
-        inputInfo.add(pw_recheck);
+        // 이름 라벨과 필드
+        JLabel nameLabel = new JLabel("이름:");
+        nameLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.WEST;
+        inputPanel.add(nameLabel, gbc);
 
-        add(inputInfo);
-        
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.setLayout(null);
-        bottomPanel.setBounds(0, 210, 400, 60); 
+        nameField = new JTextField(15);
+        nameField.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        nameField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        inputPanel.add(nameField, gbc);
 
-        JButton submitBtn = new JButton("회원가입");
-        submitBtn.setBounds(140, 0, 120, 30);  
-        bottomPanel.add(submitBtn);
-        add(bottomPanel);
-	}
+        // 학번 라벨과 필드
+        JLabel stuNumLabel = new JLabel("학번:");
+        stuNumLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.NONE;
+        inputPanel.add(stuNumLabel, gbc);
+
+        stuNumField = new JTextField(15);
+        stuNumField.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        stuNumField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        inputPanel.add(stuNumField, gbc);
+
+        // 비밀번호 라벨과 필드
+        JLabel passwordLabel = new JLabel("비밀번호:");
+        passwordLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        inputPanel.add(passwordLabel, gbc);
+
+        passwordField = new JPasswordField(15);
+        passwordField.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        passwordField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        inputPanel.add(passwordField, gbc);
+
+        // 비밀번호 확인 라벨과 필드
+        JLabel confirmPasswordLabel = new JLabel("비밀번호 확인:");
+        confirmPasswordLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.fill = GridBagConstraints.NONE;
+        inputPanel.add(confirmPasswordLabel, gbc);
+
+        confirmPasswordField = new JPasswordField(15);
+        confirmPasswordField.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        confirmPasswordField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        inputPanel.add(confirmPasswordField, gbc);
+
+        // 버튼 패널
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        buttonPanel.setBackground(Color.WHITE);
+
+        submitButton = new JButton("회원가입");
+        submitButton.setFont(new Font("맑은 고딕", Font.BOLD, 14));
+        submitButton.setPreferredSize(new Dimension(100, 35));
+        submitButton.setBackground(new Color(70, 130, 180));
+        submitButton.setForeground(Color.WHITE);
+        submitButton.setBorder(BorderFactory.createEmptyBorder());
+        submitButton.setFocusPainted(false);
+
+        cancelButton = new JButton("취소");
+        cancelButton.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
+        cancelButton.setPreferredSize(new Dimension(100, 35));
+        cancelButton.setBackground(new Color(240, 240, 240));
+        cancelButton.setForeground(new Color(70, 70, 70));
+        cancelButton.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        cancelButton.setFocusPainted(false);
+
+        buttonPanel.add(submitButton);
+        buttonPanel.add(cancelButton);
+
+        // 상태 라벨
+        statusLabel = new JLabel(" ");
+        statusLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+        statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        statusLabel.setForeground(Color.RED);
+
+        // 컴포넌트들을 메인 패널에 추가
+        mainPanel.add(titleLabel);
+        mainPanel.add(Box.createVerticalStrut(30));
+        mainPanel.add(inputPanel);
+        mainPanel.add(Box.createVerticalStrut(20));
+        mainPanel.add(buttonPanel);
+        mainPanel.add(Box.createVerticalStrut(10));
+        mainPanel.add(statusLabel);
+
+        add(mainPanel, BorderLayout.CENTER);
+    }
+
+    private void setupEventListeners() {
+        // 회원가입 버튼 클릭 이벤트
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                performSignUp();
+            }
+        });
+
+        // 취소 버튼 클릭 이벤트
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
+
+        // Enter 키로 회원가입
+        KeyListener enterKeyListener = new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    performSignUp();
+                }
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+            }
+        };
+
+        nameField.addKeyListener(enterKeyListener);
+        stuNumField.addKeyListener(enterKeyListener);
+        passwordField.addKeyListener(enterKeyListener);
+        confirmPasswordField.addKeyListener(enterKeyListener);
+    }
+
+    private void performSignUp() {
+        String name = nameField.getText().trim();
+        String studentNumber = stuNumField.getText().trim();
+        String password = new String(passwordField.getPassword());
+        String confirmPassword = new String(confirmPasswordField.getPassword());
+
+        // 버튼 비활성화
+        submitButton.setEnabled(false);
+        cancelButton.setEnabled(false);
+        showStatus("회원가입 중...", Color.BLUE);
+
+        signUpController.register(name, studentNumber, password, confirmPassword)
+                .thenAccept(success -> {
+                    SwingUtilities.invokeLater(() -> {
+                        if (!success) {
+                            // 실패 시 버튼 다시 활성화
+                            submitButton.setEnabled(true);
+                            cancelButton.setEnabled(true);
+                        }
+                    });
+                })
+                .exceptionally(throwable -> {
+                    SwingUtilities.invokeLater(() -> {
+                        submitButton.setEnabled(true);
+                        cancelButton.setEnabled(true);
+                        showStatus("회원가입 처리 중 오류가 발생했습니다.", Color.RED);
+                    });
+                    return null;
+                });
+    }
+
+    /**
+     * 상태 메시지를 표시합니다.
+     */
+    public void showStatus(String message, Color color) {
+        statusLabel.setText(message);
+        statusLabel.setForeground(color);
+    }
 }
