@@ -8,6 +8,8 @@ import org.javateam11.ClassroomReservation.view.SignUpView;
 import org.javateam11.ClassroomReservation.view.LoginView;
 
 import org.javateam11.ClassroomReservation.view.MainView.ReservationHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.List;
  * Spring 백엔드와의 비동기 통신을 지원합니다.
  */
 public class MainController {
+    private static final Logger logger = LoggerFactory.getLogger(MainController.class);
 
     // 전체 건물 리스트
     private List<Building> buildings;
@@ -55,9 +58,13 @@ public class MainController {
      * @param classroom 클릭된 강의실 객체
      */
     public void onRoomClicked(Classroom classroom, ReservationDetailView detailView) {
+        logger.info("강의실 예약 시도: {} ({}층 {}호)", classroom.getName(), classroom.getFloor(), classroom.getBuildingName());
+
         // 강의실 예약 다이얼로그 띄우기, 예약 정보 받아오기
         view.showReservationDialog(classroom.getName(), (reserver, date, start, end) -> {
             Reservation reservation = new Reservation(reserver, date, start, end, classroom.getName());
+            logger.debug("예약 정보 생성: 예약자={}, 날짜={}, 시간={}-{}, 강의실={}",
+                    reserver, date, start, end, classroom.getName());
 
             // 로딩 표시
             JDialog loadingDialog = showLoadingDialog("예약 처리 중...");
@@ -73,15 +80,18 @@ public class MainController {
                     isAvailable -> {
                         loadingDialog.dispose();
                         if (isAvailable) {
+                            logger.info("예약 가능 확인됨: {}", classroom.getName());
                             // 예약 가능하면 예약 생성
                             createReservationOnServer(reservation, detailView);
                         } else {
+                            logger.warn("예약 불가능한 시간대: {} ({}-{})", classroom.getName(), start, end);
                             JOptionPane.showMessageDialog(view, "이미 예약된 시간이므로 예약할 수 없습니다.");
                         }
                     },
                     // 오류 시 콜백
                     errorMessage -> {
                         loadingDialog.dispose();
+                        logger.error("서버 연결 실패 - 강의실: {}, 오류: {}", classroom.getName(), errorMessage);
                         JOptionPane.showMessageDialog(view,
                                 "백엔드 서버 연결에 실패했습니다.\n" +
                                         "서버가 실행 중인지 확인해주세요.\n\n" +
@@ -99,9 +109,13 @@ public class MainController {
      * @param facility 클릭된 시설물 객체
      */
     public void onFacilityClicked(Facility facility, ReservationDetailView detailView) {
+        logger.info("시설물 예약 시도: {} ({}층 {})", facility.getName(), facility.getFloor(), facility.getBuildingName());
+
         // 시설물 예약 다이얼로그 띄우기, 예약 정보 받아오기
         view.showReservationDialog(facility.getName(), (reserver, date, start, end) -> {
             Reservation reservation = new Reservation(reserver, date, start, end, facility.getName());
+            logger.debug("예약 정보 생성: 예약자={}, 날짜={}, 시간={}-{}, 시설물={}",
+                    reserver, date, start, end, facility.getName());
 
             // 로딩 표시
             JDialog loadingDialog = showLoadingDialog("예약 처리 중...");
@@ -117,15 +131,18 @@ public class MainController {
                     isAvailable -> {
                         loadingDialog.dispose();
                         if (isAvailable) {
+                            logger.info("예약 가능 확인됨: {}", facility.getName());
                             // 예약 가능하면 예약 생성
                             createReservationOnServer(reservation, detailView);
                         } else {
+                            logger.warn("예약 불가능한 시간대: {} ({}-{})", facility.getName(), start, end);
                             JOptionPane.showMessageDialog(view, "이미 예약된 시간이므로 예약할 수 없습니다.");
                         }
                     },
                     // 오류 시 콜백
                     errorMessage -> {
                         loadingDialog.dispose();
+                        logger.error("서버 연결 실패 - 시설물: {}, 오류: {}", facility.getName(), errorMessage);
                         JOptionPane.showMessageDialog(view,
                                 "백엔드 서버 연결에 실패했습니다.\n" +
                                         "서버가 실행 중인지 확인해주세요.\n\n" +
@@ -140,6 +157,7 @@ public class MainController {
      * Spring 백엔드에 예약을 생성합니다.
      */
     private void createReservationOnServer(Reservation reservation, ReservationDetailView detailView) {
+        logger.debug("서버에 예약 생성 요청: {}", reservation.getClassroomName());
         JDialog loadingDialog = showLoadingDialog("예약 생성 중...");
 
         reservationService.createReservation(
@@ -147,12 +165,17 @@ public class MainController {
                 // 성공 시 콜백
                 createdReservation -> {
                     loadingDialog.dispose();
+                    logger.info("예약 생성 성공: 예약자={}, 장소={}, 날짜={}, 시간={}-{}",
+                            reservation.getReserver(), reservation.getClassroomName(),
+                            reservation.getDate(), reservation.getStartTime(), reservation.getEndTime());
                     JOptionPane.showMessageDialog(view, "예약이 완료되었습니다.");
                     detailView.dispose();
                 },
                 // 오류 시 콜백
                 errorMessage -> {
                     loadingDialog.dispose();
+                    logger.error("예약 생성 실패: 장소={}, 예약자={}, 오류={}",
+                            reservation.getClassroomName(), reservation.getReserver(), errorMessage);
                     JOptionPane.showMessageDialog(view,
                             "예약 생성에 실패했습니다.\n\n" +
                                     "오류: " + errorMessage,
