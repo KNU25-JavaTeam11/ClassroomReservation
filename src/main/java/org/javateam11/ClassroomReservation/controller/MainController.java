@@ -7,7 +7,6 @@ import org.javateam11.ClassroomReservation.view.ReservationDetailView;
 import org.javateam11.ClassroomReservation.view.SignUpView;
 import org.javateam11.ClassroomReservation.view.LoginView;
 
-import org.javateam11.ClassroomReservation.view.MainView.ReservationHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

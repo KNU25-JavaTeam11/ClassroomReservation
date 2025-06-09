@@ -43,7 +43,7 @@ public class LoginView extends JFrame {
 		mainPanel.setBackground(Color.WHITE);
 
 		// 타이틀
-		JLabel titleLabel = new JLabel("강의실 예약 시스템");
+		JLabel titleLabel = new JLabel("컴퓨터학부 강의실/시설물 예약 시스템");
 		titleLabel.setFont(new Font("맑은 고딕", Font.BOLD, 20));
 		titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		titleLabel.setForeground(new Color(51, 51, 51));
@@ -97,18 +97,49 @@ public class LoginView extends JFrame {
 		loginButton = new JButton("로그인");
 		loginButton.setFont(new Font("맑은 고딕", Font.BOLD, 14));
 		loginButton.setPreferredSize(new Dimension(100, 35));
-		loginButton.setBackground(new Color(70, 130, 180));
+		loginButton.setBackground(new Color(25, 118, 210));
 		loginButton.setForeground(Color.WHITE);
 		loginButton.setBorder(BorderFactory.createEmptyBorder());
 		loginButton.setFocusPainted(false);
+		loginButton.setOpaque(true);
+		loginButton.setBorderPainted(false);
+
+		loginButton.addMouseListener(new java.awt.event.MouseAdapter() {
+			@Override
+			public void mouseEntered(java.awt.event.MouseEvent evt) {
+				if (loginButton.isEnabled()) {
+					loginButton.setBackground(new Color(21, 101, 192));
+				}
+			}
+
+			@Override
+			public void mouseExited(java.awt.event.MouseEvent evt) {
+				if (loginButton.isEnabled()) {
+					loginButton.setBackground(new Color(25, 118, 210));
+				}
+			}
+		});
 
 		signUpButton = new JButton("회원가입");
 		signUpButton.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
 		signUpButton.setPreferredSize(new Dimension(100, 35));
-		signUpButton.setBackground(new Color(240, 240, 240));
-		signUpButton.setForeground(new Color(70, 70, 70));
-		signUpButton.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+		signUpButton.setBackground(new Color(245, 245, 245));
+		signUpButton.setForeground(new Color(60, 60, 60));
+		signUpButton.setBorder(BorderFactory.createLineBorder(new Color(180, 180, 180)));
 		signUpButton.setFocusPainted(false);
+		signUpButton.setOpaque(true);
+
+		signUpButton.addMouseListener(new java.awt.event.MouseAdapter() {
+			@Override
+			public void mouseEntered(java.awt.event.MouseEvent evt) {
+				signUpButton.setBackground(new Color(235, 235, 235));
+			}
+
+			@Override
+			public void mouseExited(java.awt.event.MouseEvent evt) {
+				signUpButton.setBackground(new Color(245, 245, 245));
+			}
+		});
 
 		buttonPanel.add(loginButton);
 		buttonPanel.add(signUpButton);
