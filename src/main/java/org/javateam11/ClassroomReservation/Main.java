@@ -23,8 +23,8 @@ public class Main {
         it4.addClassroom(new Classroom("106", "IT4", 1, 600, 330)); // 1층 106호
         it4.addFacility(new Facility("프린터", "IT4", 1, 700, 450)); // 1층 프린터
         it4.addClassroom(new Classroom("108", "IT4", 1, 115, 330)); // 1층 108호
-        it4.addClassroom(new Classroom("DIY", "IT4", 1, 700, 550)); // 1층 108호
-        it4.addFacility(new Facility("빔프로젝터", "IT4", 1, 500, 550)); // 2층 빔프로젝터
+        it4.addClassroom(new Classroom("DIY", "IT4", 1, 700, 520)); // 1층 108호
+        it4.addFacility(new Facility("빔프로젝터", "IT4", 1, 580, 450)); // 2층 빔프로젝터
         buildings.add(it4);
 
         // IT5 건물 (1층)
@@ -36,7 +36,7 @@ public class Main {
         it5.addClassroom(new Classroom("342", "IT5", 3, 500, 155)); // 3층 342호
         it5.addClassroom(new Classroom("345", "IT5", 3, 355, 135)); // 3층 345호
         it5.addClassroom(new Classroom("348", "IT5", 3, 200, 120)); // 3층 348호
-        it5.addFacility(new Facility("프린터", "IT5", 2, 700, 10)); // 2층 프린터
+        it5.addFacility(new Facility("프린터", "IT5", 2, 730, 50)); // 2층 프린터
         buildings.add(it5);
 
         // 컨트롤러 실행 (MVC 구조의 시작점)

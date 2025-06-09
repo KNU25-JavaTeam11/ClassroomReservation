@@ -91,11 +91,11 @@ public class MainView extends JFrame {
 
         // 상단 우측 버튼들
         JPanel topButtons = new JPanel();
-        JButton testButton = new JButton("로그인 테스트 버튼");
+        JButton testButton = new JButton("로그인");
         testButton.addActionListener(e -> controller.onLoginButtonClicked());
         topButtons.add(testButton);
 
-        JButton signUp = new JButton("회원가입 테스트");
+        JButton signUp = new JButton("회원가입");
         signUp.addActionListener(e -> controller.onSignUpClicked());
         topButtons.add(signUp);
 
@@ -167,7 +167,7 @@ public class MainView extends JFrame {
                 for (Classroom c : b.getClassrooms()) {
                     if (c.getFloor() == selectedFloor) {
                         try {
-                            String imageFileName = selectedBuilding + "_" + selectedFloor + "F.png";
+                        	String imageFileName = selectedBuilding + "_" + selectedFloor + "F.png";
                             URL imageUrl = getClass().getResource("/images/" + imageFileName);
                             BufferedImage img = ImageIO.read(imageUrl);
                             mapPanel.setBackgroundImage(img);
