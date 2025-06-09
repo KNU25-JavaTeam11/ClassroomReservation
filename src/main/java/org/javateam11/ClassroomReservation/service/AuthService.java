@@ -1,6 +1,7 @@
 package org.javateam11.ClassroomReservation.service;
 
-import org.javateam11.ClassroomReservation.dto.AuthRequest;
+import org.javateam11.ClassroomReservation.dto.LoginRequest;
+import org.javateam11.ClassroomReservation.dto.RegisterRequest;
 import org.javateam11.ClassroomReservation.dto.AuthResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,23 +23,48 @@ public class AuthService {
     }
 
     /**
+     * 예외에서 의미있는 에러 메시지를 추출하는 헬퍼 메서드
+     */
+    private String extractErrorMessage(Throwable throwable) {
+        Throwable rootCause = throwable;
+
+        // CompletionException이나 다른 래퍼 예외를 풀어서 원본 예외를 찾음
+        while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
+            rootCause = rootCause.getCause();
+        }
+
+        String message = rootCause.getMessage();
+        if (message != null && !message.trim().isEmpty()) {
+            return message;
+        }
+
+        // 메시지가 없으면 기본 메시지 반환
+        return "요청 처리 중 오류가 발생했습니다";
+    }
+
+    /**
      * 회원가입
      */
-    public CompletableFuture<AuthResponse> register(String username, String password) {
-        logger.info("회원가입 시도: 사용자명 '{}'", username);
+    public CompletableFuture<AuthResponse> register(String studentId, String name, String password) {
+        logger.info("회원가입 시도: 학번 '{}'", studentId);
 
-        AuthRequest request = new AuthRequest(username, password);
+        RegisterRequest request = new RegisterRequest(studentId, name, password);
 
         return apiService.postAsync("/api/auth/register", request, AuthResponse.class)
                 .thenApply(response -> {
-                    logger.info("회원가입 성공: 사용자명 '{}'", response.getUsername());
+                    logger.info("회원가입 성공: 학번 '{}'", response.getStudentId());
                     // 회원가입 성공 시 자동으로 토큰 저장
-                    tokenManager.setAuthentication(response.getUsername(), response.getToken());
+                    tokenManager.setAuthentication(response.getStudentId(), response.getToken());
                     return response;
                 })
-                .exceptionally(throwable -> {
-                    logger.error("회원가입 실패: 사용자명 '{}'", username, throwable);
-                    throw new RuntimeException("회원가입에 실패했습니다: " + throwable.getMessage(), throwable);
+                .handle((response, throwable) -> {
+                    if (throwable != null) {
+                        logger.error("회원가입 실패: 학번 '{}'", studentId, throwable);
+                        // 원본 예외에서 메시지 추출
+                        String errorMessage = extractErrorMessage(throwable);
+                        throw new RuntimeException(errorMessage, throwable);
+                    }
+                    return response;
                 });
     }
 
@@ -48,18 +74,23 @@ public class AuthService {
     public CompletableFuture<AuthResponse> login(String username, String password) {
         logger.info("로그인 시도: 사용자명 '{}'", username);
 
-        AuthRequest request = new AuthRequest(username, password);
+        LoginRequest request = new LoginRequest(username, password);
 
         return apiService.postAsync("/api/auth/login", request, AuthResponse.class)
                 .thenApply(response -> {
-                    logger.info("로그인 성공: 사용자명 '{}'", response.getUsername());
+                    logger.info("로그인 성공: 학번 '{}'", response.getStudentId());
                     // 로그인 성공 시 토큰 저장
-                    tokenManager.setAuthentication(response.getUsername(), response.getToken());
+                    tokenManager.setAuthentication(response.getStudentId(), response.getToken());
                     return response;
                 })
-                .exceptionally(throwable -> {
-                    logger.error("로그인 실패: 사용자명 '{}'", username, throwable);
-                    throw new RuntimeException("로그인에 실패했습니다: " + throwable.getMessage(), throwable);
+                .handle((response, throwable) -> {
+                    if (throwable != null) {
+                        logger.error("로그인 실패: 사용자명 '{}'", username, throwable);
+                        // 원본 예외에서 메시지 추출
+                        String errorMessage = extractErrorMessage(throwable);
+                        throw new RuntimeException(errorMessage, throwable);
+                    }
+                    return response;
                 });
     }
 

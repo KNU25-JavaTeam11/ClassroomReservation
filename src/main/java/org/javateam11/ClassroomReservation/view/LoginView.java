@@ -228,13 +228,17 @@ public class LoginView extends JFrame {
 					SwingUtilities.invokeLater(() -> {
 						loginButton.setEnabled(true);
 						signUpButton.setEnabled(true);
-						String errorMessage = throwable.getMessage();
+
+						// 예외에서 깨끗한 에러 메시지 추출
+						String errorMessage = extractCleanErrorMessage(throwable);
+
 						if (errorMessage.contains("401") || errorMessage.contains("Unauthorized")) {
 							showStatus("학번 또는 비밀번호가 잘못되었습니다.", Color.RED);
 						} else if (errorMessage.contains("Connection") || errorMessage.contains("timeout")) {
 							showStatus("서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.", Color.RED);
 						} else {
-							showStatus("로그인 실패: " + errorMessage, Color.RED);
+							// 서버에서 온 에러 메시지를 그대로 표시 (접두어 없이)
+							showStatus(errorMessage, Color.RED);
 						}
 					});
 					return null;
@@ -251,5 +255,29 @@ public class LoginView extends JFrame {
 	private void showStatus(String message, Color color) {
 		statusLabel.setText(message);
 		statusLabel.setForeground(color);
+	}
+
+	/**
+	 * 예외에서 깨끗한 에러 메시지를 추출하는 헬퍼 메서드
+	 */
+	private String extractCleanErrorMessage(Throwable throwable) {
+		Throwable current = throwable;
+
+		// 중첩된 예외를 풀어서 원본 메시지를 찾음
+		while (current.getCause() != null && current.getCause() != current) {
+			current = current.getCause();
+		}
+
+		String message = current.getMessage();
+		if (message != null && !message.trim().isEmpty()) {
+			// "java.lang.RuntimeException: " 같은 불필요한 접두어 제거
+			if (message.startsWith("java.lang.RuntimeException: ")) {
+				message = message.substring("java.lang.RuntimeException: ".length());
+			}
+			return message;
+		}
+
+		// 메시지가 없으면 기본 메시지 반환
+		return "로그인 중 오류가 발생했습니다";
 	}
 }

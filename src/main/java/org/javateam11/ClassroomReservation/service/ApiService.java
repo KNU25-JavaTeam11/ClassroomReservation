@@ -3,6 +3,7 @@ package org.javateam11.ClassroomReservation.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import okhttp3.*;
+import org.javateam11.ClassroomReservation.dto.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,35 @@ public class ApiService {
     }
 
     /**
+     * 에러 응답에서 에러 메시지를 추출하는 헬퍼 메서드
+     */
+    private String extractErrorMessage(Response response) {
+        try {
+            if (response.body() != null) {
+                String errorBody = response.body().string();
+                logger.debug("에러 응답 body: {}", errorBody);
+
+                // JSON 형식의 에러 응답을 파싱
+                try {
+                    ErrorResponse errorResponse = objectMapper.readValue(errorBody, ErrorResponse.class);
+                    if (errorResponse.getError() != null && !errorResponse.getError().trim().isEmpty()) {
+                        return errorResponse.getError();
+                    }
+                } catch (Exception e) {
+                    logger.debug("에러 응답 JSON 파싱 실패, 원본 응답 사용: {}", errorBody);
+                    // JSON 파싱에 실패하면 원본 응답을 반환
+                    return errorBody;
+                }
+            }
+        } catch (Exception e) {
+            logger.debug("에러 응답 읽기 실패", e);
+        }
+
+        // 기본 에러 메시지
+        return "API 요청 실패: " + response.code() + " " + response.message();
+    }
+
+    /**
      * GET 요청을 비동기로 실행
      */
     public <T> CompletableFuture<T> getAsync(String endpoint, Class<T> responseType) {
@@ -47,7 +77,8 @@ public class ApiService {
 
                 try (Response response = client.newCall(request).execute()) {
                     if (!response.isSuccessful()) {
-                        throw new RuntimeException("API 요청 실패: " + response.code() + " " + response.message());
+                        String errorMessage = extractErrorMessage(response);
+                        throw new RuntimeException(errorMessage);
                     }
 
                     String responseBody = response.body().string();
@@ -84,7 +115,8 @@ public class ApiService {
                         if (response.code() == 401) {
                             throw new RuntimeException("인증이 만료되었습니다. 다시 로그인해주세요.");
                         }
-                        throw new RuntimeException("API 요청 실패: " + response.code() + " " + response.message());
+                        String errorMessage = extractErrorMessage(response);
+                        throw new RuntimeException(errorMessage);
                     }
 
                     String responseBody = response.body().string();
@@ -115,7 +147,8 @@ public class ApiService {
 
                 try (Response response = client.newCall(request).execute()) {
                     if (!response.isSuccessful()) {
-                        throw new RuntimeException("API 요청 실패: " + response.code() + " " + response.message());
+                        String errorMessage = extractErrorMessage(response);
+                        throw new RuntimeException(errorMessage);
                     }
 
                     String responseBody = response.body().string();
@@ -155,7 +188,8 @@ public class ApiService {
                         if (response.code() == 401) {
                             throw new RuntimeException("인증이 만료되었습니다. 다시 로그인해주세요.");
                         }
-                        throw new RuntimeException("API 요청 실패: " + response.code() + " " + response.message());
+                        String errorMessage = extractErrorMessage(response);
+                        throw new RuntimeException(errorMessage);
                     }
 
                     String responseBody = response.body().string();
@@ -186,7 +220,8 @@ public class ApiService {
 
                 try (Response response = client.newCall(request).execute()) {
                     if (!response.isSuccessful()) {
-                        throw new RuntimeException("API 요청 실패: " + response.code() + " " + response.message());
+                        String errorMessage = extractErrorMessage(response);
+                        throw new RuntimeException(errorMessage);
                     }
 
                     String responseBody = response.body().string();
@@ -226,7 +261,8 @@ public class ApiService {
                         if (response.code() == 401) {
                             throw new RuntimeException("인증이 만료되었습니다. 다시 로그인해주세요.");
                         }
-                        throw new RuntimeException("API 요청 실패: " + response.code() + " " + response.message());
+                        String errorMessage = extractErrorMessage(response);
+                        throw new RuntimeException(errorMessage);
                     }
 
                     String responseBody = response.body().string();
@@ -254,7 +290,8 @@ public class ApiService {
 
                 try (Response response = client.newCall(request).execute()) {
                     if (!response.isSuccessful()) {
-                        throw new RuntimeException("API 요청 실패: " + response.code() + " " + response.message());
+                        String errorMessage = extractErrorMessage(response);
+                        throw new RuntimeException(errorMessage);
                     }
                     logger.debug("DELETE {} 성공", endpoint);
                 }
@@ -287,7 +324,8 @@ public class ApiService {
                         if (response.code() == 401) {
                             throw new RuntimeException("인증이 만료되었습니다. 다시 로그인해주세요.");
                         }
-                        throw new RuntimeException("API 요청 실패: " + response.code() + " " + response.message());
+                        String errorMessage = extractErrorMessage(response);
+                        throw new RuntimeException(errorMessage);
                     }
                     logger.debug("DELETE {} 성공", endpoint);
                 }

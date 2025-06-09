@@ -1,20 +1,17 @@
 package org.javateam11.ClassroomReservation.dto;
 
 /**
- * 로그인/회원가입 응답을 위한 DTO 클래스
+ * 로그인/회원가입 요청을 위한 DTO 클래스
  */
-public class AuthResponse {
+public class RegisterRequest {
     private String studentId;
+    private String password;
     private String name;
-    private String token;
 
-    public AuthResponse() {
-    }
-
-    public AuthResponse(String studentId, String name, String token) {
+    public RegisterRequest(String studentId, String name, String password) {
         this.studentId = studentId;
         this.name = name;
-        this.token = token;
+        this.password = password;
     }
 
     public String getStudentId() {
@@ -33,20 +30,19 @@ public class AuthResponse {
         this.name = name;
     }
 
-    public String getToken() {
-        return token;
+    public String getPassword() {
+        return password;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override
     public String toString() {
-        return "AuthResponse{" +
+        return "RegisterRequest{" +
                 "studentId='" + studentId + '\'' +
-                ", token='" + (token != null ? token.substring(0, Math.min(20, token.length())) + "..." : "null") + '\''
-                +
+                ", name='" + name + '\'' +
                 '}';
     }
 }
