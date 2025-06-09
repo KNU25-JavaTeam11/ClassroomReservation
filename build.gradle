@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
 group = 'org.javateam11'
@@ -10,8 +11,27 @@ repositories {
 }
 
 dependencies {
+    // HTTP 클라이언트 (Spring과 통신용)
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    
+    // JSON 처리 (API 응답 파싱용)
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.1'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.16.1'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.16.1'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.1'
+    
+    // 로깅
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'ch.qos.logback:logback-classic:1.4.14'
+    
+    // 테스트
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+// 메인 클래스 지정
+application {
+    mainClass = 'org.javateam11.ClassroomReservation.Main'
 }
 
 test {
