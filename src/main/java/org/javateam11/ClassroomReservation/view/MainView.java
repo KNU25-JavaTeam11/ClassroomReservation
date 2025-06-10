@@ -271,7 +271,7 @@ public class MainView extends JFrame {
      * 메인 윈도우 설정
      */
     private void setupMainWindow() {
-        setTitle("🏫 강의실 예약 시스템");
+        setTitle("강의실 예약 시스템");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(900, 800);
         setResizable(false);
