@@ -161,27 +161,27 @@ public class MyReservationView extends JFrame {
 				setHorizontalAlignment(JLabel.CENTER);
 
 				if (!isSelected) {
-                    switch (value) {
-                        case "예약됨" -> {
-                            setBackground(new Color(232, 245, 253)); // 연한 파란색
+					switch ((String) value) {
+						case "예약됨" -> {
+							setBackground(new Color(232, 245, 253)); // 연한 파란색
 
-                            setForeground(new Color(13, 110, 253)); // 파란색 텍스트
-                        }
-                        case "사용중" -> {
-                            setBackground(new Color(230, 247, 237)); // 연한 초록색 (기존 색상)
+							setForeground(new Color(13, 110, 253)); // 파란색 텍스트
+						}
+						case "사용중" -> {
+							setBackground(new Color(230, 247, 237)); // 연한 초록색 (기존 색상)
 
-                            setForeground(StyleManager.getSuccessColor());
-                        }
-                        case "사용완료" -> {
-                            setBackground(new Color(248, 249, 250)); // 연한 회색
+							setForeground(StyleManager.getSuccessColor());
+						}
+						case "사용완료" -> {
+							setBackground(new Color(248, 249, 250)); // 연한 회색
 
-                            setForeground(new Color(108, 117, 125)); // 회색 텍스트
-                        }
-                        case null, default -> {
-                            setBackground(Color.WHITE);
-                            setForeground(StyleManager.getTextColor());
-                        }
-                    }
+							setForeground(new Color(108, 117, 125)); // 회색 텍스트
+						}
+						case null, default -> {
+							setBackground(Color.WHITE);
+							setForeground(StyleManager.getTextColor());
+						}
+					}
 				}
 				return c;
 			}
