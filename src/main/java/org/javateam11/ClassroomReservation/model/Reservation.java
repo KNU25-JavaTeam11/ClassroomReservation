@@ -30,9 +30,6 @@ public class Reservation {
     // 강의실 이름 (UI 표시용, DTO에는 없지만 필요)
     private String roomName;
 
-    // 예약자 User 객체 (로그인 정보)
-    private User reservedBy;
-
     /**
      * Builder를 통해서만 생성 가능하도록 private 생성자
      */
@@ -68,10 +65,6 @@ public class Reservation {
         return roomName;
     }
 
-    public User getReservedBy() {
-        return reservedBy;
-    }
-
     // Setter 메서드들 (Builder 내부에서만 사용)
     private void setId(Long id) {
         this.id = id;
@@ -99,10 +92,6 @@ public class Reservation {
 
     private void setRoomName(String roomName) {
         this.roomName = roomName;
-    }
-
-    private void setReservedBy(User reservedBy) {
-        this.reservedBy = reservedBy;
     }
 
     /**
@@ -140,40 +129,6 @@ public class Reservation {
                 .startTime(dto.getStartTime())
                 .endTime(dto.getEndTime())
                 .roomName(roomName)
-                .build();
-    }
-
-    /**
-     * 완전한 예약 정보를 가진 객체 생성을 위한 팩토리 메서드
-     */
-    public static Reservation withCompleteInfo(Long id, Long roomId, String studentId,
-            LocalDate date, LocalTime startTime, LocalTime endTime,
-            String roomName, User reservedBy) {
-        return builder()
-                .id(id)
-                .roomId(roomId)
-                .studentId(studentId)
-                .date(date)
-                .startTime(startTime)
-                .endTime(endTime)
-                .roomName(roomName)
-                .reservedBy(reservedBy)
-                .build();
-    }
-
-    /**
-     * 기존 예약을 복사하면서 일부 정보만 변경하는 팩토리 메서드
-     */
-    public static Reservation copyFrom(Reservation source) {
-        return builder()
-                .id(source.id)
-                .roomId(source.roomId)
-                .studentId(source.studentId)
-                .date(source.date)
-                .startTime(source.startTime)
-                .endTime(source.endTime)
-                .roomName(source.roomName)
-                .reservedBy(source.reservedBy)
                 .build();
     }
 
@@ -237,7 +192,6 @@ public class Reservation {
             reservation.setStartTime(source.startTime);
             reservation.setEndTime(source.endTime);
             reservation.setRoomName(source.roomName);
-            reservation.setReservedBy(source.reservedBy);
             return this;
         }
 
@@ -272,33 +226,6 @@ public class Reservation {
         }
 
         public Builder roomName(String roomName) {
-            reservation.setRoomName(roomName);
-            return this;
-        }
-
-        public Builder reservedBy(User reservedBy) {
-            reservation.setReservedBy(reservedBy);
-            return this;
-        }
-
-        /**
-         * 예약 시간을 한번에 설정
-         */
-        public Builder timeSlot(LocalTime startTime, LocalTime endTime) {
-            reservation.setStartTime(startTime);
-            reservation.setEndTime(endTime);
-            return this;
-        }
-
-        /**
-         * 기본적인 예약 정보를 한번에 설정 (새 예약 생성용)
-         */
-        public Builder basicReservationInfo(String studentId, LocalDate date,
-                LocalTime startTime, LocalTime endTime, String roomName) {
-            reservation.setStudentId(studentId);
-            reservation.setDate(date);
-            reservation.setStartTime(startTime);
-            reservation.setEndTime(endTime);
             reservation.setRoomName(roomName);
             return this;
         }
