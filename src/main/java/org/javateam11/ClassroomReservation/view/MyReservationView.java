@@ -55,7 +55,7 @@ public class MyReservationView extends JFrame {
 					// 현재 사용자의 예약만 필터링
 					reservations.clear();
 					for (Reservation reservation : allReservations) {
-						if (reservation.getReserver().equals(currentUser.getName())) {
+						if (reservation.getStudentId().equals(currentUser.getName())) {
 							reservations.add(reservation);
 						}
 					}
@@ -86,8 +86,8 @@ public class MyReservationView extends JFrame {
 		// 새 데이터 추가
 		for (Reservation reservation : reservations) {
 			String[] row = {
-					reservation.getReserver(),
-					reservation.getClassroomName(),
+					reservation.getStudentId(),
+					reservation.getRoomName(),
 					reservation.getDate().toString(),
 					reservation.getStartTime().toString() + " - " + reservation.getEndTime().toString()
 			};

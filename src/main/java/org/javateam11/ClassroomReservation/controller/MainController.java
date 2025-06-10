@@ -61,7 +61,7 @@ public class MainController implements IMainController {
 
         // 강의실 예약 다이얼로그 띄우기, 예약 정보 받아오기
         view.showReservationDialog(classroom.getName(), (reserver, date, start, end) -> {
-            Reservation reservation = new Reservation(reserver, date, start, end, classroom.getName());
+            Reservation reservation = Reservation.forNewReservation(reserver, date, start, end, classroom.getName());
             logger.debug("예약 정보 생성: 예약자={}, 날짜={}, 시간={}-{}, 강의실={}",
                     reserver, date, start, end, classroom.getName());
 
@@ -105,7 +105,7 @@ public class MainController implements IMainController {
      * Spring 백엔드에 예약을 생성합니다.
      */
     private void createReservationOnServer(Reservation reservation, ReservationDetailView detailView) {
-        logger.debug("서버에 예약 생성 요청: {}", reservation.getClassroomName());
+        logger.debug("서버에 예약 생성 요청: {}", reservation.getRoomName());
         JDialog loadingDialog = showLoadingDialog("예약 생성 중...");
 
         reservationService.createReservation(
@@ -114,7 +114,7 @@ public class MainController implements IMainController {
                 createdReservation -> {
                     loadingDialog.dispose();
                     logger.info("예약 생성 성공: 예약자={}, 장소={}, 날짜={}, 시간={}-{}",
-                            reservation.getReserver(), reservation.getClassroomName(),
+                            reservation.getStudentId(), reservation.getRoomName(),
                             reservation.getDate(), reservation.getStartTime(), reservation.getEndTime());
                     JOptionPane.showMessageDialog(view, "예약이 완료되었습니다.");
                     detailView.dispose();
@@ -123,7 +123,7 @@ public class MainController implements IMainController {
                 errorMessage -> {
                     loadingDialog.dispose();
                     logger.error("예약 생성 실패: 장소={}, 예약자={}, 오류={}",
-                            reservation.getClassroomName(), reservation.getReserver(), errorMessage);
+                            reservation.getRoomName(), reservation.getStudentId(), errorMessage);
                     JOptionPane.showMessageDialog(view,
                             "예약 생성에 실패했습니다.\n\n" +
                                     "오류: " + errorMessage,
