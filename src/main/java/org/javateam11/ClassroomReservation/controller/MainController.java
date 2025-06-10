@@ -18,7 +18,7 @@ import java.util.Map;
  * 강의실 클릭 이벤트 처리 및 예약 로직을 관리합니다.
  * Spring 백엔드와의 비동기 통신을 지원합니다.
  */
-public class MainController implements IMainController {
+public class MainController {
     private static final Logger logger = LoggerFactory.getLogger(MainController.class);
 
     // 메인 뷰 (UI)
@@ -60,7 +60,6 @@ public class MainController implements IMainController {
      *
      * @param classroom 클릭된 강의실 객체
      */
-    @Override
     public void onReservationClicked(Classroom classroom) {
         // MainView에서 roomIdMap을 가져와서 전달
         Map<String, Long> roomIdMap = view.getRoomIdMap();
@@ -73,14 +72,12 @@ public class MainController implements IMainController {
      * 회원가입 버튼 클릭시 호출되는 메서드
      * 회원가입 창을 띄웁니다.
      */
-    @Override
     public void onSignUpClicked() {
         SignUpView signUpView = ControllerFactory.getInstance().createSignUpView();
         signUpView.setVisible(true);
     }
 
     // 테스트용 login객체 생성 메서드
-    @Override
     public void onLoginButtonClicked() {
         LoginView loginView = ControllerFactory.getInstance().createLoginView();
         loginView.setVisible(true);

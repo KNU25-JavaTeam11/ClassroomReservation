@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * 회원가입 창의 로직을 담당하는 컨트롤러
  */
-public class SignUpController implements ISignUpController {
+public class SignUpController {
     private final AuthService authService;
     private SignUpView signUpView;
 
@@ -25,7 +25,6 @@ public class SignUpController implements ISignUpController {
     /**
      * 회원가입 처리
      */
-    @Override
     public CompletableFuture<Boolean> register(String name, String studentNumber, String password,
             String confirmPassword) {
         // 입력 유효성 검사

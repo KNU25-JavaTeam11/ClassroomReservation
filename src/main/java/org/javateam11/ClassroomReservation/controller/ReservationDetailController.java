@@ -4,9 +4,9 @@ import org.javateam11.ClassroomReservation.model.*;
 import org.javateam11.ClassroomReservation.view.*;
 
 /**
- * ReservationDetailController는 ReservationDetailView의 로직을 담당합니다.
+ * ReservationDetailView의 로직을 담당하는 컨트롤러
  */
-public class ReservationDetailController implements IReservationDetailController {
+public class ReservationDetailController {
 	private Classroom classroom;
 	private MainController mainController;
 	private ReservationDetailView reservationDetailView;
@@ -23,7 +23,6 @@ public class ReservationDetailController implements IReservationDetailController
 	 * 
 	 * @return classroom 객체의 name 반환.
 	 */
-	@Override
 	public String getName() {
 		return classroom.getName();
 	}
@@ -33,7 +32,6 @@ public class ReservationDetailController implements IReservationDetailController
 	 * 
 	 * @return classroom 객체의 building 반환.
 	 */
-	@Override
 	public String getBuildingName() {
 		return classroom.getBuildingName();
 	}
@@ -42,7 +40,6 @@ public class ReservationDetailController implements IReservationDetailController
 	 * 강의실 버튼 클릭 시 작동되는 메서드
 	 * 클릭 시 강의실 예약 처리를 위해 onRoomClicked 호출.
 	 */
-	@Override
 	public void onDetailReserveClicked() {
 		mainController.onReserveClicked(classroom, reservationDetailView);
 	}

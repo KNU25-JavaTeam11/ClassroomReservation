@@ -1,6 +1,6 @@
 package org.javateam11.ClassroomReservation.view;
 
-import org.javateam11.ClassroomReservation.controller.ISignUpController;
+import org.javateam11.ClassroomReservation.controller.SignUpController;
 import org.javateam11.ClassroomReservation.util.FontUtils;
 import javax.swing.*;
 import java.awt.*;
@@ -12,10 +12,10 @@ import java.awt.event.KeyListener;
 /**
  * SignUpView는 회원가입창 UI를 담당합니다.
  * 학번, 이름, 비밀번호, 비밀번호 확인을 입력란으로 입력받습니다.
- * ISignUpController 인터페이스를 통해 회원가입 로직을 처리합니다.
+ * SignUpController를 통해 회원가입 로직을 처리합니다.
  */
 public class SignUpView extends JFrame {
-    private final ISignUpController signUpController;
+    private final SignUpController signUpController;
     private JTextField nameField;
     private JTextField stuNumField;
     private JPasswordField passwordField;
@@ -24,7 +24,7 @@ public class SignUpView extends JFrame {
     private JButton cancelButton;
     private JLabel statusLabel;
 
-    public SignUpView(ISignUpController signUpController) {
+    public SignUpView(SignUpController signUpController) {
         this.signUpController = signUpController;
         initializeUI();
         setupEventListeners();

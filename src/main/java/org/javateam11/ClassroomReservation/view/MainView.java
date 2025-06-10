@@ -1,6 +1,6 @@
 package org.javateam11.ClassroomReservation.view;
 
-import org.javateam11.ClassroomReservation.controller.IMainController;
+import org.javateam11.ClassroomReservation.controller.MainController;
 import org.javateam11.ClassroomReservation.controller.ControllerFactory;
 import org.javateam11.ClassroomReservation.model.*;
 import org.javateam11.ClassroomReservation.service.TokenManager;
@@ -49,7 +49,7 @@ public class MainView extends JFrame {
     private MapPanel mapPanel;
 
     // 컨트롤러 (이벤트 콜백 연결, 예약 처리 등)
-    private IMainController controller;
+    private MainController controller;
 
     // 현재 사용자
     private User currentUser;
@@ -82,7 +82,7 @@ public class MainView extends JFrame {
      *                   - 콤보박스 선택 이벤트 연결
      *                   - 최초 실행 시 첫 건물/층을 자동 선택
      */
-    public MainView(IMainController controller, List<Building> buildings) {
+    public MainView(MainController controller, List<Building> buildings) {
         this.controller = controller;
         this.localBuildings = buildings;
 

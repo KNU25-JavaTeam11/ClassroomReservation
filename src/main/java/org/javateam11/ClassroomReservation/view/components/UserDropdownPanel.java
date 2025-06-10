@@ -32,12 +32,6 @@ public class UserDropdownPanel {
             myReservationItem.addActionListener(e -> myReservationCallback.run());
         }
 
-        // 내 정보 메뉴 아이템
-        JMenuItem myInfoItem = StyleManager.createStyledMenuItem("내 정보");
-        if (myInfoCallback != null) {
-            myInfoItem.addActionListener(e -> myInfoCallback.run());
-        }
-
         // 구분선
         JSeparator separator = new JSeparator();
 
@@ -60,7 +54,6 @@ public class UserDropdownPanel {
         }
 
         popupMenu.add(myReservationItem);
-        popupMenu.add(myInfoItem);
         popupMenu.add(separator);
         popupMenu.add(logoutItem);
 

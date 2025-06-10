@@ -20,7 +20,7 @@ import java.util.Map;
  * ReservationController 구현체
  * 예약 생성 로직을 처리합니다.
  */
-public class ReservationController implements IReservationController {
+public class ReservationController {
     private static final Logger logger = LoggerFactory.getLogger(ReservationController.class);
 
     private final Classroom classroom;
@@ -43,7 +43,6 @@ public class ReservationController implements IReservationController {
         this.reservationView = reservationView;
     }
 
-    @Override
     public void createReservation(LocalDate date, LocalTime start, LocalTime end) {
         logger.info("강의실 예약 시도: {} ({}층 {}호)", classroom.getName(), classroom.getFloor(), classroom.getBuildingName());
 
@@ -101,7 +100,6 @@ public class ReservationController implements IReservationController {
                 });
     }
 
-    @Override
     public String getRoomName() {
         return classroom.getName();
     }

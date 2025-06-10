@@ -1,6 +1,6 @@
 package org.javateam11.ClassroomReservation.view;
 
-import org.javateam11.ClassroomReservation.controller.IReservationDetailController;
+import org.javateam11.ClassroomReservation.controller.ReservationDetailController;
 import org.javateam11.ClassroomReservation.model.SlotStatus;
 import org.javateam11.ClassroomReservation.dto.ReservationDto;
 import org.javateam11.ClassroomReservation.service.ReservationService;
@@ -208,10 +208,10 @@ class StyledStatusCellRenderer extends DefaultTableCellRenderer {
 /**
  * ReservationDetailView는 시설 상세정보 창 및 예약 타임라인 UI를 담당합니다.
  * 시설의 현재 예약 정보 및 예약 가능한 시간대를 보여줍니다.
- * IReservationDetailController 인터페이스를 통해 컨트롤러와 통신합니다.
+ * ReservationDetailController를 통해 컨트롤러와 통신합니다.
  */
 public class ReservationDetailView extends JFrame {
-    private IReservationDetailController reservationDetailController;
+    private ReservationDetailController reservationDetailController;
     private ReservationService reservationService;
     private TimelineTableModel timelineModel;
     private JTextField dateField;
@@ -220,7 +220,7 @@ public class ReservationDetailView extends JFrame {
     private JLabel buildingNameLavel;
     private Long currentRoomId;
 
-    public void setController(IReservationDetailController reservationDetailController) {
+    public void setController(ReservationDetailController reservationDetailController) {
         this.reservationDetailController = reservationDetailController;
         String title = "상세보기: " + reservationDetailController.getName();
         setTitle(title);

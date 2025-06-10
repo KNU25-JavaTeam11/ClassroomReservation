@@ -1,6 +1,6 @@
 package org.javateam11.ClassroomReservation.view;
 
-import org.javateam11.ClassroomReservation.controller.IReservationController;
+import org.javateam11.ClassroomReservation.controller.ReservationController;
 import org.javateam11.ClassroomReservation.util.FontUtils;
 
 import javax.swing.*;
@@ -16,7 +16,7 @@ import java.time.LocalTime;
  */
 public class ReservationView extends JFrame {
 
-    private IReservationController reservationController;
+    private ReservationController reservationController;
 
     private JTextField dateField;
     private JTextField startField;
@@ -25,13 +25,13 @@ public class ReservationView extends JFrame {
     private JButton cancelButton;
     private JLabel statusLabel;
 
-    public ReservationView(IReservationController controller) {
+    public ReservationView(ReservationController controller) {
         this.reservationController = controller;
         initializeUI();
         setupEventListeners();
     }
 
-    public void setController(IReservationController controller) {
+    public void setController(ReservationController controller) {
         this.reservationController = controller;
     }
 
