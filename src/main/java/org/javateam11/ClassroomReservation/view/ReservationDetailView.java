@@ -515,27 +515,7 @@ public class ReservationDetailView extends JFrame {
         JOptionPane.showMessageDialog(this, message, "오류", JOptionPane.ERROR_MESSAGE);
     }
 
-    /**
-     * 강의실 ID 설정 (API 호출 시 필요)
-     */
     public void setRoomId(Long roomId) {
         this.currentRoomId = roomId;
-    }
-
-    /**
-     * 건물 이름 설정
-     */
-    public void setBuildingName(String buildingName) {
-        if (buildingNameLavel != null) {
-            buildingNameLavel.setText(buildingName);
-        }
-    }
-
-    /**
-     * 특정 날짜로 자동 조회
-     */
-    public void loadReservationsForDate(LocalDate date) {
-        dateField.setText(date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        loadReservationData();
     }
 }
