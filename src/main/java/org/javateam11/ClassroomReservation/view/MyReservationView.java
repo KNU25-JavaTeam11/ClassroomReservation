@@ -32,7 +32,7 @@ public class MyReservationView extends JFrame {
 	public MyReservationView(User user) {
 		// 현 사용자
 		currentUser = user;
-		reservations = new ArrayList<Reservation>();
+		reservations = new ArrayList<>();
 		reservationService = new ReservationService();
 
 		setTitle("내 예약 관리");
@@ -162,19 +162,27 @@ public class MyReservationView extends JFrame {
 				setHorizontalAlignment(JLabel.CENTER);
 
 				if (!isSelected) {
-					if ("예약됨".equals(value)) {
-						setBackground(new Color(232, 245, 253)); // 연한 파란색
-						setForeground(new Color(13, 110, 253)); // 파란색 텍스트
-					} else if ("사용중".equals(value)) {
-						setBackground(new Color(230, 247, 237)); // 연한 초록색 (기존 색상)
-						setForeground(StyleManager.getSuccessColor());
-					} else if ("사용완료".equals(value)) {
-						setBackground(new Color(248, 249, 250)); // 연한 회색
-						setForeground(new Color(108, 117, 125)); // 회색 텍스트
-					} else {
-						setBackground(Color.WHITE);
-						setForeground(StyleManager.getTextColor());
-					}
+                    switch (value) {
+                        case "예약됨" -> {
+                            setBackground(new Color(232, 245, 253)); // 연한 파란색
+
+                            setForeground(new Color(13, 110, 253)); // 파란색 텍스트
+                        }
+                        case "사용중" -> {
+                            setBackground(new Color(230, 247, 237)); // 연한 초록색 (기존 색상)
+
+                            setForeground(StyleManager.getSuccessColor());
+                        }
+                        case "사용완료" -> {
+                            setBackground(new Color(248, 249, 250)); // 연한 회색
+
+                            setForeground(new Color(108, 117, 125)); // 회색 텍스트
+                        }
+                        case null, default -> {
+                            setBackground(Color.WHITE);
+                            setForeground(StyleManager.getTextColor());
+                        }
+                    }
 				}
 				return c;
 			}

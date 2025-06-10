@@ -234,11 +234,7 @@ public class MainView extends JFrame {
                 // 현재 날짜의 예약 정보를 다시 가져와서 업데이트
                 LocalDate today = LocalDate.now();
                 reservationService.getReservationsByDate(today,
-                        reservations -> {
-                            javax.swing.SwingUtilities.invokeLater(() -> {
-                                updateMapWithReservations(buildings, selectedBuilding, selectedFloor, reservations);
-                            });
-                        },
+                        reservations -> SwingUtilities.invokeLater(() -> updateMapWithReservations(buildings, selectedBuilding, selectedFloor, reservations)),
                         errorMessage -> {
                             // 오류 시에는 조용히 실패 (사용자에게 알리지 않음)
                             System.err.println("자동 새로고침 실패: " + errorMessage);
@@ -397,17 +393,13 @@ public class MainView extends JFrame {
                 // 성공 시 콜백
                 reservations -> {
                     // UI 업데이트는 EDT에서 실행
-                    javax.swing.SwingUtilities.invokeLater(() -> {
-                        updateMapWithReservations(buildings, selectedBuilding, selectedFloor, reservations);
-                    });
+                    javax.swing.SwingUtilities.invokeLater(() -> updateMapWithReservations(buildings, selectedBuilding, selectedFloor, reservations));
                 },
                 // 오류 시 콜백
                 errorMessage -> {
                     // API 호출 실패 시 기본 로직으로 폴백
                     System.err.println("예약 정보 조회 실패, 기본 로직 사용: " + errorMessage);
-                    javax.swing.SwingUtilities.invokeLater(() -> {
-                        updateMapWithReservations(buildings, selectedBuilding, selectedFloor, null);
-                    });
+                    javax.swing.SwingUtilities.invokeLater(() -> updateMapWithReservations(buildings, selectedBuilding, selectedFloor, null));
                 });
     }
 

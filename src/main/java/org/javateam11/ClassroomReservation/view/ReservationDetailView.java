@@ -170,8 +170,7 @@ class StyledStatusCellRenderer extends DefaultTableCellRenderer {
         Component c = super.getTableCellRendererComponent(
                 table, value, isSelected, hasFocus, row, column);
 
-        if (value instanceof SlotStatus) {
-            SlotStatus status = (SlotStatus) value;
+        if (value instanceof SlotStatus status) {
 
             // 스타일링된 색상 적용
             switch (status) {

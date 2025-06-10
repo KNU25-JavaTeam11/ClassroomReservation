@@ -166,20 +166,10 @@ public class LoginView extends JFrame {
 
 	private void setupEventListeners() {
 		// 로그인 버튼 클릭 이벤트
-		loginButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				performLogin();
-			}
-		});
+		loginButton.addActionListener(e -> performLogin());
 
 		// 회원가입 버튼 클릭 이벤트
-		signUpButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				openSignUpView();
-			}
-		});
+		signUpButton.addActionListener(e -> openSignUpView());
 
 		// Enter 키로 로그인
 		KeyListener enterKeyListener = new KeyListener() {
@@ -218,13 +208,11 @@ public class LoginView extends JFrame {
 		showStatus("로그인 중...", Color.BLUE);
 
 		authService.login(username, password)
-				.thenAccept(response -> {
-					SwingUtilities.invokeLater(() -> {
-						showStatus("로그인 성공!", Color.GREEN);
-						dispose();
-						Main.startMainApplication();
-					});
-				})
+				.thenAccept(response -> SwingUtilities.invokeLater(() -> {
+                    showStatus("로그인 성공!", Color.GREEN);
+                    dispose();
+                    Main.startMainApplication();
+                }))
 				.exceptionally(throwable -> {
 					SwingUtilities.invokeLater(() -> {
 						loginButton.setEnabled(true);

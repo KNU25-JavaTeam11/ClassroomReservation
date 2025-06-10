@@ -202,20 +202,10 @@ public class SignUpView extends JFrame {
 
     private void setupEventListeners() {
         // 회원가입 버튼 클릭 이벤트
-        submitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                performSignUp();
-            }
-        });
+        submitButton.addActionListener(e -> performSignUp());
 
         // 취소 버튼 클릭 이벤트
-        cancelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-            }
-        });
+        cancelButton.addActionListener(e -> dispose());
 
         // Enter 키로 회원가입
         KeyListener enterKeyListener = new KeyListener() {
@@ -253,15 +243,13 @@ public class SignUpView extends JFrame {
         showStatus("회원가입 중...", Color.BLUE);
 
         signUpController.register(name, studentNumber, password, confirmPassword)
-                .thenAccept(success -> {
-                    SwingUtilities.invokeLater(() -> {
-                        if (!success) {
-                            // 실패 시 버튼 다시 활성화
-                            submitButton.setEnabled(true);
-                            cancelButton.setEnabled(true);
-                        }
-                    });
-                })
+                .thenAccept(success -> SwingUtilities.invokeLater(() -> {
+                    if (!success) {
+                        // 실패 시 버튼 다시 활성화
+                        submitButton.setEnabled(true);
+                        cancelButton.setEnabled(true);
+                    }
+                }))
                 .exceptionally(throwable -> {
                     SwingUtilities.invokeLater(() -> {
                         submitButton.setEnabled(true);

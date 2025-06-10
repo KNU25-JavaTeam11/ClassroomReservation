@@ -213,20 +213,10 @@ public class ReservationView extends JFrame {
 
     private void setupEventListeners() {
         // 예약 버튼 클릭 이벤트
-        reserveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                performReservation();
-            }
-        });
+        reserveButton.addActionListener(e -> performReservation());
 
         // 취소 버튼 클릭 이벤트
-        cancelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-            }
-        });
+        cancelButton.addActionListener(e -> dispose());
     }
 
     private void performReservation() {
