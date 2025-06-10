@@ -6,7 +6,7 @@ package org.javateam11.ClassroomReservation.config;
 public class ApplicationConfig {
 
     // API 관련 설정
-    private static final String DEFAULT_API_BASE_URL = "http://localhost:8080";
+    private static final String DEFAULT_API_BASE_URL = "http://nitro.inft.kr:8082";
     private static final int DEFAULT_CONNECT_TIMEOUT_SECONDS = 10;
     private static final int DEFAULT_READ_TIMEOUT_SECONDS = 30;
     private static final int DEFAULT_WRITE_TIMEOUT_SECONDS = 30;
