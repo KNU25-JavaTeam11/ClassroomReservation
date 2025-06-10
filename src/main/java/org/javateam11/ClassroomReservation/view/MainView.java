@@ -9,7 +9,10 @@ import org.javateam11.ClassroomReservation.model.User;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
@@ -23,6 +26,15 @@ import java.util.List;
  * - MVC 패턴에서 View 역할을 하며, Controller와의 상호작용을 위해 MainController를 참조합니다.
  */
 public class MainView extends JFrame {
+
+    // UI 색상 상수들
+    private static final Color PRIMARY_COLOR = new Color(41, 128, 185); // 블루
+    private static final Color SUCCESS_COLOR = new Color(39, 174, 96); // 녹색
+    private static final Color DANGER_COLOR = new Color(231, 76, 60); // 빨강
+    private static final Color WARNING_COLOR = new Color(241, 196, 15); // 노랑
+    private static final Color BACKGROUND_COLOR = new Color(236, 240, 241); // 연한 회색
+    private static final Color TEXT_COLOR = new Color(44, 62, 80); // 다크 그레이
+    private static final Color HOVER_COLOR = new Color(52, 152, 219); // 밝은 블루
 
     // 건물 선택 콤보박스 (사용자가 건물을 선택할 수 있음)
     private JComboBox<String> buildingCombo;
@@ -56,79 +68,233 @@ public class MainView extends JFrame {
     public MainView(IMainController controller, List<Building> buildings) {
         this.controller = controller;
 
-        setTitle("강의실/시설물 예약 시스템"); // 윈도우 타이틀
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 창 닫기 시 프로그램 종료
-        setSize(900, 700); // 창 크기
-        setResizable(false); // 화면 크기 고정
-        setLocationRelativeTo(null); // 화면 중앙에 배치
-        setLayout(new BorderLayout()); // BorderLayout 사용
-
-        // 상단
-        JPanel topPanel = new JPanel();
-        topPanel.setLayout(new BorderLayout());
-
-        // 상단 좌측 메뉴바
-        JPanel topMenu = new JPanel();
-        JButton MyRes = new JButton("내 예약");
-        MyRes.addActionListener(e -> {
-            if (myResView == null) {
-                myResView = ControllerFactory.getInstance().createMyReservationView(currentUser);
-            }
-            myResView.setVisible(true);
-        });
-        JButton MyInfo = new JButton("내 정보");
-        MyInfo.addActionListener(e -> {
-            if (myInfoView == null) {
-                myInfoView = ControllerFactory.getInstance().createMyInformationView(currentUser);
-            }
-            myInfoView.setVisible(true);
-        });
-        topMenu.add(MyRes);
-        topMenu.add(MyInfo);
-        topPanel.add(topMenu, BorderLayout.WEST);
-
-        // 상단 중앙 콤보박스
-        JPanel topRoom = new JPanel();
-        buildingCombo = new JComboBox<>(); // 건물 선택 콤보박스
-        for (Building b : buildings)
-            buildingCombo.addItem(b.getName()); // 건물명 추가
-        floorCombo = new JComboBox<>(); // 층 선택 콤보박스
-        topRoom.add(new JLabel("건물: ")); // 라벨
-        topRoom.add(buildingCombo);
-        topRoom.add(new JLabel("층: "));
-        topRoom.add(floorCombo);
-        topPanel.add(topRoom, BorderLayout.CENTER);
-
-        // 상단 우측 버튼들
-        JPanel topButtons = new JPanel();
-        JButton testButton = new JButton("로그인");
-        testButton.addActionListener(e -> controller.onLoginButtonClicked());
-        topButtons.add(testButton);
-
-        JButton signUp = new JButton("회원가입");
-        signUp.addActionListener(e -> controller.onSignUpClicked());
-        topButtons.add(signUp);
-
-        topPanel.add(topButtons, BorderLayout.EAST);
-
-        add(topPanel, BorderLayout.NORTH); // 상단에 배치
-
-        // 중앙: 2D 도면 패널 (null 레이아웃으로 버튼 위치 직접 지정)
-        mapPanel = new MapPanel();
-        mapPanel.setLayout(null);
-        add(mapPanel, BorderLayout.CENTER);
-
-        // 콤보박스 선택 이벤트 연결
-        // 건물 선택 시 해당 건물의 층 목록으로 갱신
-        buildingCombo.addActionListener(e -> updateFloors(buildings));
-        // 층 선택 시 해당 층의 강의실/시설물 배치 갱신
-        floorCombo.addActionListener(e -> updateMap(buildings));
+        setupMainWindow();
+        setupTopPanel(buildings);
+        setupMapPanel();
+        setupEventListeners(buildings);
 
         // 초기화: 첫 건물/층 선택 (프로그램 시작 시 자동으로 첫 건물/층 표시)
         if (!buildings.isEmpty()) {
             buildingCombo.setSelectedIndex(0);
             updateFloors(buildings);
         }
+    }
+
+    /**
+     * 메인 윈도우 설정
+     */
+    private void setupMainWindow() {
+        setTitle("🏫 강의실/시설물 예약 시스템");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(1000, 750);
+        setResizable(true); // 크기 조정 가능하도록 변경
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
+        getContentPane().setBackground(BACKGROUND_COLOR);
+
+        // 윈도우 아이콘 설정 (있다면)
+        try {
+            URL iconUrl = getClass().getResource("/images/icon.png");
+            if (iconUrl != null) {
+                setIconImage(ImageIO.read(iconUrl));
+            }
+        } catch (Exception e) {
+            // 아이콘이 없어도 계속 진행
+        }
+    }
+
+    /**
+     * 상단 패널 설정
+     */
+    private void setupTopPanel(List<Building> buildings) {
+        // 상단
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(Color.WHITE);
+        topPanel.setBorder(new EmptyBorder(15, 20, 15, 20));
+
+        // 상단 좌측 메뉴바
+        JPanel topMenu = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        topMenu.setBackground(Color.WHITE);
+
+        JButton myResBtn = createStyledButton("📅 내 예약", PRIMARY_COLOR);
+        myResBtn.addActionListener(e -> {
+            if (myResView == null) {
+                myResView = ControllerFactory.getInstance().createMyReservationView(currentUser);
+            }
+            myResView.setVisible(true);
+        });
+
+        JButton myInfoBtn = createStyledButton("👤 내 정보", PRIMARY_COLOR);
+        myInfoBtn.addActionListener(e -> {
+            if (myInfoView == null) {
+                myInfoView = ControllerFactory.getInstance().createMyInformationView(currentUser);
+            }
+            myInfoView.setVisible(true);
+        });
+
+        topMenu.add(myResBtn);
+        topMenu.add(myInfoBtn);
+        topPanel.add(topMenu, BorderLayout.WEST);
+
+        // 상단 중앙 콤보박스
+        JPanel topRoom = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        topRoom.setBackground(Color.WHITE);
+
+        JLabel buildingLabel = createStyledLabel("🏢 건물:");
+        buildingCombo = createStyledComboBox();
+        for (Building b : buildings)
+            buildingCombo.addItem(b.getName());
+
+        JLabel floorLabel = createStyledLabel("📍 층:");
+        floorCombo = createStyledComboBox();
+
+        topRoom.add(buildingLabel);
+        topRoom.add(buildingCombo);
+        topRoom.add(Box.createHorizontalStrut(20));
+        topRoom.add(floorLabel);
+        topRoom.add(floorCombo);
+        topPanel.add(topRoom, BorderLayout.CENTER);
+
+        // 상단 우측 버튼들
+        JPanel topButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        topButtons.setBackground(Color.WHITE);
+
+        JButton loginBtn = createStyledButton("🔐 로그인", SUCCESS_COLOR);
+        loginBtn.addActionListener(e -> controller.onLoginButtonClicked());
+
+        JButton signUpBtn = createStyledButton("✨ 회원가입", WARNING_COLOR);
+        signUpBtn.addActionListener(e -> controller.onSignUpClicked());
+
+        topButtons.add(loginBtn);
+        topButtons.add(signUpBtn);
+        topPanel.add(topButtons, BorderLayout.EAST);
+
+        add(topPanel, BorderLayout.NORTH);
+    }
+
+    /**
+     * 맵 패널 설정
+     */
+    private void setupMapPanel() {
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.setBackground(BACKGROUND_COLOR);
+
+        mapPanel = new MapPanel();
+        mapPanel.setLayout(null);
+        mapPanel.setBackground(BACKGROUND_COLOR);
+        centerPanel.add(mapPanel, BorderLayout.CENTER);
+
+        // 하단에 범례 추가
+        JPanel legendPanel = createLegendPanel();
+        centerPanel.add(legendPanel, BorderLayout.SOUTH);
+
+        add(centerPanel, BorderLayout.CENTER);
+    }
+
+    /**
+     * 상태 범례 패널 생성
+     */
+    private JPanel createLegendPanel() {
+        JPanel legendPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        legendPanel.setBackground(Color.WHITE);
+        legendPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(189, 195, 199)),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)));
+
+        // 예약 가능 표시
+        JPanel availablePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        availablePanel.setBackground(Color.WHITE);
+        JLabel availableIcon = new JLabel("✅");
+        availableIcon.setFont(new Font("맑은 고딕", Font.BOLD, 16));
+        JLabel availableText = createStyledLabel("예약 가능");
+        availablePanel.add(availableIcon);
+        availablePanel.add(availableText);
+
+        // 사용 중 표시
+        JPanel occupiedPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        occupiedPanel.setBackground(Color.WHITE);
+        JLabel occupiedIcon = new JLabel("❌");
+        occupiedIcon.setFont(new Font("맑은 고딕", Font.BOLD, 16));
+        JLabel occupiedText = createStyledLabel("사용 중");
+        occupiedPanel.add(occupiedIcon);
+        occupiedPanel.add(occupiedText);
+
+        // 설명 텍스트
+        JLabel instructionText = new JLabel("💡 강의실을 클릭하여 예약하세요");
+        instructionText.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+        instructionText.setForeground(new Color(127, 140, 141));
+
+        legendPanel.add(availablePanel);
+        legendPanel.add(occupiedPanel);
+        legendPanel.add(Box.createHorizontalStrut(30));
+        legendPanel.add(instructionText);
+
+        return legendPanel;
+    }
+
+    /**
+     * 이벤트 리스너 설정
+     */
+    private void setupEventListeners(List<Building> buildings) {
+        buildingCombo.addActionListener(e -> updateFloors(buildings));
+        floorCombo.addActionListener(e -> updateMap(buildings));
+    }
+
+    /**
+     * 스타일이 적용된 버튼 생성
+     */
+    private JButton createStyledButton(String text, Color backgroundColor) {
+        JButton button = new JButton(text);
+        button.setBackground(backgroundColor);
+        button.setForeground(Color.WHITE);
+        button.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setOpaque(true);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+
+        // 호버 효과
+        button.addMouseListener(new MouseAdapter() {
+            private Color originalColor = backgroundColor;
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setBackground(originalColor.brighter());
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setBackground(originalColor);
+            }
+        });
+
+        return button;
+    }
+
+    /**
+     * 스타일이 적용된 콤보박스 생성
+     */
+    private <T> JComboBox<T> createStyledComboBox() {
+        JComboBox<T> comboBox = new JComboBox<>();
+        comboBox.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+        comboBox.setBackground(Color.WHITE);
+        comboBox.setForeground(TEXT_COLOR);
+        comboBox.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(189, 195, 199), 1),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        comboBox.setPreferredSize(new Dimension(120, 35));
+        return comboBox;
+    }
+
+    /**
+     * 스타일이 적용된 라벨 생성
+     */
+    private JLabel createStyledLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("맑은 고딕", Font.BOLD, 13));
+        label.setForeground(TEXT_COLOR);
+        return label;
     }
 
     /**
@@ -181,14 +347,16 @@ public class MainView extends JFrame {
                         try {
                             String imageFileName = selectedBuilding + "_" + selectedFloor + "F.png";
                             URL imageUrl = getClass().getResource("/images/" + imageFileName);
-                            BufferedImage img = ImageIO.read(imageUrl);
-                            mapPanel.setBackgroundImage(img);
+                            if (imageUrl != null) {
+                                BufferedImage img = ImageIO.read(imageUrl);
+                                mapPanel.setBackgroundImage(img);
+                            }
                             JButton btn = createRoomButton(c.getName(), c.isAvailable());
-                            btn.setBounds(c.getX(), c.getY(), 100, 50); // 위치/크기 지정
-                            btn.addActionListener(e -> controller.onReservationClicked(c)); // 클릭 이벤트 연결
+                            btn.setBounds(c.getX(), c.getY(), 110, 60); // 크기를 약간 키움
+                            btn.addActionListener(e -> controller.onReservationClicked(c));
                             mapPanel.add(btn);
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            System.err.println("이미지 로드 실패: " + e.getMessage());
                         }
                     }
                 }
@@ -197,7 +365,7 @@ public class MainView extends JFrame {
                 for (Facility f : b.getFacilities()) {
                     if (f.getFloor() == selectedFloor) {
                         JButton btn = createRoomButton(f.getName(), f.isAvailable());
-                        btn.setBounds(f.getX(), f.getY(), 100, 50);
+                        btn.setBounds(f.getX(), f.getY(), 110, 60);
                         btn.addActionListener(e -> controller.onReservationClicked(f));
                         mapPanel.add(btn);
                     }
@@ -215,28 +383,57 @@ public class MainView extends JFrame {
      * @param name      강의실/시설물 이름
      * @param available 가용 여부 (true: 비어있음, false: 사용중)
      * @return JButton 객체
-     *
-     *         - 비어있음: 초록색 배경 + 검정 글씨
-     *         - 사용중: 빨간색 배경 + 흰색 글씨
-     *         - macOS 등 일부 환경에서 색상 적용이 잘 안될 경우 setOpaque(true),
-     *         setBorderPainted(false)로 강제 적용
-     *
-     *         TODO: [실습] 아래 버튼 색상/글자색 지정 부분을 직접 구현해보세요.
      */
     private JButton createRoomButton(String name, boolean available) {
-        JButton btn = new JButton(name + (available ? " (비어있음)" : " (사용중)"));
-        // TODO: [실습] 아래 두 줄을 구현하세요:
-        // 1. available이 true면 초록색 배경+검정 글씨, false면 빨간색 배경+흰색 글씨로 설정
-        if (available) {
-            btn.setBackground(Color.GREEN);
-            btn.setForeground(Color.BLACK);
-        } else {
-            btn.setBackground(Color.RED);
-            btn.setForeground(Color.WHITE);
-        }
-        // 2. macOS 등에서 색상 적용이 잘 안될 경우 setOpaque(true), setBorderPainted(false)도 적용
+        // 텍스트에서 상태 정보 제거하고 아이콘으로 표현
+        String displayText = name;
+        String statusIcon = available ? "✅" : "❌";
+
+        JButton btn = new JButton("<html><center>" + statusIcon + "<br/>" + displayText + "</center></html>");
+
+        // 색상 설정 - 더 세련된 팔레트 사용
+        Color backgroundColor = available ? new Color(46, 204, 113) : // 세련된 녹색
+                new Color(231, 76, 60); // 세련된 빨강색
+
+        Color textColor = Color.WHITE;
+        Color hoverColor = available ? new Color(39, 174, 96) : new Color(192, 57, 43);
+
+        btn.setBackground(backgroundColor);
+        btn.setForeground(textColor);
+        btn.setFont(new Font("맑은 고딕", Font.BOLD, 10));
         btn.setOpaque(true);
         btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // 둥근 모서리 효과를 위한 커스텀 버튼
+        btn.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(backgroundColor.darker(), 1),
+                BorderFactory.createEmptyBorder(5, 8, 5, 8)));
+
+        // 호버 효과 추가
+        btn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                btn.setBackground(hoverColor);
+                btn.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(hoverColor.darker(), 2),
+                        BorderFactory.createEmptyBorder(4, 7, 4, 7)));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                btn.setBackground(backgroundColor);
+                btn.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(backgroundColor.darker(), 1),
+                        BorderFactory.createEmptyBorder(5, 8, 5, 8)));
+            }
+        });
+
+        // 툴팁 추가
+        String statusText = available ? "예약 가능" : "사용 중";
+        btn.setToolTipText(name + " - " + statusText + " (클릭하여 예약)");
+
         return btn;
     }
 
@@ -250,34 +447,73 @@ public class MainView extends JFrame {
      *                - 입력값이 올바르지 않으면 경고 메시지 출력
      */
     public void showReservationDialog(String name, ReservationHandler handler) {
-        JPanel panel = new JPanel(new GridLayout(5, 2));
-        JTextField reserverField = new JTextField(); // 예약자 입력
-        JTextField dateField = new JTextField("2024-06-01"); // 날짜 입력
-        JTextField startField = new JTextField("09:00"); // 시작 시간 입력
-        JTextField endField = new JTextField("10:00"); // 종료 시간 입력
+        JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
+        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
+        panel.setBackground(Color.WHITE);
 
-        panel.add(new JLabel("예약자 이름:"));
+        JTextField reserverField = createStyledTextField();
+        JTextField dateField = createStyledTextField();
+        dateField.setText("2024-06-01");
+        JTextField startField = createStyledTextField();
+        startField.setText("09:00");
+        JTextField endField = createStyledTextField();
+        endField.setText("10:00");
+
+        panel.add(createStyledLabel("👤 예약자 이름:"));
         panel.add(reserverField);
-        panel.add(new JLabel("날짜(yyyy-MM-dd):"));
+        panel.add(createStyledLabel("📅 날짜 (yyyy-MM-dd):"));
         panel.add(dateField);
-        panel.add(new JLabel("시작 시간(HH:mm):"));
+        panel.add(createStyledLabel("⏰ 시작 시간 (HH:mm):"));
         panel.add(startField);
-        panel.add(new JLabel("종료 시간(HH:mm):"));
+        panel.add(createStyledLabel("⏰ 종료 시간 (HH:mm):"));
         panel.add(endField);
 
         // 다이얼로그 표시 (OK/Cancel)
-        int result = JOptionPane.showConfirmDialog(this, panel, name + " 예약", JOptionPane.OK_CANCEL_OPTION);
+        int result = JOptionPane.showConfirmDialog(
+                this,
+                panel,
+                "🏫 " + name + " 예약",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE);
+
         if (result == JOptionPane.OK_OPTION) {
             try {
-                String reserver = reserverField.getText();
-                LocalDate date = LocalDate.parse(dateField.getText());
-                LocalTime start = LocalTime.parse(startField.getText());
-                LocalTime end = LocalTime.parse(endField.getText());
-                handler.onReserve(reserver, date, start, end); // 입력값을 콜백으로 전달
+                String reserver = reserverField.getText().trim();
+                if (reserver.isEmpty()) {
+                    throw new IllegalArgumentException("예약자 이름을 입력해주세요.");
+                }
+
+                LocalDate date = LocalDate.parse(dateField.getText().trim());
+                LocalTime start = LocalTime.parse(startField.getText().trim());
+                LocalTime end = LocalTime.parse(endField.getText().trim());
+
+                if (start.isAfter(end)) {
+                    throw new IllegalArgumentException("시작 시간이 종료 시간보다 늦을 수 없습니다.");
+                }
+
+                handler.onReserve(reserver, date, start, end);
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "입력값이 올바르지 않습니다.");
+                JOptionPane.showMessageDialog(
+                        this,
+                        "❌ 입력값 오류: " + e.getMessage(),
+                        "입력 오류",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
+    }
+
+    /**
+     * 스타일이 적용된 텍스트필드 생성
+     */
+    private JTextField createStyledTextField() {
+        JTextField textField = new JTextField();
+        textField.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+        textField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(189, 195, 199), 1),
+                BorderFactory.createEmptyBorder(8, 12, 8, 12)));
+        textField.setBackground(Color.WHITE);
+        textField.setForeground(TEXT_COLOR);
+        return textField;
     }
 
     /**
