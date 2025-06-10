@@ -54,9 +54,8 @@ public class MainView extends JFrame {
     // 현재 사용자
     private User currentUser;
 
-    // 내 예약창과 내 정보창 (지연 초기화)
+    // 내 예약창
     private MyReservationView myResView;
-    private MyInformationView myInfoView;
 
     // 예약 서비스 (백엔드 API 호출용)
     private ReservationService reservationService;
@@ -215,7 +214,7 @@ public class MainView extends JFrame {
 
     /**
      * 자동 새로고침 타이머를 시작합니다.
-     * 30초마다 백엔드에서 최신 예약 정보를 가져와서 버튼 색상을 업데이트합니다.
+     * 10초마다 백엔드에서 최신 예약 정보를 가져와서 버튼 색상을 업데이트합니다.
      */
     private void startAutoRefresh(List<Building> buildings) {
         // 기존 타이머가 있으면 중지
@@ -223,8 +222,8 @@ public class MainView extends JFrame {
             refreshTimer.stop();
         }
 
-        // 30초마다 실행되는 타이머 생성
-        refreshTimer = new Timer(30000, e -> {
+        // 10초마다 실행되는 타이머 생성
+        refreshTimer = new Timer(10000, e -> {
             // 현재 선택된 건물과 층이 있을 때만 새로고침
             String selectedBuilding = (String) topPanel.getBuildingCombo().getSelectedItem();
             Integer selectedFloor = (Integer) topPanel.getFloorCombo().getSelectedItem();
@@ -249,7 +248,6 @@ public class MainView extends JFrame {
 
         // 타이머 시작
         refreshTimer.start();
-        System.out.println("자동 새로고침 타이머 시작됨 (30초 간격)");
     }
 
     /**
@@ -311,13 +309,6 @@ public class MainView extends JFrame {
                 myResView = ControllerFactory.getInstance().createMyReservationView(currentUser);
             }
             myResView.setVisible(true);
-        });
-
-        topPanel.setMyInfoCallback(() -> {
-            if (myInfoView == null) {
-                myInfoView = ControllerFactory.getInstance().createMyInformationView(currentUser);
-            }
-            myInfoView.setVisible(true);
         });
 
         topPanel.setLogoutCallback(() -> {
@@ -559,13 +550,16 @@ public class MainView extends JFrame {
     }
 
     /**
-     * 예약 다이얼로그를 띄워 사용자 입력을 받고, ReservationHandler로 결과를 전달합니다.
+     * 예약 뷰를 띄워 사용자 입력을 받습니다.
      * 
-     * @param name    강의실 이름
-     * @param handler 예약 처리 콜백 (예약 입력값을 컨트롤러로 전달)
+     * @param classroom       강의실 객체
+     * @param detailView      예약 상세 뷰
+     * @param parentComponent 부모 컴포넌트
      */
-    public void showReservationDialog(String name, ReservationDialog.ReservationHandler handler) {
-        ReservationDialog.showReservationDialog(this, name, handler);
+    public void showReservationView(Classroom classroom, ReservationDetailView detailView, Component parentComponent) {
+        ReservationView reservationView = ControllerFactory.getInstance().createReservationView(classroom, detailView,
+                parentComponent, roomIdMap);
+        reservationView.setVisible(true);
     }
 
     /**

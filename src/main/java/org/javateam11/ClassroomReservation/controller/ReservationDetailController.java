@@ -44,6 +44,6 @@ public class ReservationDetailController implements IReservationDetailController
 	 */
 	@Override
 	public void onDetailReserveClicked() {
-		mainController.onRoomClicked(classroom, reservationDetailView);
+		mainController.onReserveClicked(classroom, reservationDetailView);
 	}
 }

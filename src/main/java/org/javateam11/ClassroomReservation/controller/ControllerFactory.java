@@ -59,6 +59,17 @@ public class ControllerFactory {
     }
 
     /**
+     * ReservationController와 ReservationView를 생성하고 연결합니다.
+     */
+    public ReservationView createReservationView(Classroom classroom, ReservationDetailView detailView,
+            java.awt.Component parentComponent, Map<String, Long> roomIdMap) {
+        ReservationController controller = new ReservationController(classroom, detailView, parentComponent, roomIdMap);
+        ReservationView view = new ReservationView(controller);
+        controller.setReservationView(view);
+        return view;
+    }
+
+    /**
      * LoginView를 생성합니다.
      */
     public LoginView createLoginView() {
@@ -70,12 +81,5 @@ public class ControllerFactory {
      */
     public MyReservationView createMyReservationView(User user) {
         return new MyReservationView(user);
-    }
-
-    /**
-     * MyInformationView를 생성합니다.
-     */
-    public MyInformationView createMyInformationView(User user) {
-        return new MyInformationView(user);
     }
 }

@@ -102,13 +102,4 @@ public class SignUpController implements ISignUpController {
             JOptionPane.showMessageDialog(null, message, "오류", JOptionPane.ERROR_MESSAGE);
         }
     }
-
-    private void showSuccess(String message) {
-        if (signUpView != null) {
-            signUpView.showStatus(message, java.awt.Color.GREEN);
-        } else {
-            JOptionPane.showMessageDialog(null, message, "성공", JOptionPane.INFORMATION_MESSAGE);
-        }
-    }
-
 }

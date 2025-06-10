@@ -172,7 +172,8 @@ public class ReservationService {
                 .thenAccept(createdReservationDto -> {
                     logger.info("예약 생성 성공: 예약자={}, 장소={}",
                             reservation.getStudentId(), reservation.getRoomName());
-                    // 응답받은 DTO를 다시 Reservation으로 변환 (실제 강의실 이름 사용)
+
+                    // 응답받은 DTO를 다시 Reservation으로 변환
                     Reservation createdReservation = Reservation.fromDto(createdReservationDto,
                             getRoomName(createdReservationDto.getRoomId()));
                     SwingUtilities.invokeLater(() -> onSuccess.accept(createdReservation));
@@ -181,28 +182,6 @@ public class ReservationService {
                     logger.error("예약 생성 실패: 예약자={}, 장소={}",
                             reservation.getStudentId(), reservation.getRoomName(), throwable);
                     SwingUtilities.invokeLater(() -> onError.accept("예약 생성 실패: " + throwable.getMessage()));
-                    return null;
-                });
-    }
-
-    /**
-     * 예약 수정 (비동기)
-     */
-    public void updateReservation(Long reservationId, Reservation reservation,
-            Consumer<Reservation> onSuccess, Consumer<String> onError) {
-        String endpoint = "/api/reservations/" + reservationId;
-
-        // Reservation을 ReservationDto로 변환하여 전송
-        ReservationDto dto = reservation.toDto();
-        apiService.putAuthenticatedAsync(endpoint, dto, ReservationDto.class)
-                .thenAccept(updatedReservationDto -> {
-                    // 응답받은 DTO를 다시 Reservation으로 변환 (실제 강의실 이름 사용)
-                    Reservation updatedReservation = Reservation.fromDto(updatedReservationDto,
-                            getRoomName(updatedReservationDto.getRoomId()));
-                    SwingUtilities.invokeLater(() -> onSuccess.accept(updatedReservation));
-                })
-                .exceptionally(throwable -> {
-                    SwingUtilities.invokeLater(() -> onError.accept("예약 수정 실패: " + throwable.getMessage()));
                     return null;
                 });
     }
@@ -224,33 +203,6 @@ public class ReservationService {
                 .exceptionally(throwable -> {
                     logger.error("예약 삭제 실패: reservationId={}", reservationId, throwable);
                     SwingUtilities.invokeLater(() -> onError.accept("예약 삭제 실패: " + throwable.getMessage()));
-                    return null;
-                });
-    }
-
-    /**
-     * 예약 가능 여부 확인 (비동기)
-     */
-    public void checkAvailability(String buildingName, int floor, String roomNumber,
-            String date, String timeSlot,
-            Consumer<Boolean> onSuccess, Consumer<String> onError) {
-        String endpoint = String.format(
-                "/api/reservations/availability?building=%s&floor=%d&room=%s&date=%s&timeSlot=%s",
-                buildingName, floor, roomNumber, date, timeSlot);
-
-        logger.debug("예약 가능 여부 확인 요청: {} {}층 {}호, 날짜={}, 시간={}",
-                buildingName, floor, roomNumber, date, timeSlot);
-
-        apiService.getAsync(endpoint, Boolean.class)
-                .thenAccept(isAvailable -> {
-                    logger.info("예약 가능 여부 확인 완료: {} {}층 {}호 - {}",
-                            buildingName, floor, roomNumber, isAvailable ? "예약 가능" : "예약 불가");
-                    SwingUtilities.invokeLater(() -> onSuccess.accept(isAvailable));
-                })
-                .exceptionally(throwable -> {
-                    logger.error("예약 가능 여부 확인 실패: {} {}층 {}호, 날짜={}, 시간={}",
-                            buildingName, floor, roomNumber, date, timeSlot, throwable);
-                    SwingUtilities.invokeLater(() -> onError.accept("예약 가능 여부 확인 실패: " + throwable.getMessage()));
                     return null;
                 });
     }
