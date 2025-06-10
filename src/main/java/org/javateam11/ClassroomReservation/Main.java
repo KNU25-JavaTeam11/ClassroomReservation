@@ -59,7 +59,7 @@ public class Main {
         it4.addClassroom(new Classroom("104", "IT4", 1, 360, 125)); // 1층 104호
         it4.addClassroom(new Classroom("106", "IT4", 1, 600, 330)); // 1층 106호
         it4.addClassroom(new Classroom("108", "IT4", 1, 115, 330)); // 1층 108호
-        it4.addClassroom(new Classroom("DIY실", "IT4", 1, 700, 520)); // 1층 DIY실
+        it4.addClassroom(new Classroom("DIY실", "IT4", 1, 760, 430)); // 1층 DIY실
         buildings.add(it4);
 
         // IT5 건물 (2, 3층)

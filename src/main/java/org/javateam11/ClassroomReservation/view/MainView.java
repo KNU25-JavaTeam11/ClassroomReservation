@@ -475,16 +475,15 @@ public class MainView extends JFrame {
 
         JButton btn = new JButton("<html><center>" + statusIcon + "<br/>" + displayText + "</center></html>");
 
-        // 색상 설정 - 더 세련된 팔레트 사용
-        Color backgroundColor = available ? new Color(46, 204, 113) : // 세련된 녹색
-                new Color(231, 76, 60); // 세련된 빨강색
+        // 색상 설정
+        Color backgroundColor = available ? new Color(46, 204, 113) : new Color(231, 76, 60);
 
         Color textColor = Color.WHITE;
         Color hoverColor = available ? new Color(39, 174, 96) : new Color(192, 57, 43);
 
         btn.setBackground(backgroundColor);
         btn.setForeground(textColor);
-        btn.setFont(new Font("맑은 고딕", Font.BOLD, 10));
+        btn.setFont(new Font("맑은 고딕", Font.BOLD, 14));
         btn.setOpaque(true);
         btn.setBorderPainted(false);
         btn.setFocusPainted(false);
