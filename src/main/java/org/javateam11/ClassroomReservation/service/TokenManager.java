@@ -12,7 +12,8 @@ public class TokenManager {
     private static TokenManager instance;
 
     private String currentToken;
-    private String currentUsername;
+    private String currentStudentId;
+    private String currentName;
 
     private TokenManager() {
     }
@@ -25,12 +26,13 @@ public class TokenManager {
     }
 
     /**
-     * 토큰과 사용자명을 저장
+     * 토큰과 사용자 전체 정보를 저장
      */
-    public void setAuthentication(String username, String token) {
-        this.currentUsername = username;
+    public void setAuthentication(String studentId, String name, String token) {
+        this.currentStudentId = studentId;
+        this.currentName = name;
         this.currentToken = token;
-        logger.info("사용자 '{}' 인증 정보가 저장되었습니다.", username);
+        logger.info("사용자 '{}({})'의 인증 정보가 저장되었습니다.", name, studentId);
     }
 
     /**
@@ -43,8 +45,15 @@ public class TokenManager {
     /**
      * 현재 로그인된 사용자명 반환
      */
-    public String getCurrentUsername() {
-        return currentUsername;
+    public String getCurrentName() {
+        return currentName;
+    }
+
+    /**
+     * 현재 로그인된 사용자의 학번 반환
+     */
+    public String getCurrentStudentId() {
+        return currentStudentId;
     }
 
     /**
@@ -58,10 +67,11 @@ public class TokenManager {
      * 인증 정보 초기화 (로그아웃)
      */
     public void clearAuthentication() {
-        String prevUsername = currentUsername;
+        String prevName = currentName;
         this.currentToken = null;
-        this.currentUsername = null;
-        logger.info("사용자 '{}' 인증 정보가 초기화되었습니다.", prevUsername);
+        this.currentStudentId = null;
+        this.currentName = null;
+        logger.info("사용자 '{}' 인증 정보가 초기화되었습니다.", prevName);
     }
 
     /**

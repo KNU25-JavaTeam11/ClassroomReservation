@@ -55,7 +55,7 @@ public class MyReservationView extends JFrame {
 					// 현재 사용자의 예약만 필터링
 					reservations.clear();
 					for (Reservation reservation : allReservations) {
-						if (reservation.getReserver().equals(currentUser.getUsername())) {
+						if (reservation.getReserver().equals(currentUser.getName())) {
 							reservations.add(reservation);
 						}
 					}

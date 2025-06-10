@@ -54,7 +54,7 @@ public class AuthService {
                 .thenApply(response -> {
                     logger.info("회원가입 성공: 학번 '{}'", response.getStudentId());
                     // 회원가입 성공 시 자동으로 토큰 저장
-                    tokenManager.setAuthentication(response.getStudentId(), response.getToken());
+                    tokenManager.setAuthentication(response.getStudentId(), response.getName(), response.getToken());
                     return response;
                 })
                 .handle((response, throwable) -> {
@@ -80,7 +80,7 @@ public class AuthService {
                 .thenApply(response -> {
                     logger.info("로그인 성공: 학번 '{}'", response.getStudentId());
                     // 로그인 성공 시 토큰 저장
-                    tokenManager.setAuthentication(response.getStudentId(), response.getToken());
+                    tokenManager.setAuthentication(response.getStudentId(), response.getName(), response.getToken());
                     return response;
                 })
                 .handle((response, throwable) -> {
@@ -98,7 +98,7 @@ public class AuthService {
      * 로그아웃
      */
     public void logout() {
-        String currentUser = tokenManager.getCurrentUsername();
+        String currentUser = tokenManager.getCurrentStudentId();
         tokenManager.clearAuthentication();
         logger.info("로그아웃 완료: 사용자명 '{}'", currentUser);
     }
@@ -108,12 +108,5 @@ public class AuthService {
      */
     public boolean isLoggedIn() {
         return tokenManager.isAuthenticated();
-    }
-
-    /**
-     * 현재 로그인된 사용자명 반환
-     */
-    public String getCurrentUsername() {
-        return tokenManager.getCurrentUsername();
     }
 }

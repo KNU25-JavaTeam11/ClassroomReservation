@@ -3,6 +3,7 @@ package org.javateam11.ClassroomReservation.view;
 import org.javateam11.ClassroomReservation.controller.IMainController;
 import org.javateam11.ClassroomReservation.controller.ControllerFactory;
 import org.javateam11.ClassroomReservation.model.*;
+import org.javateam11.ClassroomReservation.service.TokenManager;
 
 import org.javateam11.ClassroomReservation.model.Building;
 import org.javateam11.ClassroomReservation.model.User;
@@ -48,8 +49,8 @@ public class MainView extends JFrame {
     // 컨트롤러 (이벤트 콜백 연결, 예약 처리 등)
     private IMainController controller;
 
-    // 현재 사용자 (임시로 새 User 생성 대입해둠)
-    private User currentUser = new User("심채연", "2024009663");
+    // 현재 사용자
+    private User currentUser;
 
     // 내 예약창과 내 정보창 (지연 초기화)
     private MyReservationView myResView;
@@ -68,6 +69,9 @@ public class MainView extends JFrame {
     public MainView(IMainController controller, List<Building> buildings) {
         this.controller = controller;
 
+        // TokenManager에서 현재 로그인된 사용자 정보 가져오기
+        initializeCurrentUser();
+
         setupMainWindow();
         setupTopPanel(buildings);
         setupMapPanel();
@@ -77,6 +81,28 @@ public class MainView extends JFrame {
         if (!buildings.isEmpty()) {
             buildingCombo.setSelectedIndex(0);
             updateFloors(buildings);
+        }
+    }
+
+    /**
+     * TokenManager에서 현재 사용자 정보를 가져와서 User 객체 생성
+     */
+    private void initializeCurrentUser() {
+        TokenManager tokenManager = TokenManager.getInstance();
+
+        if (tokenManager.isAuthenticated()) {
+            String studentId = tokenManager.getCurrentStudentId();
+            String name = tokenManager.getCurrentName();
+
+            if (studentId != null && name != null) {
+                this.currentUser = new User(name, studentId);
+            } else {
+                // 정보가 부족한 경우 기본값 사용 (이론적으로는 발생하지 않아야 함)
+                this.currentUser = new User("Unknown", tokenManager.getCurrentStudentId());
+            }
+        } else {
+            // 로그인되지 않은 상태 (이론적으로는 MainView에 도달하기 전에 처리되어야 함)
+            throw new IllegalStateException("사용자가 로그인되지 않았습니다.");
         }
     }
 
@@ -112,28 +138,9 @@ public class MainView extends JFrame {
         topPanel.setBackground(Color.WHITE);
         topPanel.setBorder(new EmptyBorder(15, 20, 15, 20));
 
-        // 상단 좌측 메뉴바
+        // 상단 좌측 - 빈 공간 (필요시 추가 메뉴 배치 가능)
         JPanel topMenu = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         topMenu.setBackground(Color.WHITE);
-
-        JButton myResBtn = createStyledButton("📅 내 예약", PRIMARY_COLOR);
-        myResBtn.addActionListener(e -> {
-            if (myResView == null) {
-                myResView = ControllerFactory.getInstance().createMyReservationView(currentUser);
-            }
-            myResView.setVisible(true);
-        });
-
-        JButton myInfoBtn = createStyledButton("👤 내 정보", PRIMARY_COLOR);
-        myInfoBtn.addActionListener(e -> {
-            if (myInfoView == null) {
-                myInfoView = ControllerFactory.getInstance().createMyInformationView(currentUser);
-            }
-            myInfoView.setVisible(true);
-        });
-
-        topMenu.add(myResBtn);
-        topMenu.add(myInfoBtn);
         topPanel.add(topMenu, BorderLayout.WEST);
 
         // 상단 중앙 콤보박스
@@ -155,18 +162,12 @@ public class MainView extends JFrame {
         topRoom.add(floorCombo);
         topPanel.add(topRoom, BorderLayout.CENTER);
 
-        // 상단 우측 버튼들
+        // 상단 우측 - 사용자 드롭다운
         JPanel topButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         topButtons.setBackground(Color.WHITE);
 
-        JButton loginBtn = createStyledButton("🔐 로그인", SUCCESS_COLOR);
-        loginBtn.addActionListener(e -> controller.onLoginButtonClicked());
-
-        JButton signUpBtn = createStyledButton("✨ 회원가입", WARNING_COLOR);
-        signUpBtn.addActionListener(e -> controller.onSignUpClicked());
-
-        topButtons.add(loginBtn);
-        topButtons.add(signUpBtn);
+        JButton userDropdownBtn = createUserDropdownButton();
+        topButtons.add(userDropdownBtn);
         topPanel.add(topButtons, BorderLayout.EAST);
 
         add(topPanel, BorderLayout.NORTH);
@@ -295,6 +296,95 @@ public class MainView extends JFrame {
         label.setFont(new Font("맑은 고딕", Font.BOLD, 13));
         label.setForeground(TEXT_COLOR);
         return label;
+    }
+
+    /**
+     * 사용자 드롭다운 버튼 생성
+     */
+    private JButton createUserDropdownButton() {
+        String userDisplayText = "👤 " + currentUser.getName() + "(" + currentUser.getStudentId() + ")";
+        JButton userBtn = createStyledButton(userDisplayText + " ▼", PRIMARY_COLOR);
+
+        // 팝업 메뉴 생성
+        JPopupMenu popupMenu = new JPopupMenu();
+        popupMenu.setBorder(BorderFactory.createLineBorder(new Color(189, 195, 199), 1));
+
+        // 내 예약 메뉴 아이템
+        JMenuItem myReservationItem = createStyledMenuItem("📅 내 예약");
+        myReservationItem.addActionListener(e -> {
+            if (myResView == null) {
+                myResView = ControllerFactory.getInstance().createMyReservationView(currentUser);
+            }
+            myResView.setVisible(true);
+        });
+
+        // 내 정보 메뉴 아이템
+        JMenuItem myInfoItem = createStyledMenuItem("⚙️ 내 정보");
+        myInfoItem.addActionListener(e -> {
+            if (myInfoView == null) {
+                myInfoView = ControllerFactory.getInstance().createMyInformationView(currentUser);
+            }
+            myInfoView.setVisible(true);
+        });
+
+        // 구분선
+        JSeparator separator = new JSeparator();
+
+        // 로그아웃 메뉴 아이템
+        JMenuItem logoutItem = createStyledMenuItem("🚪 로그아웃");
+        logoutItem.addActionListener(e -> {
+            int result = JOptionPane.showConfirmDialog(
+                    this,
+                    "정말 로그아웃하시겠습니까?",
+                    "로그아웃 확인",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
+            if (result == JOptionPane.YES_OPTION) {
+                // TokenManager에서 인증 정보 삭제
+                TokenManager.getInstance().clearAuthentication();
+                // 프로그램 종료 (추후 로그인 화면으로 돌아가도록 개선 가능)
+                System.exit(0);
+            }
+        });
+
+        popupMenu.add(myReservationItem);
+        popupMenu.add(myInfoItem);
+        popupMenu.add(separator);
+        popupMenu.add(logoutItem);
+
+        // 버튼 클릭 시 팝업 메뉴 표시
+        userBtn.addActionListener(e -> {
+            popupMenu.show(userBtn, 0, userBtn.getHeight());
+        });
+
+        return userBtn;
+    }
+
+    /**
+     * 스타일이 적용된 메뉴 아이템 생성
+     */
+    private JMenuItem createStyledMenuItem(String text) {
+        JMenuItem menuItem = new JMenuItem(text);
+        menuItem.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+        menuItem.setForeground(TEXT_COLOR);
+        menuItem.setBackground(Color.WHITE);
+        menuItem.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+        menuItem.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // 호버 효과
+        menuItem.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                menuItem.setBackground(new Color(236, 240, 241));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                menuItem.setBackground(Color.WHITE);
+            }
+        });
+
+        return menuItem;
     }
 
     /**
