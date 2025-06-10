@@ -36,6 +36,10 @@ public class MainView extends JFrame {
     private static final Color BACKGROUND_COLOR = new Color(236, 240, 241); // 연한 회색
     private static final Color TEXT_COLOR = new Color(44, 62, 80); // 다크 그레이
     private static final Color HOVER_COLOR = new Color(52, 152, 219); // 밝은 블루
+    private static final Color TOPBAR_COLOR = new Color(248, 249, 250); // 상단바 색상 (매우 연한 회색)
+    private static final Color COMBO_BACKGROUND = new Color(255, 255, 255); // 콤보박스 배경
+    private static final Color COMBO_BORDER = new Color(189, 195, 199); // 콤보박스 테두리
+    private static final Color COMBO_HOVER = new Color(231, 236, 239); // 콤보박스 호버
 
     // 건물 선택 콤보박스 (사용자가 건물을 선택할 수 있음)
     private JComboBox<String> buildingCombo;
@@ -120,7 +124,7 @@ public class MainView extends JFrame {
 
         // 윈도우 아이콘 설정 (있다면)
         try {
-            URL iconUrl = getClass().getResource("/images/icon.png");
+            URL iconUrl = getClass().getResource("/images/icon.jpg");
             if (iconUrl != null) {
                 setIconImage(ImageIO.read(iconUrl));
             }
@@ -135,17 +139,19 @@ public class MainView extends JFrame {
     private void setupTopPanel(List<Building> buildings) {
         // 상단
         JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setBackground(Color.WHITE);
-        topPanel.setBorder(new EmptyBorder(15, 20, 15, 20));
+        topPanel.setBackground(TOPBAR_COLOR);
+        topPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, COMBO_BORDER),
+                new EmptyBorder(15, 20, 15, 20)));
 
         // 상단 좌측 - 빈 공간 (필요시 추가 메뉴 배치 가능)
         JPanel topMenu = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        topMenu.setBackground(Color.WHITE);
+        topMenu.setBackground(TOPBAR_COLOR);
         topPanel.add(topMenu, BorderLayout.WEST);
 
         // 상단 중앙 콤보박스
         JPanel topRoom = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
-        topRoom.setBackground(Color.WHITE);
+        topRoom.setBackground(TOPBAR_COLOR);
 
         JLabel buildingLabel = createStyledLabel("🏢 건물:");
         buildingCombo = createStyledComboBox();
@@ -164,7 +170,7 @@ public class MainView extends JFrame {
 
         // 상단 우측 - 사용자 드롭다운
         JPanel topButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        topButtons.setBackground(Color.WHITE);
+        topButtons.setBackground(TOPBAR_COLOR);
 
         JButton userDropdownBtn = createUserDropdownButton();
         topButtons.add(userDropdownBtn);
@@ -278,13 +284,77 @@ public class MainView extends JFrame {
      */
     private <T> JComboBox<T> createStyledComboBox() {
         JComboBox<T> comboBox = new JComboBox<>();
+
+        // 기본 스타일
         comboBox.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
-        comboBox.setBackground(Color.WHITE);
+        comboBox.setBackground(COMBO_BACKGROUND);
         comboBox.setForeground(TEXT_COLOR);
+        comboBox.setOpaque(true);
+        comboBox.setFocusable(true);
+        comboBox.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // 크기 설정
+        comboBox.setPreferredSize(new Dimension(140, 38));
+
+        // 커스텀 UI 설정
+        comboBox.setUI(new javax.swing.plaf.basic.BasicComboBoxUI() {
+            @Override
+            protected JButton createArrowButton() {
+                JButton button = new JButton();
+                button.setBackground(COMBO_BACKGROUND);
+                button.setBorder(BorderFactory.createEmptyBorder());
+                button.setFocusable(false);
+                button.setContentAreaFilled(false);
+
+                // 커스텀 화살표 아이콘
+                button.setText("▼");
+                button.setFont(new Font("맑은 고딕", Font.BOLD, 10));
+                button.setForeground(TEXT_COLOR);
+
+                return button;
+            }
+
+            @Override
+            public void paintCurrentValueBackground(Graphics g, Rectangle bounds, boolean hasFocus) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                if (hasFocus || comboBox.isPopupVisible()) {
+                    g2d.setColor(COMBO_HOVER);
+                } else {
+                    g2d.setColor(COMBO_BACKGROUND);
+                }
+                g2d.fillRoundRect(bounds.x, bounds.y, bounds.width, bounds.height, 6, 6);
+                g2d.dispose();
+            }
+        });
+
+        // 테두리 설정
         comboBox.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(189, 195, 199), 1),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
-        comboBox.setPreferredSize(new Dimension(120, 35));
+                BorderFactory.createLineBorder(COMBO_BORDER, 1),
+                BorderFactory.createEmptyBorder(6, 12, 6, 8)));
+
+        // 마우스 이벤트 추가
+        comboBox.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                if (comboBox.isEnabled()) {
+                    comboBox.setBorder(BorderFactory.createCompoundBorder(
+                            BorderFactory.createLineBorder(PRIMARY_COLOR, 2),
+                            BorderFactory.createEmptyBorder(5, 11, 5, 7)));
+                }
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                if (comboBox.isEnabled()) {
+                    comboBox.setBorder(BorderFactory.createCompoundBorder(
+                            BorderFactory.createLineBorder(COMBO_BORDER, 1),
+                            BorderFactory.createEmptyBorder(6, 12, 6, 8)));
+                }
+            }
+        });
+
         return comboBox;
     }
 
@@ -307,7 +377,8 @@ public class MainView extends JFrame {
 
         // 팝업 메뉴 생성
         JPopupMenu popupMenu = new JPopupMenu();
-        popupMenu.setBorder(BorderFactory.createLineBorder(new Color(189, 195, 199), 1));
+        popupMenu.setBorder(BorderFactory.createLineBorder(COMBO_BORDER, 1));
+        popupMenu.setBackground(Color.WHITE);
 
         // 내 예약 메뉴 아이템
         JMenuItem myReservationItem = createStyledMenuItem("📅 내 예약");
