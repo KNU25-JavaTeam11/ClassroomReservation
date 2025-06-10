@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * MainController는 MVC 패턴에서 Controller 역할을 담당하며,
  * 사용자 인터페이스(View)와 데이터(Model) 사이의 상호작용을 중재합니다.
- * 강의실/시설물 클릭 이벤트 처리 및 예약 로직을 관리합니다.
+ * 강의실 클릭 이벤트 처리 및 예약 로직을 관리합니다.
  * Spring 백엔드와의 비동기 통신을 지원합니다.
  */
 public class MainController implements IMainController {

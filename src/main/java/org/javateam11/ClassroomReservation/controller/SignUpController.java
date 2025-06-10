@@ -1,6 +1,7 @@
 package org.javateam11.ClassroomReservation.controller;
 
 import org.javateam11.ClassroomReservation.service.AuthService;
+import org.javateam11.ClassroomReservation.util.ErrorMessageUtils;
 import org.javateam11.ClassroomReservation.view.SignUpView;
 
 import javax.swing.*;
@@ -72,7 +73,7 @@ public class SignUpController implements ISignUpController {
                 .exceptionally(throwable -> {
                     SwingUtilities.invokeLater(() -> {
                         // 예외에서 깨끗한 에러 메시지 추출
-                        String errorMessage = extractCleanErrorMessage(throwable);
+                        String errorMessage = ErrorMessageUtils.extractCleanErrorMessage(throwable);
 
                         if (errorMessage.contains("409") || errorMessage.contains("Conflict")) {
                             showError("이미 등록된 학번입니다.");
@@ -103,27 +104,4 @@ public class SignUpController implements ISignUpController {
         }
     }
 
-    /**
-     * 예외에서 깨끗한 에러 메시지를 추출하는 헬퍼 메서드
-     */
-    private String extractCleanErrorMessage(Throwable throwable) {
-        Throwable current = throwable;
-
-        // 중첩된 예외를 풀어서 원본 메시지를 찾음
-        while (current.getCause() != null && current.getCause() != current) {
-            current = current.getCause();
-        }
-
-        String message = current.getMessage();
-        if (message != null && !message.trim().isEmpty()) {
-            // "java.lang.RuntimeException: " 같은 불필요한 접두어 제거
-            if (message.startsWith("java.lang.RuntimeException: ")) {
-                message = message.substring("java.lang.RuntimeException: ".length());
-            }
-            return message;
-        }
-
-        // 메시지가 없으면 기본 메시지 반환
-        return "회원가입 중 오류가 발생했습니다";
-    }
 }

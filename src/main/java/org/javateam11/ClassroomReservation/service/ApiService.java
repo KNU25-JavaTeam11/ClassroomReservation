@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.core.type.TypeReference;
 import okhttp3.*;
+import org.javateam11.ClassroomReservation.config.ApplicationConfig;
 import org.javateam11.ClassroomReservation.dto.ErrorResponse;
+import org.javateam11.ClassroomReservation.util.ErrorMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,17 +21,18 @@ import java.util.concurrent.TimeUnit;
 public class ApiService {
     private static final Logger logger = LoggerFactory.getLogger(ApiService.class);
 
-    private static final String BASE_URL = "http://localhost:8080";
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
+    private final String baseUrl;
     private final OkHttpClient client;
     private final ObjectMapper objectMapper;
 
     public ApiService() {
+        this.baseUrl = ApplicationConfig.getApiBaseUrl();
         this.client = new OkHttpClient.Builder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
-                .writeTimeout(30, TimeUnit.SECONDS)
+                .connectTimeout(ApplicationConfig.getConnectTimeoutSeconds(), TimeUnit.SECONDS)
+                .readTimeout(ApplicationConfig.getReadTimeoutSeconds(), TimeUnit.SECONDS)
+                .writeTimeout(ApplicationConfig.getWriteTimeoutSeconds(), TimeUnit.SECONDS)
                 .build();
 
         this.objectMapper = new ObjectMapper();
@@ -38,31 +41,11 @@ public class ApiService {
 
     /**
      * 에러 응답에서 에러 메시지를 추출하는 헬퍼 메서드
+     * 
+     * @deprecated ErrorMessageUtils.extractApiErrorMessage 사용을 권장
      */
     private String extractErrorMessage(Response response) {
-        try {
-            if (response.body() != null) {
-                String errorBody = response.body().string();
-                logger.debug("에러 응답 body: {}", errorBody);
-
-                // JSON 형식의 에러 응답을 파싱
-                try {
-                    ErrorResponse errorResponse = objectMapper.readValue(errorBody, ErrorResponse.class);
-                    if (errorResponse.getError() != null && !errorResponse.getError().trim().isEmpty()) {
-                        return errorResponse.getError();
-                    }
-                } catch (Exception e) {
-                    logger.debug("에러 응답 JSON 파싱 실패, 원본 응답 사용: {}", errorBody);
-                    // JSON 파싱에 실패하면 원본 응답을 반환
-                    return errorBody;
-                }
-            }
-        } catch (Exception e) {
-            logger.debug("에러 응답 읽기 실패", e);
-        }
-
-        // 기본 에러 메시지
-        return "API 요청 실패: " + response.code() + " " + response.message();
+        return ErrorMessageUtils.extractApiErrorMessage(response);
     }
 
     /**
@@ -72,7 +55,7 @@ public class ApiService {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 Request request = new Request.Builder()
-                        .url(BASE_URL + endpoint)
+                        .url(baseUrl + endpoint)
                         .get()
                         .build();
 
@@ -101,7 +84,7 @@ public class ApiService {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 Request request = new Request.Builder()
-                        .url(BASE_URL + endpoint)
+                        .url(baseUrl + endpoint)
                         .get()
                         .build();
 
@@ -135,7 +118,7 @@ public class ApiService {
                 }
 
                 Request request = new Request.Builder()
-                        .url(BASE_URL + endpoint)
+                        .url(baseUrl + endpoint)
                         .addHeader("Authorization", tokenManager.getAuthorizationHeader())
                         .get()
                         .build();
@@ -171,7 +154,7 @@ public class ApiService {
                 logger.debug("POST {} 요청: {}", endpoint, jsonBody);
 
                 Request request = new Request.Builder()
-                        .url(BASE_URL + endpoint)
+                        .url(baseUrl + endpoint)
                         .post(RequestBody.create(jsonBody, JSON))
                         .build();
 
@@ -208,7 +191,7 @@ public class ApiService {
                 logger.debug("POST {} 요청: {}", endpoint, jsonBody);
 
                 Request request = new Request.Builder()
-                        .url(BASE_URL + endpoint)
+                        .url(baseUrl + endpoint)
                         .addHeader("Authorization", tokenManager.getAuthorizationHeader())
                         .post(RequestBody.create(jsonBody, JSON))
                         .build();
@@ -244,7 +227,7 @@ public class ApiService {
                 logger.debug("PUT {} 요청: {}", endpoint, jsonBody);
 
                 Request request = new Request.Builder()
-                        .url(BASE_URL + endpoint)
+                        .url(baseUrl + endpoint)
                         .put(RequestBody.create(jsonBody, JSON))
                         .build();
 
@@ -281,7 +264,7 @@ public class ApiService {
                 logger.debug("PUT {} 요청: {}", endpoint, jsonBody);
 
                 Request request = new Request.Builder()
-                        .url(BASE_URL + endpoint)
+                        .url(baseUrl + endpoint)
                         .addHeader("Authorization", tokenManager.getAuthorizationHeader())
                         .put(RequestBody.create(jsonBody, JSON))
                         .build();
@@ -314,7 +297,7 @@ public class ApiService {
         return CompletableFuture.runAsync(() -> {
             try {
                 Request request = new Request.Builder()
-                        .url(BASE_URL + endpoint)
+                        .url(baseUrl + endpoint)
                         .delete()
                         .build();
 
@@ -344,7 +327,7 @@ public class ApiService {
                 }
 
                 Request request = new Request.Builder()
-                        .url(BASE_URL + endpoint)
+                        .url(baseUrl + endpoint)
                         .addHeader("Authorization", tokenManager.getAuthorizationHeader())
                         .delete()
                         .build();

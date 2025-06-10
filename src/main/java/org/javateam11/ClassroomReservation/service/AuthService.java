@@ -3,6 +3,7 @@ package org.javateam11.ClassroomReservation.service;
 import org.javateam11.ClassroomReservation.dto.LoginRequest;
 import org.javateam11.ClassroomReservation.dto.RegisterRequest;
 import org.javateam11.ClassroomReservation.dto.AuthResponse;
+import org.javateam11.ClassroomReservation.util.ErrorMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,22 +25,11 @@ public class AuthService {
 
     /**
      * 예외에서 의미있는 에러 메시지를 추출하는 헬퍼 메서드
+     * 
+     * @deprecated ErrorMessageUtils.extractCleanErrorMessage 사용을 권장
      */
     private String extractErrorMessage(Throwable throwable) {
-        Throwable rootCause = throwable;
-
-        // CompletionException이나 다른 래퍼 예외를 풀어서 원본 예외를 찾음
-        while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
-            rootCause = rootCause.getCause();
-        }
-
-        String message = rootCause.getMessage();
-        if (message != null && !message.trim().isEmpty()) {
-            return message;
-        }
-
-        // 메시지가 없으면 기본 메시지 반환
-        return "요청 처리 중 오류가 발생했습니다";
+        return ErrorMessageUtils.extractCleanErrorMessage(throwable);
     }
 
     /**
