@@ -58,9 +58,7 @@ public class UserDropdownPanel {
         popupMenu.add(logoutItem);
 
         // 버튼 클릭 시 팝업 메뉴 표시
-        userBtn.addActionListener(e -> {
-            popupMenu.show(userBtn, 0, userBtn.getHeight());
-        });
+        userBtn.addActionListener(e -> popupMenu.show(userBtn, 0, userBtn.getHeight()));
 
         return userBtn;
     }

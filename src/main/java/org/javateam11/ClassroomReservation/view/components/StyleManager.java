@@ -185,8 +185,7 @@ public class StyleManager {
             protected ComboBoxEditor createEditor() {
                 ComboBoxEditor editor = super.createEditor();
                 Component editorComponent = editor.getEditorComponent();
-                if (editorComponent instanceof JTextField) {
-                    JTextField textField = (JTextField) editorComponent;
+                if (editorComponent instanceof JTextField textField) {
                     textField.setBackground(COMBO_BACKGROUND);
                     textField.setForeground(TEXT_COLOR);
                     textField.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
