@@ -4,6 +4,7 @@ import org.javateam11.ClassroomReservation.controller.IReservationDetailControll
 import org.javateam11.ClassroomReservation.model.SlotStatus;
 import org.javateam11.ClassroomReservation.dto.ReservationDto;
 import org.javateam11.ClassroomReservation.service.ReservationService;
+import org.javateam11.ClassroomReservation.service.TokenManager;
 import org.javateam11.ClassroomReservation.view.components.StyleManager;
 
 import javax.swing.*;
@@ -76,14 +77,19 @@ class TimelineTableModel extends AbstractTableModel {
 
         // 예약된 시간대를 표시
         for (ReservationDto reservation : reservations) {
-            markReservedTime(reservation.getStartTime(), reservation.getEndTime(), queryDate, currentDate, currentTime);
+            markReservedTime(reservation.getStartTime(), reservation.getEndTime(),
+                    reservation.getStudentId(), queryDate, currentDate, currentTime);
         }
 
         fireTableDataChanged();
     }
 
-    private void markReservedTime(LocalTime startTime, LocalTime endTime, LocalDate queryDate, LocalDate currentDate,
-            LocalTime currentTime) {
+    private void markReservedTime(LocalTime startTime, LocalTime endTime, String studentId,
+            LocalDate queryDate, LocalDate currentDate, LocalTime currentTime) {
+        // 현재 로그인한 사용자의 학번 가져오기
+        String currentStudentId = TokenManager.getInstance().getCurrentStudentId();
+        boolean isMyReservation = currentStudentId != null && currentStudentId.equals(studentId);
+
         for (int i = 0; i < slotCount; i++) {
             LocalTime slotTime = timeSlots[i];
             LocalTime slotEndTime = slotTime.plusMinutes(intervalMinutes);
@@ -102,13 +108,13 @@ class TimelineTableModel extends AbstractTableModel {
                         // 현재 사용 중인 시간대
                         statuses[i] = SlotStatus.IN_USE;
                     } else {
-                        // 미래의 예약
-                        statuses[i] = SlotStatus.RESERVED;
+                        // 미래의 예약 - 내 예약인지 확인
+                        statuses[i] = isMyReservation ? SlotStatus.MY_RESERVED : SlotStatus.RESERVED;
                     }
                 }
                 // 조회 날짜가 현재 날짜보다 이후면 예약된 시간으로 표시
                 else {
-                    statuses[i] = SlotStatus.RESERVED;
+                    statuses[i] = isMyReservation ? SlotStatus.MY_RESERVED : SlotStatus.RESERVED;
                 }
             }
         }
@@ -170,10 +176,13 @@ class StyledStatusCellRenderer extends DefaultTableCellRenderer {
             // 스타일링된 색상 적용
             switch (status) {
                 case AVAILABLE:
-                    c.setBackground(StyleManager.getSuccessColor());
+                    c.setBackground(new Color(52, 152, 219)); // 하늘색
                     break;
                 case RESERVED:
                     c.setBackground(StyleManager.getDangerColor());
+                    break;
+                case MY_RESERVED:
+                    c.setBackground(StyleManager.getSuccessColor()); // 초록색
                     break;
                 case IN_USE:
                     c.setBackground(StyleManager.getWarningColor());
@@ -351,13 +360,10 @@ public class ReservationDetailView extends JFrame {
         JPanel legendPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         legendPanel.setBackground(StyleManager.getBackgroundColor());
 
-        JLabel legendTitle = StyleManager.createStyledLabel("범례:");
-        legendTitle.setFont(new Font("맑은 고딕", Font.BOLD, 11));
-        legendPanel.add(legendTitle);
-
         // 범례 항목들을 가로로 배치
-        legendPanel.add(createCompactLegendItem("예약가능", StyleManager.getSuccessColor()));
+        legendPanel.add(createCompactLegendItem("예약가능", new Color(52, 152, 219))); // 하늘색
         legendPanel.add(createCompactLegendItem("예약됨", StyleManager.getDangerColor()));
+        legendPanel.add(createCompactLegendItem("내 예약", StyleManager.getSuccessColor())); // 초록색
         legendPanel.add(createCompactLegendItem("이용중", StyleManager.getWarningColor()));
 
         return legendPanel;
