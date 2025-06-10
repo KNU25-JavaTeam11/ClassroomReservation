@@ -45,7 +45,7 @@ public class LoginView extends JFrame {
 		mainPanel.setBackground(Color.WHITE);
 
 		// 타이틀
-		JLabel titleLabel = new JLabel("컴퓨터학부 강의실/시설물 예약 시스템");
+		JLabel titleLabel = new JLabel("컴퓨터학부 강의실 예약 시스템");
 		titleLabel.setFont(FontUtils.getTitleFont());
 		titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		titleLabel.setForeground(new Color(51, 51, 51));

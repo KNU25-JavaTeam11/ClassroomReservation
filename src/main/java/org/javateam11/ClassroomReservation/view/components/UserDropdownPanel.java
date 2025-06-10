@@ -27,13 +27,13 @@ public class UserDropdownPanel {
         popupMenu.setBackground(Color.WHITE);
 
         // 내 예약 메뉴 아이템
-        JMenuItem myReservationItem = StyleManager.createStyledMenuItem("📅 내 예약");
+        JMenuItem myReservationItem = StyleManager.createStyledMenuItem("내 예약");
         if (myReservationCallback != null) {
             myReservationItem.addActionListener(e -> myReservationCallback.run());
         }
 
         // 내 정보 메뉴 아이템
-        JMenuItem myInfoItem = StyleManager.createStyledMenuItem("⚙️ 내 정보");
+        JMenuItem myInfoItem = StyleManager.createStyledMenuItem("내 정보");
         if (myInfoCallback != null) {
             myInfoItem.addActionListener(e -> myInfoCallback.run());
         }
@@ -42,11 +42,13 @@ public class UserDropdownPanel {
         JSeparator separator = new JSeparator();
 
         // 로그아웃 메뉴 아이템
-        JMenuItem logoutItem = StyleManager.createStyledMenuItem("🚪 로그아웃");
+        JMenuItem logoutItem = StyleManager.createStyledMenuItem("로그아웃");
         if (logoutCallback != null) {
             logoutItem.addActionListener(e -> {
+                // 메인 프레임을 찾아서 중앙에 표시하도록 설정
+                Window parentWindow = SwingUtilities.getWindowAncestor(userBtn);
                 int result = JOptionPane.showConfirmDialog(
-                        userBtn.getParent(),
+                        parentWindow,
                         "정말 로그아웃하시겠습니까?",
                         "로그아웃 확인",
                         JOptionPane.YES_NO_OPTION,

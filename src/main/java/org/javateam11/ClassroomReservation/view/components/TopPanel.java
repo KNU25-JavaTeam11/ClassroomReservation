@@ -29,6 +29,10 @@ public class TopPanel extends JPanel {
     private Timer timeUpdateTimer;
     private User currentUser;
 
+    // 사용자 드롭다운 버튼과 우측 패널 참조
+    private JButton userDropdownBtn;
+    private JPanel rightPanel;
+
     // 콜백 인터페이스들
     private Runnable myReservationCallback;
     private Runnable myInfoCallback;
@@ -80,7 +84,7 @@ public class TopPanel extends JPanel {
         JPanel centerPanel = createSelectionPanel();
 
         // 상단 우측 - 시간 표시 및 사용자 드롭다운
-        JPanel rightPanel = createRightPanel();
+        rightPanel = createRightPanel();
 
         add(leftPanel, BorderLayout.WEST);
         add(centerPanel, BorderLayout.CENTER);
@@ -114,17 +118,40 @@ public class TopPanel extends JPanel {
         panel.setBackground(TOPBAR_COLOR);
 
         timeLabel = StyleManager.createStyledLabel("");
-        JButton userDropdownBtn = UserDropdownPanel.createUserDropdownButton(
-                currentUser,
-                myReservationCallback,
-                myInfoCallback,
-                logoutCallback);
+
+        // 초기에는 기본 사용자 버튼만 생성 (callback 없이)
+        String userDisplayText = "👤 " + currentUser.getName() + "(" + currentUser.getStudentId() + ") ▼";
+        userDropdownBtn = StyleManager.createStyledButton(userDisplayText, StyleManager.getPrimaryColor());
 
         panel.add(timeLabel);
         panel.add(Box.createHorizontalStrut(20));
         panel.add(userDropdownBtn);
 
         return panel;
+    }
+
+    /**
+     * 사용자 드롭다운 버튼을 업데이트합니다.
+     */
+    private void updateUserDropdownButton() {
+        if (rightPanel != null && userDropdownBtn != null) {
+            // 기존 버튼 제거
+            rightPanel.remove(userDropdownBtn);
+
+            // 새로운 사용자 드롭다운 버튼 생성
+            userDropdownBtn = UserDropdownPanel.createUserDropdownButton(
+                    currentUser,
+                    myReservationCallback,
+                    myInfoCallback,
+                    logoutCallback);
+
+            // 새 버튼 추가
+            rightPanel.add(userDropdownBtn);
+
+            // UI 업데이트
+            rightPanel.revalidate();
+            rightPanel.repaint();
+        }
     }
 
     /**
@@ -179,13 +206,16 @@ public class TopPanel extends JPanel {
 
     public void setMyReservationCallback(Runnable callback) {
         this.myReservationCallback = callback;
+        updateUserDropdownButton();
     }
 
     public void setMyInfoCallback(Runnable callback) {
         this.myInfoCallback = callback;
+        updateUserDropdownButton();
     }
 
     public void setLogoutCallback(Runnable callback) {
         this.logoutCallback = callback;
+        updateUserDropdownButton();
     }
 }

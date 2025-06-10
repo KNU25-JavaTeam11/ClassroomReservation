@@ -32,7 +32,7 @@ import java.util.HashMap;
 
 /**
  * MainView는 Swing 기반의 메인 GUI 화면을 담당합니다.
- * - 건물/층 선택, 2D 도면 스타일의 강의실/시설물 배치, 예약 다이얼로그 등 UI를 구현합니다.
+ * - 건물/층 선택, 2D 도면 스타일의 강의실 배치, 예약 다이얼로그 등 UI를 구현합니다.
  * - MVC 패턴에서 View 역할을 하며, Controller와의 상호작용을 위해 MainController를 참조합니다.
  */
 public class MainView extends JFrame {
@@ -45,7 +45,7 @@ public class MainView extends JFrame {
     // 상단 패널 (건물/층 선택, 사용자 메뉴)
     private TopPanel topPanel;
 
-    // 강의실/시설물 2D 배치 패널 (실제 버튼들이 배치되는 공간)
+    // 강의실 2D 배치 패널 (실제 버튼들이 배치되는 공간)
     private MapPanel mapPanel;
 
     // 컨트롤러 (이벤트 콜백 연결, 예약 처리 등)
@@ -64,7 +64,7 @@ public class MainView extends JFrame {
     // 강의실 서비스 (백엔드 강의실 정보 API 호출용)
     private RoomService roomService;
 
-    // 강의실/시설물 이름과 roomId 매핑 (백엔드에서 받아와서 로컬 데이터와 매핑)
+    // 강의실 이름과 roomId 매핑 (백엔드에서 받아와서 로컬 데이터와 매핑)
     private Map<String, Long> roomIdMap;
 
     // 로컬 건물 데이터 (x, y 좌표 포함)
@@ -383,12 +383,12 @@ public class MainView extends JFrame {
     }
 
     /**
-     * 선택된 건물/층에 따라 2D 도면에 강의실/시설물 버튼을 배치합니다.
+     * 선택된 건물/층에 따라 2D 도면에 강의실 버튼을 배치합니다.
      * 백엔드 API에서 실시간 예약 정보를 가져와서 현재 시간 기준으로 사용 가능 여부를 판단합니다.
      * 
      * @param buildings 건물 리스트
      *
-     *                  - 각 강의실/시설물의 좌표(x, y)에 버튼을 배치
+     *                  - 각 강의실 좌표(x, y)에 버튼을 배치
      *                  - 버튼 클릭 시 컨트롤러의 onReservationClicked 호출
      *                  - 백엔드 API 예약 정보를 바탕으로 실시간 사용 가능 여부 판단
      *                  - 콤보박스 변경에 따라 건물/층 구조도 png 변경

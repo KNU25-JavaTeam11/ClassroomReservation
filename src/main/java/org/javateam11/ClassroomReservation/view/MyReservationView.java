@@ -32,7 +32,7 @@ public class MyReservationView extends JFrame {
 
 	private void initializeUI() {
 		// JTable
-		String[] header = { "이름", "강의실/시설물", "예약날짜", "예약시간" };
+		String[] header = { "이름", "강의실", "예약날짜", "예약시간" };
 		tableModel = new DefaultTableModel(header, 0);
 		JTable reservationTable = new JTable(tableModel);
 

@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 /**
- * Reservation 클래스는 강의실/시설물의 예약 정보를 표현합니다.
+ * Reservation 클래스는 강의실의 예약 정보를 표현합니다.
  * Builder 패턴을 사용하여 깔끔한 객체 생성을 지원합니다.
  */
 public class Reservation {
