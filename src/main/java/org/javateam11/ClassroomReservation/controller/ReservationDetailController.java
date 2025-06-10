@@ -29,6 +29,16 @@ public class ReservationDetailController implements IReservationDetailController
 	}
 
 	/**
+	 * 건물 이름을 반환합니다.
+	 * 
+	 * @return classroom 객체의 building 반환.
+	 */
+	@Override
+	public String getBuildingName() {
+		return classroom.getBuildingName();
+	}
+
+	/**
 	 * 강의실 버튼 클릭 시 작동되는 메서드
 	 * 클릭 시 강의실 예약 처리를 위해 onRoomClicked 호출.
 	 */

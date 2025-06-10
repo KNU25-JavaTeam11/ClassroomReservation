@@ -11,6 +11,11 @@ public interface IReservationDetailController {
     String getName();
 
     /**
+     * 건물 이름을 반환합니다.
+     */
+    String getBuildingName();
+
+    /**
      * 예약하기 버튼 클릭 시 호출되는 메서드
      */
     void onDetailReserveClicked();

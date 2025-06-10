@@ -40,23 +40,30 @@ public class MapPanel extends JPanel {
         if (backgroundImage != null) {
             // 이미지를 패널 크기에 맞게 조정하여 그리기
             g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            // 배경 이미지 위에 그리드 패턴 그리기 (투명도 낮춤)
+            drawGridPattern(g2d, true);
         } else {
-            // 배경 이미지가 없을 때 기본 패턴 그리기
-            drawDefaultPattern(g2d);
+            // 배경 이미지가 없을 때 기본 패턴과 메시지 그리기
+            drawGridPattern(g2d, false);
+            drawDefaultMessage(g2d);
         }
 
         g2d.dispose();
     }
 
     /**
-     * 배경 이미지가 없을 때 표시할 기본 패턴을 그립니다.
+     * 그리드 패턴을 그립니다.
+     * 
+     * @param g2d            Graphics2D 객체
+     * @param withBackground 배경 이미지가 있는지 여부
      */
-    private void drawDefaultPattern(Graphics2D g2d) {
+    private void drawGridPattern(Graphics2D g2d, boolean withBackground) {
         int width = getWidth();
         int height = getHeight();
 
-        // 그리드 패턴 그리기
-        g2d.setColor(new Color(200, 200, 200, 50));
+        // 배경 이미지가 있을 때는 더 투명하게, 없을 때는 덜 투명하게
+        int alpha = withBackground ? 30 : 50;
+        g2d.setColor(new Color(200, 200, 200, alpha));
         g2d.setStroke(new BasicStroke(1));
 
         int gridSize = 50;
@@ -66,11 +73,19 @@ public class MapPanel extends JPanel {
         for (int y = 0; y < height; y += gridSize) {
             g2d.drawLine(0, y, width, y);
         }
+    }
+
+    /**
+     * 배경 이미지가 없을 때 표시할 기본 메시지를 그립니다.
+     */
+    private void drawDefaultMessage(Graphics2D g2d) {
+        int width = getWidth();
+        int height = getHeight();
 
         // 중앙에 안내 텍스트
         g2d.setColor(new Color(149, 165, 166));
         g2d.setFont(new Font("맑은 고딕", Font.BOLD, 16));
-        String message = "🏢 건물과 층을 선택하세요";
+        String message = "건물과 층을 선택하세요";
         FontMetrics fm = g2d.getFontMetrics();
         int textWidth = fm.stringWidth(message);
         int textHeight = fm.getHeight();

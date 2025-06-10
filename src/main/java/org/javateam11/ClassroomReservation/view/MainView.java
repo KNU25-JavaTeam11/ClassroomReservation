@@ -273,8 +273,8 @@ public class MainView extends JFrame {
     private void setupMainWindow() {
         setTitle("🏫 강의실 예약 시스템");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1000, 750);
-        setResizable(true); // 크기 조정 가능하도록 변경
+        setSize(900, 800);
+        setResizable(false);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
         getContentPane().setBackground(BACKGROUND_COLOR);
@@ -567,6 +567,15 @@ public class MainView extends JFrame {
      */
     public void showReservationDialog(String name, ReservationDialog.ReservationHandler handler) {
         ReservationDialog.showReservationDialog(this, name, handler);
+    }
+
+    /**
+     * roomIdMap을 반환합니다.
+     * 
+     * @return 강의실 이름과 roomId 매핑 정보
+     */
+    public Map<String, Long> getRoomIdMap() {
+        return roomIdMap;
     }
 
 }

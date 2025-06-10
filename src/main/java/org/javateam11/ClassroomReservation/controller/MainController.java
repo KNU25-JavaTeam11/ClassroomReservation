@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.util.List;
+import java.util.Map;
 
 /**
  * MainController는 MVC 패턴에서 Controller 역할을 담당하며,
@@ -155,8 +156,10 @@ public class MainController implements IMainController {
      */
     @Override
     public void onReservationClicked(Classroom classroom) {
+        // MainView에서 roomIdMap을 가져와서 전달
+        Map<String, Long> roomIdMap = view.getRoomIdMap();
         ReservationDetailView reservationDetailView = ControllerFactory.getInstance()
-                .createReservationDetailView(classroom, this);
+                .createReservationDetailView(classroom, this, roomIdMap);
         reservationDetailView.setVisible(true);
     }
 

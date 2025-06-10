@@ -94,8 +94,8 @@ public class TopPanel extends JPanel {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
         panel.setBackground(TOPBAR_COLOR);
 
-        JLabel buildingLabel = StyleManager.createStyledLabel("🏢 건물:");
-        JLabel floorLabel = StyleManager.createStyledLabel("📍 층:");
+        JLabel buildingLabel = StyleManager.createStyledLabel("건물:");
+        JLabel floorLabel = StyleManager.createStyledLabel("층:");
 
         panel.add(buildingLabel);
         panel.add(buildingCombo);
@@ -133,7 +133,7 @@ public class TopPanel extends JPanel {
     private void updateTimeLabel() {
         String currentTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
         if (timeLabel != null) {
-            timeLabel.setText("🕒 " + currentTime);
+            timeLabel.setText(currentTime);
         }
     }
 
