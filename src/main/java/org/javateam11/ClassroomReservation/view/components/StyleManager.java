@@ -72,6 +72,34 @@ public class StyleManager {
         // 크기 설정
         comboBox.setPreferredSize(new Dimension(140, 38));
 
+        comboBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value,
+                    int index, boolean isSelected, boolean cellHasFocus) {
+
+                Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+
+                // 글꼴 설정
+                setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+
+                if (isSelected) {
+                    // 선택된 아이템의 색상을 커스텀으로 설정
+                    setBackground(COMBO_HOVER);
+                    setForeground(TEXT_COLOR);
+                } else {
+                    // 선택되지 않은 아이템의 색상 설정
+                    setBackground(COMBO_BACKGROUND);
+                    setForeground(TEXT_COLOR);
+                }
+
+                // 테두리 설정
+                setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+                setOpaque(true);
+
+                return c;
+            }
+        });
+
         // 커스텀 UI 설정
         comboBox.setUI(new javax.swing.plaf.basic.BasicComboBoxUI() {
             @Override
@@ -99,12 +127,96 @@ public class StyleManager {
                 g2d.fillRoundRect(bounds.x, bounds.y, bounds.width, bounds.height, 6, 6);
                 g2d.dispose();
             }
+
+            @Override
+            public void paintCurrentValue(Graphics g, Rectangle bounds, boolean hasFocus) {
+                // 현재 선택된 값의 텍스트 렌더링을 커스터마이징
+                ListCellRenderer<Object> renderer = comboBox.getRenderer();
+                Component c;
+
+                if (hasFocus && !isPopupVisible(comboBox)) {
+                    c = renderer.getListCellRendererComponent(listBox, comboBox.getSelectedItem(), -1, false, false);
+                } else {
+                    c = renderer.getListCellRendererComponent(listBox, comboBox.getSelectedItem(), -1, false, false);
+                }
+
+                c.setFont(comboBox.getFont());
+
+                if (comboBox.isEnabled()) {
+                    c.setForeground(TEXT_COLOR);
+                    c.setBackground(COMBO_BACKGROUND);
+                } else {
+                    c.setForeground(TEXT_COLOR.brighter());
+                    c.setBackground(COMBO_BACKGROUND);
+                }
+
+                // 배경을 직접 그리고 텍스트 렌더링
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setColor(COMBO_BACKGROUND);
+                g2d.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+
+                currentValuePane.paintComponent(g, c, comboBox, bounds.x, bounds.y, bounds.width, bounds.height,
+                        c instanceof JComponent ? ((JComponent) c).isOpaque() : true);
+                g2d.dispose();
+            }
+
+            @Override
+            protected ListCellRenderer<Object> createRenderer() {
+                // 에디터 영역의 렌더러도 커스텀 설정
+                return new DefaultListCellRenderer() {
+                    @Override
+                    public Component getListCellRendererComponent(JList<?> list, Object value,
+                            int index, boolean isSelected, boolean cellHasFocus) {
+
+                        Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                        setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+                        setBackground(COMBO_BACKGROUND);
+                        setForeground(TEXT_COLOR);
+                        setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
+                        setOpaque(false);
+
+                        return c;
+                    }
+                };
+            }
+
+            @Override
+            protected ComboBoxEditor createEditor() {
+                ComboBoxEditor editor = super.createEditor();
+                Component editorComponent = editor.getEditorComponent();
+                if (editorComponent instanceof JTextField) {
+                    JTextField textField = (JTextField) editorComponent;
+                    textField.setBackground(COMBO_BACKGROUND);
+                    textField.setForeground(TEXT_COLOR);
+                    textField.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
+                    textField.setOpaque(true);
+                }
+                return editor;
+            }
         });
 
         // 테두리 설정
         comboBox.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(COMBO_BORDER, 1),
                 BorderFactory.createEmptyBorder(6, 12, 6, 8)));
+
+        // 포커스 리스너 추가 (파란색 배경 방지)
+        comboBox.addFocusListener(new java.awt.event.FocusListener() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent e) {
+                // 포커스를 받을 때도 배경색을 흰색으로 유지
+                comboBox.setBackground(COMBO_BACKGROUND);
+                comboBox.repaint();
+            }
+
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                // 포커스를 잃을 때도 배경색을 흰색으로 유지
+                comboBox.setBackground(COMBO_BACKGROUND);
+                comboBox.repaint();
+            }
+        });
 
         // 마우스 이벤트 추가
         comboBox.addMouseListener(new MouseAdapter() {
