@@ -24,15 +24,6 @@ public class AuthService {
     }
 
     /**
-     * 예외에서 의미있는 에러 메시지를 추출하는 헬퍼 메서드
-     * 
-     * @deprecated ErrorMessageUtils.extractCleanErrorMessage 사용을 권장
-     */
-    private String extractErrorMessage(Throwable throwable) {
-        return ErrorMessageUtils.extractCleanErrorMessage(throwable);
-    }
-
-    /**
      * 회원가입
      */
     public CompletableFuture<AuthResponse> register(String studentId, String name, String password) {
@@ -51,7 +42,7 @@ public class AuthService {
                     if (throwable != null) {
                         logger.error("회원가입 실패: 학번 '{}'", studentId, throwable);
                         // 원본 예외에서 메시지 추출
-                        String errorMessage = extractErrorMessage(throwable);
+                        String errorMessage = ErrorMessageUtils.extractCleanErrorMessage(throwable);
                         throw new RuntimeException(errorMessage, throwable);
                     }
                     return response;
@@ -77,7 +68,7 @@ public class AuthService {
                     if (throwable != null) {
                         logger.error("로그인 실패: 사용자명 '{}'", username, throwable);
                         // 원본 예외에서 메시지 추출
-                        String errorMessage = extractErrorMessage(throwable);
+                        String errorMessage = ErrorMessageUtils.extractCleanErrorMessage(throwable);
                         throw new RuntimeException(errorMessage, throwable);
                     }
                     return response;

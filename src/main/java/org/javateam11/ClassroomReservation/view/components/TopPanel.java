@@ -2,7 +2,6 @@ package org.javateam11.ClassroomReservation.view.components;
 
 import org.javateam11.ClassroomReservation.model.Building;
 import org.javateam11.ClassroomReservation.model.User;
-import org.javateam11.ClassroomReservation.controller.ControllerFactory;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -21,13 +20,8 @@ import java.util.List;
 public class TopPanel extends JPanel {
 
     // UI 색상 상수들
-    private static final Color PRIMARY_COLOR = new Color(41, 128, 185);
-    private static final Color TEXT_COLOR = new Color(44, 62, 80);
     private static final Color TOPBAR_COLOR = new Color(248, 249, 250);
-    private static final Color COMBO_BACKGROUND = new Color(255, 255, 255);
     private static final Color COMBO_BORDER = new Color(189, 195, 199);
-    private static final Color COMBO_HOVER = new Color(231, 236, 239);
-    private static final Color HOVER_COLOR = new Color(52, 152, 219);
 
     private JComboBox<String> buildingCombo;
     private JComboBox<Integer> floorCombo;
@@ -36,8 +30,6 @@ public class TopPanel extends JPanel {
     private User currentUser;
 
     // 콜백 인터페이스들
-    private ActionListener buildingChangeListener;
-    private ActionListener floorChangeListener;
     private Runnable myReservationCallback;
     private Runnable myInfoCallback;
     private Runnable logoutCallback;
@@ -174,14 +166,12 @@ public class TopPanel extends JPanel {
 
     // 이벤트 리스너 설정 메서드들
     public void setBuildingChangeListener(ActionListener listener) {
-        this.buildingChangeListener = listener;
         if (buildingCombo != null) {
             buildingCombo.addActionListener(listener);
         }
     }
 
     public void setFloorChangeListener(ActionListener listener) {
-        this.floorChangeListener = listener;
         if (floorCombo != null) {
             floorCombo.addActionListener(listener);
         }

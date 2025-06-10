@@ -5,7 +5,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.core.type.TypeReference;
 import okhttp3.*;
 import org.javateam11.ClassroomReservation.config.ApplicationConfig;
-import org.javateam11.ClassroomReservation.dto.ErrorResponse;
 import org.javateam11.ClassroomReservation.util.ErrorMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,15 +39,6 @@ public class ApiService {
     }
 
     /**
-     * 에러 응답에서 에러 메시지를 추출하는 헬퍼 메서드
-     * 
-     * @deprecated ErrorMessageUtils.extractApiErrorMessage 사용을 권장
-     */
-    private String extractErrorMessage(Response response) {
-        return ErrorMessageUtils.extractApiErrorMessage(response);
-    }
-
-    /**
      * GET 요청을 비동기로 실행
      */
     public <T> CompletableFuture<T> getAsync(String endpoint, Class<T> responseType) {
@@ -61,7 +51,7 @@ public class ApiService {
 
                 try (Response response = client.newCall(request).execute()) {
                     if (!response.isSuccessful()) {
-                        String errorMessage = extractErrorMessage(response);
+                        String errorMessage = ErrorMessageUtils.extractApiErrorMessage(response);
                         throw new RuntimeException(errorMessage);
                     }
 
@@ -90,7 +80,7 @@ public class ApiService {
 
                 try (Response response = client.newCall(request).execute()) {
                     if (!response.isSuccessful()) {
-                        String errorMessage = extractErrorMessage(response);
+                        String errorMessage = ErrorMessageUtils.extractApiErrorMessage(response);
                         throw new RuntimeException(errorMessage);
                     }
 
@@ -128,7 +118,7 @@ public class ApiService {
                         if (response.code() == 401) {
                             throw new RuntimeException("인증이 만료되었습니다. 다시 로그인해주세요.");
                         }
-                        String errorMessage = extractErrorMessage(response);
+                        String errorMessage = ErrorMessageUtils.extractApiErrorMessage(response);
                         throw new RuntimeException(errorMessage);
                     }
 
@@ -160,7 +150,7 @@ public class ApiService {
 
                 try (Response response = client.newCall(request).execute()) {
                     if (!response.isSuccessful()) {
-                        String errorMessage = extractErrorMessage(response);
+                        String errorMessage = ErrorMessageUtils.extractApiErrorMessage(response);
                         throw new RuntimeException(errorMessage);
                     }
 
@@ -201,7 +191,7 @@ public class ApiService {
                         if (response.code() == 401) {
                             throw new RuntimeException("인증이 만료되었습니다. 다시 로그인해주세요.");
                         }
-                        String errorMessage = extractErrorMessage(response);
+                        String errorMessage = ErrorMessageUtils.extractApiErrorMessage(response);
                         throw new RuntimeException(errorMessage);
                     }
 
@@ -233,7 +223,7 @@ public class ApiService {
 
                 try (Response response = client.newCall(request).execute()) {
                     if (!response.isSuccessful()) {
-                        String errorMessage = extractErrorMessage(response);
+                        String errorMessage = ErrorMessageUtils.extractApiErrorMessage(response);
                         throw new RuntimeException(errorMessage);
                     }
 
@@ -274,7 +264,7 @@ public class ApiService {
                         if (response.code() == 401) {
                             throw new RuntimeException("인증이 만료되었습니다. 다시 로그인해주세요.");
                         }
-                        String errorMessage = extractErrorMessage(response);
+                        String errorMessage = ErrorMessageUtils.extractApiErrorMessage(response);
                         throw new RuntimeException(errorMessage);
                     }
 
@@ -303,7 +293,7 @@ public class ApiService {
 
                 try (Response response = client.newCall(request).execute()) {
                     if (!response.isSuccessful()) {
-                        String errorMessage = extractErrorMessage(response);
+                        String errorMessage = ErrorMessageUtils.extractApiErrorMessage(response);
                         throw new RuntimeException(errorMessage);
                     }
                     logger.debug("DELETE {} 성공", endpoint);
@@ -337,7 +327,7 @@ public class ApiService {
                         if (response.code() == 401) {
                             throw new RuntimeException("인증이 만료되었습니다. 다시 로그인해주세요.");
                         }
-                        String errorMessage = extractErrorMessage(response);
+                        String errorMessage = ErrorMessageUtils.extractApiErrorMessage(response);
                         throw new RuntimeException(errorMessage);
                     }
                     logger.debug("DELETE {} 성공", endpoint);

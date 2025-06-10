@@ -461,17 +461,6 @@ public class MainView extends JFrame {
     }
 
     /**
-     * 강의실 버튼을 생성하고 상태에 따라 색상/글자색을 지정합니다.
-     * 
-     * @param name      강의실 이름
-     * @param available 가용 여부 (true: 비어있음, false: 사용중)
-     * @return JButton 객체
-     */
-    private JButton createRoomButton(String name, boolean available) {
-        return createRoomButton(name, available, null);
-    }
-
-    /**
      * 강의실 버튼을 생성하고 예약 정보를 바탕으로 상태에 따라 색상/글자색을 지정합니다.
      * 
      * @param name         강의실 이름

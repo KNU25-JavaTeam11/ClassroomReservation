@@ -1,7 +1,6 @@
 package org.javateam11.ClassroomReservation;
 
 import org.javateam11.ClassroomReservation.model.*;
-import org.javateam11.ClassroomReservation.controller.MainController;
 import org.javateam11.ClassroomReservation.controller.ControllerFactory;
 import org.javateam11.ClassroomReservation.view.LoginView;
 import org.slf4j.Logger;

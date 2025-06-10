@@ -22,9 +22,6 @@ import java.util.List;
 public class MainController implements IMainController {
     private static final Logger logger = LoggerFactory.getLogger(MainController.class);
 
-    // 전체 건물 리스트
-    private List<Building> buildings;
-
     // Spring 백엔드 연동 서비스
     private ReservationService reservationService;
 
@@ -37,7 +34,6 @@ public class MainController implements IMainController {
      * @param buildings 건물 리스트 (샘플 데이터 등)
      */
     public MainController(List<Building> buildings) {
-        this.buildings = buildings;
         this.reservationService = new ReservationService(); // Spring 백엔드 연동
         // MainView에 자신(this)을 넘겨 이벤트 콜백을 연결
         this.view = new MainView(this, buildings);
