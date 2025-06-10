@@ -1,4 +1,4 @@
-package org.javateam11.ClassroomReservation.view;
+package org.javateam11.ClassroomReservation.view.components;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
