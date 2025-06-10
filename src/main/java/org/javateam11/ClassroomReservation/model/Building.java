@@ -16,7 +16,7 @@ public class Building {
     private List<Integer> floors;
 
     // 강의실 리스트
-    private List<Classroom> classrooms;
+    private List<Room> rooms;
 
     /**
      * Building 생성자
@@ -27,7 +27,7 @@ public class Building {
     public Building(String name, List<Integer> floors) {
         this.name = name;
         this.floors = floors;
-        this.classrooms = new ArrayList<>();
+        this.rooms = new ArrayList<>();
     }
 
     // 각 필드의 getter 및 강의실 추가 메서드
@@ -39,11 +39,11 @@ public class Building {
         return floors;
     }
 
-    public List<Classroom> getClassrooms() {
-        return classrooms;
+    public List<Room> getRooms() {
+        return rooms;
     }
 
-    public void addClassroom(Classroom classroom) {
-        this.classrooms.add(classroom);
+    public void addRoom(Room room) {
+        this.rooms.add(room);
     }
 }

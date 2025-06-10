@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Classroom 클래스는 강의실 정보를 표현합니다.
+ * Room 클래스는 강의실 정보를 표현합니다.
  */
-public class Classroom {
+public class Room {
 
     // 이름
     private String name;
@@ -27,7 +27,7 @@ public class Classroom {
     private List<Reservation> reservations;
 
     /**
-     * Classroom 생성자
+     * Room 생성자
      * 
      * @param name     강의실 이름
      * @param building 소속 건물명
@@ -35,7 +35,7 @@ public class Classroom {
      * @param x        2D 도면상의 x좌표
      * @param y        2D 도면상의 y좌표
      */
-    public Classroom(String name, String building, int floor, int x, int y) {
+    public Room(String name, String building, int floor, int x, int y) {
         this.name = name;
         this.building = building;
         this.floor = floor;

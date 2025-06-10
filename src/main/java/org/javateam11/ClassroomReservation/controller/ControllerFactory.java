@@ -43,15 +43,15 @@ public class ControllerFactory {
     /**
      * ReservationDetailController와 ReservationDetailView를 생성하고 연결합니다.
      */
-    public ReservationDetailView createReservationDetailView(Classroom classroom, MainController mainController,
-            Map<String, Long> roomIdMap) {
+    public ReservationDetailView createReservationDetailView(Room room, MainController mainController,
+                                                             Map<String, Long> roomIdMap) {
         ReservationDetailView view = new ReservationDetailView();
-        ReservationDetailController controller = new ReservationDetailController(classroom, mainController, view);
+        ReservationDetailController controller = new ReservationDetailController(room, mainController, view);
         view.setController(controller);
 
         // roomId 설정 (API 호출 시 필요)
-        if (roomIdMap != null && roomIdMap.containsKey(classroom.getName())) {
-            Long roomId = roomIdMap.get(classroom.getName());
+        if (roomIdMap != null && roomIdMap.containsKey(room.getName())) {
+            Long roomId = roomIdMap.get(room.getName());
             view.setRoomId(roomId);
         }
 
@@ -61,9 +61,9 @@ public class ControllerFactory {
     /**
      * ReservationController와 ReservationView를 생성하고 연결합니다.
      */
-    public ReservationView createReservationView(Classroom classroom, ReservationDetailView detailView,
-            java.awt.Component parentComponent, Map<String, Long> roomIdMap) {
-        ReservationController controller = new ReservationController(classroom, detailView, parentComponent, roomIdMap);
+    public ReservationView createReservationView(Room room, ReservationDetailView detailView,
+                                                 java.awt.Component parentComponent, Map<String, Long> roomIdMap) {
+        ReservationController controller = new ReservationController(room, detailView, parentComponent, roomIdMap);
         ReservationView view = new ReservationView(controller);
         controller.setReservationView(view);
         return view;

@@ -1,7 +1,7 @@
 package org.javateam11.ClassroomReservation.util;
 
 import org.javateam11.ClassroomReservation.dto.ReservationDto;
-import org.javateam11.ClassroomReservation.model.Classroom;
+import org.javateam11.ClassroomReservation.model.Room;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -17,12 +17,12 @@ public class AvailabilityChecker {
     /**
      * 현재 시간 기준으로 특정 강의실이 사용 가능한지 판단
      * 
-     * @param classroom    확인할 강의실
+     * @param room         확인할 강의실
      * @param reservations 현재 날짜의 모든 예약 정보
      * @param roomIdMap    강의실 이름과 roomId 매핑 정보
      * @return true: 사용 가능, false: 사용 중
      */
-    public static boolean isCurrentlyAvailable(Classroom classroom, List<ReservationDto> reservations,
+    public static boolean isCurrentlyAvailable(Room room, List<ReservationDto> reservations,
             Map<String, Long> roomIdMap) {
         if (reservations == null || reservations.isEmpty()) {
             return true; // 예약이 없으면 사용 가능
@@ -32,7 +32,7 @@ public class AvailabilityChecker {
         LocalTime currentTime = LocalTime.now();
 
         // 강의실 이름으로 roomId 찾기
-        Long roomId = roomIdMap.get(classroom.getName());
+        Long roomId = roomIdMap.get(room.getName());
         if (roomId == null) {
             // roomId를 찾을 수 없으면 기본적으로 사용 가능으로 판단
             return true;
@@ -100,25 +100,25 @@ public class AvailabilityChecker {
     /**
      * 현재 시간 기준으로 강의실 상태를 문자열로 반환
      * 
-     * @param classroom    확인할 강의실
+     * @param room         확인할 강의실
      * @param reservations 현재 날짜의 모든 예약 정보
      * @param roomIdMap    강의실 이름과 roomId 매핑 정보
      * @return 상태 문자열 ("사용 가능" 또는 "사용 중")
      */
-    public static String getAvailabilityStatus(Classroom classroom, List<ReservationDto> reservations,
+    public static String getAvailabilityStatus(Room room, List<ReservationDto> reservations,
             Map<String, Long> roomIdMap) {
-        return isCurrentlyAvailable(classroom, reservations, roomIdMap) ? "사용 가능" : "사용 중";
+        return isCurrentlyAvailable(room, reservations, roomIdMap) ? "사용 가능" : "사용 중";
     }
 
     /**
      * 다음 예약까지 남은 시간을 계산하여 반환
      * 
-     * @param classroom    확인할 강의실
+     * @param room         확인할 강의실
      * @param reservations 현재 날짜의 모든 예약 정보
      * @param roomIdMap    강의실 이름과 roomId 매핑 정보
      * @return 다음 예약까지의 시간 정보 (분 단위) 또는 null (다음 예약이 없는 경우)
      */
-    public static Integer getMinutesToNextReservation(Classroom classroom, List<ReservationDto> reservations,
+    public static Integer getMinutesToNextReservation(Room room, List<ReservationDto> reservations,
             Map<String, Long> roomIdMap) {
         if (reservations == null || reservations.isEmpty()) {
             return null;
@@ -126,7 +126,7 @@ public class AvailabilityChecker {
 
         LocalDate today = LocalDate.now();
         LocalTime currentTime = LocalTime.now();
-        Long roomId = roomIdMap.get(classroom.getName());
+        Long roomId = roomIdMap.get(room.getName());
 
         if (roomId == null) {
             return null;

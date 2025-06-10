@@ -7,13 +7,13 @@ import org.javateam11.ClassroomReservation.view.*;
  * ReservationDetailView의 로직을 담당하는 컨트롤러
  */
 public class ReservationDetailController {
-	private Classroom classroom;
+	private Room room;
 	private MainController mainController;
 	private ReservationDetailView reservationDetailView;
 
-	public ReservationDetailController(Classroom classroom, MainController maincontroller,
-			ReservationDetailView reservationDetailView) {
-		this.classroom = classroom;
+	public ReservationDetailController(Room room, MainController maincontroller,
+									   ReservationDetailView reservationDetailView) {
+		this.room = room;
 		this.mainController = maincontroller;
 		this.reservationDetailView = reservationDetailView;
 	}
@@ -24,7 +24,7 @@ public class ReservationDetailController {
 	 * @return classroom 객체의 name 반환.
 	 */
 	public String getName() {
-		return classroom.getName();
+		return room.getName();
 	}
 
 	/**
@@ -33,7 +33,7 @@ public class ReservationDetailController {
 	 * @return classroom 객체의 building 반환.
 	 */
 	public String getBuildingName() {
-		return classroom.getBuildingName();
+		return room.getBuildingName();
 	}
 
 	/**
@@ -41,6 +41,6 @@ public class ReservationDetailController {
 	 * 클릭 시 강의실 예약 처리를 위해 onRoomClicked 호출.
 	 */
 	public void onDetailReserveClicked() {
-		mainController.onReserveClicked(classroom, reservationDetailView);
+		mainController.onReserveClicked(room, reservationDetailView);
 	}
 }

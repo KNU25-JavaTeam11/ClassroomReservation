@@ -30,7 +30,7 @@ public class Main {
 
             logger.info("샘플 데이터 로드 완료: {}개 건물, 총 {}개 강의실",
                     buildings.size(),
-                    buildings.stream().mapToInt(b -> b.getClassrooms().size()).sum());
+                    buildings.stream().mapToInt(b -> b.getRooms().size()).sum());
 
             // GUI를 Event Dispatch Thread에서 실행
             SwingUtilities.invokeLater(() -> {
@@ -56,21 +56,21 @@ public class Main {
 
         // IT4 건물 (1층)
         Building it4 = new Building("IT4", Arrays.asList(1));
-        it4.addClassroom(new Classroom("104", "IT4", 1, 360, 125)); // 1층 104호
-        it4.addClassroom(new Classroom("106", "IT4", 1, 600, 330)); // 1층 106호
-        it4.addClassroom(new Classroom("108", "IT4", 1, 115, 330)); // 1층 108호
-        it4.addClassroom(new Classroom("DIY실", "IT4", 1, 760, 430)); // 1층 DIY실
+        it4.addRoom(new Room("104", "IT4", 1, 360, 125)); // 1층 104호
+        it4.addRoom(new Room("106", "IT4", 1, 600, 330)); // 1층 106호
+        it4.addRoom(new Room("108", "IT4", 1, 115, 330)); // 1층 108호
+        it4.addRoom(new Room("DIY실", "IT4", 1, 760, 430)); // 1층 DIY실
         buildings.add(it4);
 
         // IT5 건물 (2, 3층)
         Building it5 = new Building("IT5", Arrays.asList(2, 3));
-        it5.addClassroom(new Classroom("224", "IT5", 2, 625, 415)); // 2층 224호
-        it5.addClassroom(new Classroom("225", "IT5", 2, 690, 530)); // 2층 225호
-        it5.addClassroom(new Classroom("245", "IT5", 2, 355, 135)); // 2층 245호
-        it5.addClassroom(new Classroom("248", "IT5", 2, 200, 120)); // 2층 248호
-        it5.addClassroom(new Classroom("342", "IT5", 3, 500, 155)); // 3층 342호
-        it5.addClassroom(new Classroom("345", "IT5", 3, 355, 135)); // 3층 345호
-        it5.addClassroom(new Classroom("348", "IT5", 3, 200, 120)); // 3층 348호
+        it5.addRoom(new Room("224", "IT5", 2, 625, 415)); // 2층 224호
+        it5.addRoom(new Room("225", "IT5", 2, 690, 530)); // 2층 225호
+        it5.addRoom(new Room("245", "IT5", 2, 355, 135)); // 2층 245호
+        it5.addRoom(new Room("248", "IT5", 2, 200, 120)); // 2층 248호
+        it5.addRoom(new Room("342", "IT5", 3, 500, 155)); // 3층 342호
+        it5.addRoom(new Room("345", "IT5", 3, 355, 135)); // 3층 345호
+        it5.addRoom(new Room("348", "IT5", 3, 200, 120)); // 3층 348호
         buildings.add(it5);
 
         return buildings;

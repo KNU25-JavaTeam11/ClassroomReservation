@@ -45,26 +45,26 @@ public class MainController {
      * 예약 상세정보 창에서 예약하기 버튼 클릭 시 호출되는 메서드
      * Spring 백엔드를 통해 비동기로 예약을 처리합니다.
      *
-     * @param classroom 클릭된 강의실 객체
+     * @param room 클릭된 강의실 객체
      */
-    public void onReserveClicked(Classroom classroom, ReservationDetailView detailView) {
-        logger.info("강의실 예약 시도: {} ({}층 {}호)", classroom.getName(), classroom.getFloor(), classroom.getBuildingName());
+    public void onReserveClicked(Room room, ReservationDetailView detailView) {
+        logger.info("강의실 예약 시도: {} ({}층 {}호)", room.getName(), room.getFloor(), room.getBuildingName());
 
         // 강의실 예약 뷰 띄우기
-        view.showReservationView(classroom, detailView, view);
+        view.showReservationView(room, detailView, view);
     }
 
     /**
      * 강의실 클릭 시 호출되는 메서드
      * 예약 상세정보 창을 띄웁니다.
      *
-     * @param classroom 클릭된 강의실 객체
+     * @param room 클릭된 강의실 객체
      */
-    public void onReservationClicked(Classroom classroom) {
+    public void onReservationClicked(Room room) {
         // MainView에서 roomIdMap을 가져와서 전달
         Map<String, Long> roomIdMap = view.getRoomIdMap();
         ReservationDetailView reservationDetailView = ControllerFactory.getInstance()
-                .createReservationDetailView(classroom, this, roomIdMap);
+                .createReservationDetailView(room, this, roomIdMap);
         reservationDetailView.setVisible(true);
     }
 

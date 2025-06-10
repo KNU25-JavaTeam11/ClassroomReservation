@@ -1,6 +1,6 @@
 package org.javateam11.ClassroomReservation.controller;
 
-import org.javateam11.ClassroomReservation.model.Classroom;
+import org.javateam11.ClassroomReservation.model.Room;
 import org.javateam11.ClassroomReservation.model.Reservation;
 import org.javateam11.ClassroomReservation.service.ReservationService;
 import org.javateam11.ClassroomReservation.service.TokenManager;
@@ -23,16 +23,16 @@ import java.util.Map;
 public class ReservationController {
     private static final Logger logger = LoggerFactory.getLogger(ReservationController.class);
 
-    private final Classroom classroom;
+    private final Room room;
     private final ReservationDetailView detailView;
     private final Component parentComponent;
     private ReservationView reservationView;
     private final ReservationService reservationService;
     private final Map<String, Long> roomIdMap;
 
-    public ReservationController(Classroom classroom, ReservationDetailView detailView, Component parentComponent,
-            Map<String, Long> roomIdMap) {
-        this.classroom = classroom;
+    public ReservationController(Room room, ReservationDetailView detailView, Component parentComponent,
+                                 Map<String, Long> roomIdMap) {
+        this.room = room;
         this.detailView = detailView;
         this.parentComponent = parentComponent;
         this.roomIdMap = roomIdMap;
@@ -44,7 +44,7 @@ public class ReservationController {
     }
 
     public void createReservation(LocalDate date, LocalTime start, LocalTime end) {
-        logger.info("강의실 예약 시도: {} ({}층 {}호)", classroom.getName(), classroom.getFloor(), classroom.getBuildingName());
+        logger.info("강의실 예약 시도: {} ({}층 {}호)", room.getName(), room.getFloor(), room.getBuildingName());
 
         // 현재 로그인한 사용자의 학번을 예약자로 사용
         String currentStudentId = TokenManager.getInstance().getCurrentStudentId();
@@ -56,11 +56,11 @@ public class ReservationController {
         // roomId 조회
         Long roomId = null;
         if (roomIdMap != null) {
-            roomId = roomIdMap.get(classroom.getName());
+            roomId = roomIdMap.get(room.getName());
         }
 
         if (roomId == null) {
-            logger.error("강의실 {}의 roomId를 찾을 수 없습니다", classroom.getName());
+            logger.error("강의실 {}의 roomId를 찾을 수 없습니다", room.getName());
             JOptionPane.showMessageDialog(parentComponent,
                     "강의실 정보를 찾을 수 없습니다.\n새로고침 후 다시 시도해주세요.",
                     "오류", JOptionPane.ERROR_MESSAGE);
@@ -68,7 +68,7 @@ public class ReservationController {
         }
 
         Reservation reservation = Reservation.forNewReservation(currentStudentId, date, start, end,
-                classroom.getName()).withRoomId(roomId);
+                room.getName()).withRoomId(roomId);
         logger.debug("서버에 예약 생성 요청: {} (roomId: {})", reservation.getRoomName(), reservation.getRoomId());
 
         reservationService.createReservation(
@@ -101,6 +101,6 @@ public class ReservationController {
     }
 
     public String getRoomName() {
-        return classroom.getName();
+        return room.getName();
     }
 }

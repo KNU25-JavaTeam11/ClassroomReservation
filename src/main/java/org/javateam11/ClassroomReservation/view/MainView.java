@@ -176,17 +176,17 @@ public class MainView extends JFrame {
         // 로컬 강의실 데이터를 순회하면서 백엔드 데이터와 매칭
         for (Building building : localBuildings) {
             // 강의실 매핑
-            for (Classroom classroom : building.getClassrooms()) {
-                String localKey = building.getName() + "_" + classroom.getName();
+            for (Room room : building.getRooms()) {
+                String localKey = building.getName() + "_" + room.getName();
                 RoomDto backendRoom = backendRoomMap.get(localKey);
 
                 if (backendRoom != null) {
-                    roomIdMap.put(classroom.getName(), backendRoom.getId());
+                    roomIdMap.put(room.getName(), backendRoom.getId());
                     logger.debug("강의실 매핑: {} ({}) -> roomId {}",
-                            classroom.getName(), localKey, backendRoom.getId());
+                            room.getName(), localKey, backendRoom.getId());
                 } else {
                     logger.warn("백엔드에서 매칭되지 않은 로컬 강의실: {} ({})",
-                            classroom.getName(), localKey);
+                            room.getName(), localKey);
                 }
             }
 
@@ -202,14 +202,14 @@ public class MainView extends JFrame {
 
         for (Building building : localBuildings) {
             // 강의실에 임시 ID 할당
-            for (Classroom classroom : building.getClassrooms()) {
-                roomIdMap.put(classroom.getName(), currentId++);
+            for (Room room : building.getRooms()) {
+                roomIdMap.put(room.getName(), currentId++);
             }
 
         }
 
         logger.info("폴백 매핑 완료: 강의실 {}개",
-                localBuildings.stream().mapToInt(b -> b.getClassrooms().size()).sum());
+                localBuildings.stream().mapToInt(b -> b.getRooms().size()).sum());
     }
 
     /**
@@ -419,7 +419,7 @@ public class MainView extends JFrame {
         for (Building b : buildings) {
             if (b.getName().equals(selectedBuilding)) {
                 // 강의실 버튼 배치
-                for (Classroom c : b.getClassrooms()) {
+                for (Room c : b.getRooms()) {
                     if (c.getFloor() == selectedFloor) {
                         try {
                             String imageFileName = selectedBuilding + "_" + selectedFloor + "F.png";
@@ -529,7 +529,7 @@ public class MainView extends JFrame {
             // 다음 예약까지 남은 시간 정보 추가
             if (available) {
                 Integer minutesToNext = AvailabilityChecker.getMinutesToNextReservation(
-                        new org.javateam11.ClassroomReservation.model.Classroom(name, "", 0, 0, 0),
+                        new Room(name, "", 0, 0, 0),
                         reservations, roomIdMap);
                 if (minutesToNext != null) {
                     int hours = minutesToNext / 60;
@@ -552,12 +552,12 @@ public class MainView extends JFrame {
     /**
      * 예약 뷰를 띄워 사용자 입력을 받습니다.
      * 
-     * @param classroom       강의실 객체
+     * @param room       강의실 객체
      * @param detailView      예약 상세 뷰
      * @param parentComponent 부모 컴포넌트
      */
-    public void showReservationView(Classroom classroom, ReservationDetailView detailView, Component parentComponent) {
-        ReservationView reservationView = ControllerFactory.getInstance().createReservationView(classroom, detailView,
+    public void showReservationView(Room room, ReservationDetailView detailView, Component parentComponent) {
+        ReservationView reservationView = ControllerFactory.getInstance().createReservationView(room, detailView,
                 parentComponent, roomIdMap);
         reservationView.setVisible(true);
     }
