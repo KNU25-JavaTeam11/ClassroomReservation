@@ -2,7 +2,8 @@ package org.javateam11.ClassroomReservation.service;
 
 import org.javateam11.ClassroomReservation.dto.LoginRequest;
 import org.javateam11.ClassroomReservation.dto.RegisterRequest;
-import org.javateam11.ClassroomReservation.dto.AuthResponse;
+import org.javateam11.ClassroomReservation.dto.LoginResponse;
+import org.javateam11.ClassroomReservation.dto.RegisterResponse;
 import org.javateam11.ClassroomReservation.util.ErrorMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,16 +27,15 @@ public class AuthService {
     /**
      * 회원가입
      */
-    public CompletableFuture<AuthResponse> register(String studentId, String name, String password) {
+    public CompletableFuture<RegisterResponse> register(String studentId, String name, String password) {
         logger.info("회원가입 시도: 학번 '{}'", studentId);
 
         RegisterRequest request = new RegisterRequest(studentId, name, password);
 
-        return apiService.postAsync("/api/auth/register", request, AuthResponse.class)
+        return apiService.postAsync("/api/auth/register", request, RegisterResponse.class)
                 .thenApply(response -> {
-                    logger.info("회원가입 성공: 학번 '{}'", response.getStudentId());
-                    // 회원가입 성공 시 자동으로 토큰 저장
-                    tokenManager.setAuthentication(response.getStudentId(), response.getName(), response.getToken());
+                    logger.info("회원가입 성공: 학번 '{}', 메시지: {}", response.getStudentId(), response.getMessage());
+                    // 회원가입 성공 시는 토큰이 없으므로 토큰 저장을 하지 않음
                     return response;
                 })
                 .handle((response, throwable) -> {
@@ -52,12 +52,12 @@ public class AuthService {
     /**
      * 로그인
      */
-    public CompletableFuture<AuthResponse> login(String username, String password) {
+    public CompletableFuture<LoginResponse> login(String username, String password) {
         logger.info("로그인 시도: 사용자명 '{}'", username);
 
         LoginRequest request = new LoginRequest(username, password);
 
-        return apiService.postAsync("/api/auth/login", request, AuthResponse.class)
+        return apiService.postAsync("/api/auth/login", request, LoginResponse.class)
                 .thenApply(response -> {
                     logger.info("로그인 성공: 학번 '{}'", response.getStudentId());
                     // 로그인 성공 시 토큰 저장

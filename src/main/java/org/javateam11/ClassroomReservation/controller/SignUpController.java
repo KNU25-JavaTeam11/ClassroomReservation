@@ -63,7 +63,14 @@ public class SignUpController implements ISignUpController {
         return authService.register(studentNumber.trim(), name, password)
                 .thenApply(response -> {
                     SwingUtilities.invokeLater(() -> {
-                        showSuccess("회원가입이 완료되었습니다!");
+                        // 회원가입 완료 다이얼로그 표시
+                        JOptionPane.showMessageDialog(
+                                signUpView,
+                                "회원가입이 완료되었습니다!",
+                                "회원가입 완료",
+                                JOptionPane.INFORMATION_MESSAGE);
+
+                        // 사용자가 확인 버튼을 누른 후 창 닫기
                         if (signUpView != null) {
                             signUpView.dispose();
                         }
