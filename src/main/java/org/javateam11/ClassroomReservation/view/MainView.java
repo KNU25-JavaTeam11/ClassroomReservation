@@ -9,6 +9,7 @@ import org.javateam11.ClassroomReservation.service.RoomService;
 import org.javateam11.ClassroomReservation.dto.ReservationDto;
 import org.javateam11.ClassroomReservation.dto.RoomDto;
 import org.javateam11.ClassroomReservation.util.AvailabilityChecker;
+import org.javateam11.ClassroomReservation.view.components.*;
 
 import org.javateam11.ClassroomReservation.model.Building;
 import org.javateam11.ClassroomReservation.model.User;
@@ -18,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -26,7 +26,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -41,23 +40,10 @@ public class MainView extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(MainView.class);
 
     // UI 색상 상수들
-    private static final Color PRIMARY_COLOR = new Color(41, 128, 185); // 블루
-    private static final Color SUCCESS_COLOR = new Color(39, 174, 96); // 녹색
-    private static final Color DANGER_COLOR = new Color(231, 76, 60); // 빨강
-    private static final Color WARNING_COLOR = new Color(241, 196, 15); // 노랑
     private static final Color BACKGROUND_COLOR = new Color(236, 240, 241); // 연한 회색
-    private static final Color TEXT_COLOR = new Color(44, 62, 80); // 다크 그레이
-    private static final Color HOVER_COLOR = new Color(52, 152, 219); // 밝은 블루
-    private static final Color TOPBAR_COLOR = new Color(248, 249, 250); // 상단바 색상 (매우 연한 회색)
-    private static final Color COMBO_BACKGROUND = new Color(255, 255, 255); // 콤보박스 배경
-    private static final Color COMBO_BORDER = new Color(189, 195, 199); // 콤보박스 테두리
-    private static final Color COMBO_HOVER = new Color(231, 236, 239); // 콤보박스 호버
 
-    // 건물 선택 콤보박스 (사용자가 건물을 선택할 수 있음)
-    private JComboBox<String> buildingCombo;
-
-    // 층 선택 콤보박스 (사용자가 층을 선택할 수 있음)
-    private JComboBox<Integer> floorCombo;
+    // 상단 패널 (건물/층 선택, 사용자 메뉴)
+    private TopPanel topPanel;
 
     // 강의실/시설물 2D 배치 패널 (실제 버튼들이 배치되는 공간)
     private MapPanel mapPanel;
@@ -118,7 +104,7 @@ public class MainView extends JFrame {
 
         // 초기화: 첫 건물/층 선택 (프로그램 시작 시 자동으로 첫 건물/층 표시)
         if (!buildings.isEmpty()) {
-            buildingCombo.setSelectedIndex(0);
+            topPanel.getBuildingCombo().setSelectedIndex(0);
             updateFloors(buildings);
         }
 
@@ -240,8 +226,8 @@ public class MainView extends JFrame {
         // 30초마다 실행되는 타이머 생성
         refreshTimer = new Timer(30000, e -> {
             // 현재 선택된 건물과 층이 있을 때만 새로고침
-            String selectedBuilding = (String) buildingCombo.getSelectedItem();
-            Integer selectedFloor = (Integer) floorCombo.getSelectedItem();
+            String selectedBuilding = (String) topPanel.getBuildingCombo().getSelectedItem();
+            Integer selectedFloor = (Integer) topPanel.getFloorCombo().getSelectedItem();
 
             if (selectedBuilding != null && selectedFloor != null) {
                 System.out.println("자동 새로고침 실행: " + selectedBuilding + " " + selectedFloor + "층");
@@ -274,6 +260,10 @@ public class MainView extends JFrame {
             refreshTimer.stop();
             refreshTimer = null;
             System.out.println("자동 새로고침 타이머 중지됨");
+        }
+
+        if (topPanel != null) {
+            topPanel.cleanup();
         }
     }
 
@@ -313,59 +303,29 @@ public class MainView extends JFrame {
      * 상단 패널 설정
      */
     private void setupTopPanel(List<Building> buildings) {
-        // 상단
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setBackground(TOPBAR_COLOR);
-        topPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, COMBO_BORDER),
-                new EmptyBorder(15, 20, 15, 20)));
+        topPanel = new TopPanel(buildings, currentUser);
 
-        // 상단 좌측 - 빈 공간 (필요시 추가 메뉴 배치 가능)
-        JPanel topMenu = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        topMenu.setBackground(TOPBAR_COLOR);
-        topPanel.add(topMenu, BorderLayout.WEST);
-
-        // 상단 중앙 콤보박스
-        JPanel topRoom = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
-        topRoom.setBackground(TOPBAR_COLOR);
-
-        JLabel buildingLabel = createStyledLabel("🏢 건물:");
-        buildingCombo = createStyledComboBox();
-        for (Building b : buildings)
-            buildingCombo.addItem(b.getName());
-
-        JLabel floorLabel = createStyledLabel("📍 층:");
-        floorCombo = createStyledComboBox();
-
-        topRoom.add(buildingLabel);
-        topRoom.add(buildingCombo);
-        topRoom.add(Box.createHorizontalStrut(20));
-        topRoom.add(floorLabel);
-        topRoom.add(floorCombo);
-        topPanel.add(topRoom, BorderLayout.CENTER);
-
-        // 상단 우측 - 현재 시간 표시 및 사용자 드롭다운
-        JPanel topButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        topButtons.setBackground(TOPBAR_COLOR);
-
-        // 현재 시간 표시 라벨
-        JLabel timeLabel = createStyledLabel(
-                "🕒 " + java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss")));
-
-        // 시간 표시를 업데이트하는 타이머 (1초마다)
-        Timer timeUpdateTimer = new Timer(1000, e -> {
-            String currentTime = java.time.LocalTime.now()
-                    .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));
-            timeLabel.setText("🕒 " + currentTime);
+        // 콜백 설정
+        topPanel.setMyReservationCallback(() -> {
+            if (myResView == null) {
+                myResView = ControllerFactory.getInstance().createMyReservationView(currentUser);
+            }
+            myResView.setVisible(true);
         });
-        timeUpdateTimer.start();
 
-        JButton userDropdownBtn = createUserDropdownButton();
+        topPanel.setMyInfoCallback(() -> {
+            if (myInfoView == null) {
+                myInfoView = ControllerFactory.getInstance().createMyInformationView(currentUser);
+            }
+            myInfoView.setVisible(true);
+        });
 
-        topButtons.add(timeLabel);
-        topButtons.add(Box.createHorizontalStrut(20));
-        topButtons.add(userDropdownBtn);
-        topPanel.add(topButtons, BorderLayout.EAST);
+        topPanel.setLogoutCallback(() -> {
+            // TokenManager에서 인증 정보 삭제
+            TokenManager.getInstance().clearAuthentication();
+            // 프로그램 종료 (추후 로그인 화면으로 돌아가도록 개선 가능)
+            System.exit(0);
+        });
 
         add(topPanel, BorderLayout.NORTH);
     }
@@ -383,270 +343,18 @@ public class MainView extends JFrame {
         centerPanel.add(mapPanel, BorderLayout.CENTER);
 
         // 하단에 범례 추가
-        JPanel legendPanel = createLegendPanel();
+        LegendPanel legendPanel = new LegendPanel();
         centerPanel.add(legendPanel, BorderLayout.SOUTH);
 
         add(centerPanel, BorderLayout.CENTER);
     }
 
     /**
-     * 상태 범례 패널 생성
-     */
-    private JPanel createLegendPanel() {
-        JPanel legendPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        legendPanel.setBackground(Color.WHITE);
-        legendPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(189, 195, 199)),
-                BorderFactory.createEmptyBorder(10, 20, 10, 20)));
-
-        // 예약 가능 표시
-        JPanel availablePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-        availablePanel.setBackground(Color.WHITE);
-        JLabel availableIcon = new JLabel("✅");
-        availableIcon.setFont(new Font("맑은 고딕", Font.BOLD, 16));
-        JLabel availableText = createStyledLabel("예약 가능");
-        availablePanel.add(availableIcon);
-        availablePanel.add(availableText);
-
-        // 사용 중 표시
-        JPanel occupiedPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-        occupiedPanel.setBackground(Color.WHITE);
-        JLabel occupiedIcon = new JLabel("❌");
-        occupiedIcon.setFont(new Font("맑은 고딕", Font.BOLD, 16));
-        JLabel occupiedText = createStyledLabel("사용 중");
-        occupiedPanel.add(occupiedIcon);
-        occupiedPanel.add(occupiedText);
-
-        // 설명 텍스트
-        JLabel instructionText = new JLabel("💡 강의실을 클릭하여 예약하세요");
-        instructionText.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
-        instructionText.setForeground(new Color(127, 140, 141));
-
-        legendPanel.add(availablePanel);
-        legendPanel.add(occupiedPanel);
-        legendPanel.add(Box.createHorizontalStrut(30));
-        legendPanel.add(instructionText);
-
-        return legendPanel;
-    }
-
-    /**
      * 이벤트 리스너 설정
      */
     private void setupEventListeners(List<Building> buildings) {
-        buildingCombo.addActionListener(e -> updateFloors(buildings));
-        floorCombo.addActionListener(e -> updateMap(buildings));
-    }
-
-    /**
-     * 스타일이 적용된 버튼 생성
-     */
-    private JButton createStyledButton(String text, Color backgroundColor) {
-        JButton button = new JButton(text);
-        button.setBackground(backgroundColor);
-        button.setForeground(Color.WHITE);
-        button.setFont(new Font("맑은 고딕", Font.BOLD, 12));
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setOpaque(true);
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        button.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
-
-        // 호버 효과
-        button.addMouseListener(new MouseAdapter() {
-            private Color originalColor = backgroundColor;
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                button.setBackground(originalColor.brighter());
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                button.setBackground(originalColor);
-            }
-        });
-
-        return button;
-    }
-
-    /**
-     * 스타일이 적용된 콤보박스 생성
-     */
-    private <T> JComboBox<T> createStyledComboBox() {
-        JComboBox<T> comboBox = new JComboBox<>();
-
-        // 기본 스타일
-        comboBox.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
-        comboBox.setBackground(COMBO_BACKGROUND);
-        comboBox.setForeground(TEXT_COLOR);
-        comboBox.setOpaque(true);
-        comboBox.setFocusable(true);
-        comboBox.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        // 크기 설정
-        comboBox.setPreferredSize(new Dimension(140, 38));
-
-        // 커스텀 UI 설정
-        comboBox.setUI(new javax.swing.plaf.basic.BasicComboBoxUI() {
-            @Override
-            protected JButton createArrowButton() {
-                JButton button = new JButton();
-                button.setBackground(COMBO_BACKGROUND);
-                button.setBorder(BorderFactory.createEmptyBorder());
-                button.setFocusable(false);
-                button.setContentAreaFilled(false);
-
-                // 커스텀 화살표 아이콘
-                button.setText("▼");
-                button.setFont(new Font("맑은 고딕", Font.BOLD, 10));
-                button.setForeground(TEXT_COLOR);
-
-                return button;
-            }
-
-            @Override
-            public void paintCurrentValueBackground(Graphics g, Rectangle bounds, boolean hasFocus) {
-                Graphics2D g2d = (Graphics2D) g.create();
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                if (hasFocus || comboBox.isPopupVisible()) {
-                    g2d.setColor(COMBO_HOVER);
-                } else {
-                    g2d.setColor(COMBO_BACKGROUND);
-                }
-                g2d.fillRoundRect(bounds.x, bounds.y, bounds.width, bounds.height, 6, 6);
-                g2d.dispose();
-            }
-        });
-
-        // 테두리 설정
-        comboBox.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(COMBO_BORDER, 1),
-                BorderFactory.createEmptyBorder(6, 12, 6, 8)));
-
-        // 마우스 이벤트 추가
-        comboBox.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                if (comboBox.isEnabled()) {
-                    comboBox.setBorder(BorderFactory.createCompoundBorder(
-                            BorderFactory.createLineBorder(PRIMARY_COLOR, 2),
-                            BorderFactory.createEmptyBorder(5, 11, 5, 7)));
-                }
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                if (comboBox.isEnabled()) {
-                    comboBox.setBorder(BorderFactory.createCompoundBorder(
-                            BorderFactory.createLineBorder(COMBO_BORDER, 1),
-                            BorderFactory.createEmptyBorder(6, 12, 6, 8)));
-                }
-            }
-        });
-
-        return comboBox;
-    }
-
-    /**
-     * 스타일이 적용된 라벨 생성
-     */
-    private JLabel createStyledLabel(String text) {
-        JLabel label = new JLabel(text);
-        label.setFont(new Font("맑은 고딕", Font.BOLD, 13));
-        label.setForeground(TEXT_COLOR);
-        return label;
-    }
-
-    /**
-     * 사용자 드롭다운 버튼 생성
-     */
-    private JButton createUserDropdownButton() {
-        String userDisplayText = "👤 " + currentUser.getName() + "(" + currentUser.getStudentId() + ")";
-        JButton userBtn = createStyledButton(userDisplayText + " ▼", PRIMARY_COLOR);
-
-        // 팝업 메뉴 생성
-        JPopupMenu popupMenu = new JPopupMenu();
-        popupMenu.setBorder(BorderFactory.createLineBorder(COMBO_BORDER, 1));
-        popupMenu.setBackground(Color.WHITE);
-
-        // 내 예약 메뉴 아이템
-        JMenuItem myReservationItem = createStyledMenuItem("📅 내 예약");
-        myReservationItem.addActionListener(e -> {
-            if (myResView == null) {
-                myResView = ControllerFactory.getInstance().createMyReservationView(currentUser);
-            }
-            myResView.setVisible(true);
-        });
-
-        // 내 정보 메뉴 아이템
-        JMenuItem myInfoItem = createStyledMenuItem("⚙️ 내 정보");
-        myInfoItem.addActionListener(e -> {
-            if (myInfoView == null) {
-                myInfoView = ControllerFactory.getInstance().createMyInformationView(currentUser);
-            }
-            myInfoView.setVisible(true);
-        });
-
-        // 구분선
-        JSeparator separator = new JSeparator();
-
-        // 로그아웃 메뉴 아이템
-        JMenuItem logoutItem = createStyledMenuItem("🚪 로그아웃");
-        logoutItem.addActionListener(e -> {
-            int result = JOptionPane.showConfirmDialog(
-                    this,
-                    "정말 로그아웃하시겠습니까?",
-                    "로그아웃 확인",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE);
-            if (result == JOptionPane.YES_OPTION) {
-                // TokenManager에서 인증 정보 삭제
-                TokenManager.getInstance().clearAuthentication();
-                // 프로그램 종료 (추후 로그인 화면으로 돌아가도록 개선 가능)
-                System.exit(0);
-            }
-        });
-
-        popupMenu.add(myReservationItem);
-        popupMenu.add(myInfoItem);
-        popupMenu.add(separator);
-        popupMenu.add(logoutItem);
-
-        // 버튼 클릭 시 팝업 메뉴 표시
-        userBtn.addActionListener(e -> {
-            popupMenu.show(userBtn, 0, userBtn.getHeight());
-        });
-
-        return userBtn;
-    }
-
-    /**
-     * 스타일이 적용된 메뉴 아이템 생성
-     */
-    private JMenuItem createStyledMenuItem(String text) {
-        JMenuItem menuItem = new JMenuItem(text);
-        menuItem.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
-        menuItem.setForeground(TEXT_COLOR);
-        menuItem.setBackground(Color.WHITE);
-        menuItem.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
-        menuItem.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        // 호버 효과
-        menuItem.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                menuItem.setBackground(new Color(236, 240, 241));
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                menuItem.setBackground(Color.WHITE);
-            }
-        });
-
-        return menuItem;
+        topPanel.setBuildingChangeListener(e -> updateFloors(buildings));
+        topPanel.setFloorChangeListener(e -> updateMap(buildings));
     }
 
     /**
@@ -658,16 +366,16 @@ public class MainView extends JFrame {
      *                  - 층이 바뀌면 자동으로 2D 도면도 갱신
      */
     private void updateFloors(List<Building> buildings) {
-        String selectedBuilding = (String) buildingCombo.getSelectedItem();
-        floorCombo.removeAllItems(); // 기존 층 목록 삭제
+        String selectedBuilding = (String) topPanel.getBuildingCombo().getSelectedItem();
+        topPanel.getFloorCombo().removeAllItems(); // 기존 층 목록 삭제
 
         for (Building b : buildings) {
             if (b.getName().equals(selectedBuilding)) {
                 // 해당 건물의 모든 층을 콤보박스에 추가
                 for (Integer f : b.getFloors())
-                    floorCombo.addItem(f);
+                    topPanel.getFloorCombo().addItem(f);
                 if (!b.getFloors().isEmpty())
-                    floorCombo.setSelectedIndex(0); // 첫 층 자동 선택
+                    topPanel.getFloorCombo().setSelectedIndex(0); // 첫 층 자동 선택
                 updateMap(buildings); // 도면 갱신
                 break;
             }
@@ -687,8 +395,8 @@ public class MainView extends JFrame {
      */
     private void updateMap(List<Building> buildings) {
         mapPanel.removeAll(); // 기존 버튼 제거
-        String selectedBuilding = (String) buildingCombo.getSelectedItem();
-        Integer selectedFloor = (Integer) floorCombo.getSelectedItem();
+        String selectedBuilding = (String) topPanel.getBuildingCombo().getSelectedItem();
+        Integer selectedFloor = (Integer) topPanel.getFloorCombo().getSelectedItem();
         if (selectedFloor == null)
             return; // 층이 선택되지 않은 경우 종료
 
@@ -867,93 +575,9 @@ public class MainView extends JFrame {
      * 
      * @param name    강의실 이름
      * @param handler 예약 처리 콜백 (예약 입력값을 컨트롤러로 전달)
-     *
-     *                - 사용자에게 예약자, 날짜, 시작/종료 시간 입력을 받음
-     *                - 입력값이 올바르지 않으면 경고 메시지 출력
      */
-    public void showReservationDialog(String name, ReservationHandler handler) {
-        JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
-        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
-        panel.setBackground(Color.WHITE);
-
-        JTextField reserverField = createStyledTextField();
-        JTextField dateField = createStyledTextField();
-        dateField.setText("2024-06-01");
-        JTextField startField = createStyledTextField();
-        startField.setText("09:00");
-        JTextField endField = createStyledTextField();
-        endField.setText("10:00");
-
-        panel.add(createStyledLabel("👤 예약자 이름:"));
-        panel.add(reserverField);
-        panel.add(createStyledLabel("📅 날짜 (yyyy-MM-dd):"));
-        panel.add(dateField);
-        panel.add(createStyledLabel("⏰ 시작 시간 (HH:mm):"));
-        panel.add(startField);
-        panel.add(createStyledLabel("⏰ 종료 시간 (HH:mm):"));
-        panel.add(endField);
-
-        // 다이얼로그 표시 (OK/Cancel)
-        int result = JOptionPane.showConfirmDialog(
-                this,
-                panel,
-                "🏫 " + name + " 예약",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE);
-
-        if (result == JOptionPane.OK_OPTION) {
-            try {
-                String reserver = reserverField.getText().trim();
-                if (reserver.isEmpty()) {
-                    throw new IllegalArgumentException("예약자 이름을 입력해주세요.");
-                }
-
-                LocalDate date = LocalDate.parse(dateField.getText().trim());
-                LocalTime start = LocalTime.parse(startField.getText().trim());
-                LocalTime end = LocalTime.parse(endField.getText().trim());
-
-                if (start.isAfter(end)) {
-                    throw new IllegalArgumentException("시작 시간이 종료 시간보다 늦을 수 없습니다.");
-                }
-
-                handler.onReserve(reserver, date, start, end);
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(
-                        this,
-                        "❌ 입력값 오류: " + e.getMessage(),
-                        "입력 오류",
-                        JOptionPane.ERROR_MESSAGE);
-            }
-        }
+    public void showReservationDialog(String name, ReservationDialog.ReservationHandler handler) {
+        ReservationDialog.showReservationDialog(this, name, handler);
     }
 
-    /**
-     * 스타일이 적용된 텍스트필드 생성
-     */
-    private JTextField createStyledTextField() {
-        JTextField textField = new JTextField();
-        textField.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
-        textField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(189, 195, 199), 1),
-                BorderFactory.createEmptyBorder(8, 12, 8, 12)));
-        textField.setBackground(Color.WHITE);
-        textField.setForeground(TEXT_COLOR);
-        return textField;
-    }
-
-    /**
-     * 예약 입력값을 전달받아 처리하는 콜백 인터페이스
-     * - 컨트롤러에서 구현하여 예약 처리 로직을 담당
-     */
-    public interface ReservationHandler {
-        /**
-         * 예약 입력값을 전달받아 처리합니다.
-         * 
-         * @param reserver 예약자 이름
-         * @param date     예약 날짜
-         * @param start    시작 시간
-         * @param end      종료 시간
-         */
-        void onReserve(String reserver, LocalDate date, LocalTime start, LocalTime end);
-    }
 }
