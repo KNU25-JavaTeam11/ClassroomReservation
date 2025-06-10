@@ -95,11 +95,7 @@ public class StyleManager {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                if (hasFocus || comboBox.isPopupVisible()) {
-                    g2d.setColor(COMBO_HOVER);
-                } else {
-                    g2d.setColor(COMBO_BACKGROUND);
-                }
+                g2d.setColor(COMBO_BACKGROUND);
                 g2d.fillRoundRect(bounds.x, bounds.y, bounds.width, bounds.height, 6, 6);
                 g2d.dispose();
             }

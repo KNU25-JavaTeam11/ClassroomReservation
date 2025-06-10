@@ -194,10 +194,6 @@ class StyledStatusCellRenderer extends DefaultTableCellRenderer {
                     c.setBackground(StyleManager.getBackgroundColor());
                     break;
             }
-
-            if (isSelected) {
-                c.setBackground(c.getBackground().darker());
-            }
         }
 
         setText(""); // 텍스트는 비워두고 색으로만 표현
