@@ -42,9 +42,9 @@ public class ControllerFactory {
     /**
      * ReservationDetailController와 ReservationDetailView를 생성하고 연결합니다.
      */
-    public ReservationDetailView createReservationDetailView(Place place, MainController mainController) {
+    public ReservationDetailView createReservationDetailView(Classroom classroom, MainController mainController) {
         ReservationDetailView view = new ReservationDetailView();
-        ReservationDetailController controller = new ReservationDetailController(place, mainController, view);
+        ReservationDetailController controller = new ReservationDetailController(classroom, mainController, view);
         view.setController(controller);
         return view;
     }

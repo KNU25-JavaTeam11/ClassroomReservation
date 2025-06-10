@@ -8,9 +8,9 @@ import org.javateam11.ClassroomReservation.model.*;
  */
 public interface IMainController {
     /**
-     * 강의실/시설물 클릭 시 호출되는 메서드
+     * 강의실 클릭 시 호출되는 메서드
      */
-    void onReservationClicked(Place place);
+    void onReservationClicked(Classroom classroom);
 
     /**
      * 회원가입 버튼 클릭시 호출되는 메서드

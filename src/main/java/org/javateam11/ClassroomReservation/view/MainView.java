@@ -4,9 +4,17 @@ import org.javateam11.ClassroomReservation.controller.IMainController;
 import org.javateam11.ClassroomReservation.controller.ControllerFactory;
 import org.javateam11.ClassroomReservation.model.*;
 import org.javateam11.ClassroomReservation.service.TokenManager;
+import org.javateam11.ClassroomReservation.service.ReservationService;
+import org.javateam11.ClassroomReservation.service.RoomService;
+import org.javateam11.ClassroomReservation.dto.ReservationDto;
+import org.javateam11.ClassroomReservation.dto.RoomDto;
+import org.javateam11.ClassroomReservation.util.AvailabilityChecker;
 
 import org.javateam11.ClassroomReservation.model.Building;
 import org.javateam11.ClassroomReservation.model.User;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -20,6 +28,8 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * MainView는 Swing 기반의 메인 GUI 화면을 담당합니다.
@@ -27,6 +37,8 @@ import java.util.List;
  * - MVC 패턴에서 View 역할을 하며, Controller와의 상호작용을 위해 MainController를 참조합니다.
  */
 public class MainView extends JFrame {
+
+    private static final Logger logger = LoggerFactory.getLogger(MainView.class);
 
     // UI 색상 상수들
     private static final Color PRIMARY_COLOR = new Color(41, 128, 185); // 블루
@@ -60,6 +72,21 @@ public class MainView extends JFrame {
     private MyReservationView myResView;
     private MyInformationView myInfoView;
 
+    // 예약 서비스 (백엔드 API 호출용)
+    private ReservationService reservationService;
+
+    // 강의실 서비스 (백엔드 강의실 정보 API 호출용)
+    private RoomService roomService;
+
+    // 강의실/시설물 이름과 roomId 매핑 (백엔드에서 받아와서 로컬 데이터와 매핑)
+    private Map<String, Long> roomIdMap;
+
+    // 로컬 건물 데이터 (x, y 좌표 포함)
+    private List<Building> localBuildings;
+
+    // 자동 새로고침을 위한 타이머
+    private Timer refreshTimer;
+
     /**
      * MainView 생성자
      * 
@@ -72,20 +99,31 @@ public class MainView extends JFrame {
      */
     public MainView(IMainController controller, List<Building> buildings) {
         this.controller = controller;
+        this.localBuildings = buildings;
 
         // TokenManager에서 현재 로그인된 사용자 정보 가져오기
         initializeCurrentUser();
+
+        // 서비스들 초기화
+        this.reservationService = new ReservationService();
+        this.roomService = new RoomService();
 
         setupMainWindow();
         setupTopPanel(buildings);
         setupMapPanel();
         setupEventListeners(buildings);
 
+        // 백엔드에서 강의실 목록을 가져와서 로컬 데이터와 매핑
+        initializeRoomIdMappingFromBackend();
+
         // 초기화: 첫 건물/층 선택 (프로그램 시작 시 자동으로 첫 건물/층 표시)
         if (!buildings.isEmpty()) {
             buildingCombo.setSelectedIndex(0);
             updateFloors(buildings);
         }
+
+        // 자동 새로고침 타이머 시작 (30초마다 예약 정보 갱신)
+        startAutoRefresh(buildings);
     }
 
     /**
@@ -111,16 +149,154 @@ public class MainView extends JFrame {
     }
 
     /**
+     * 백엔드에서 강의실 목록을 가져와서 로컬 데이터와 매핑하여 roomIdMap 초기화
+     */
+    private void initializeRoomIdMappingFromBackend() {
+        this.roomIdMap = new HashMap<>();
+
+        // 백엔드에서 모든 강의실 목록 조회
+        roomService.getAllRooms(
+                // 성공 시 콜백
+                backendRooms -> {
+                    logger.info("백엔드에서 강의실 목록 조회 성공: {}개 강의실", backendRooms.size());
+
+                    // 백엔드 데이터와 로컬 데이터 매핑
+                    mapBackendRoomsToLocal(backendRooms);
+
+                    logger.info("roomIdMap 매핑 완료: {}개 항목", roomIdMap.size());
+
+                    // 매핑 완료 후 로그 출력
+                    roomIdMap.forEach((name, id) -> logger.debug("매핑: {} -> roomId {}", name, id));
+                },
+                // 오류 시 콜백
+                errorMessage -> {
+                    logger.error("백엔드 강의실 목록 조회 실패: {}", errorMessage);
+                    // 폴백: 임시 매핑 데이터 사용
+                    initializeFallbackMapping();
+                    logger.warn("폴백 매핑 사용: {}개 항목", roomIdMap.size());
+                });
+    }
+
+    /**
+     * 백엔드 강의실 데이터를 로컬 강의실 데이터와 매핑
+     */
+    private void mapBackendRoomsToLocal(List<RoomDto> backendRooms) {
+        // 백엔드 룸을 매핑키로 인덱싱
+        Map<String, RoomDto> backendRoomMap = new HashMap<>();
+        for (RoomDto room : backendRooms) {
+            String key = room.getBuilding() + "_" + room.getName();
+            backendRoomMap.put(key, room);
+        }
+
+        // 로컬 강의실 데이터를 순회하면서 백엔드 데이터와 매칭
+        for (Building building : localBuildings) {
+            // 강의실 매핑
+            for (Classroom classroom : building.getClassrooms()) {
+                String localKey = building.getName() + "_" + classroom.getName();
+                RoomDto backendRoom = backendRoomMap.get(localKey);
+
+                if (backendRoom != null) {
+                    roomIdMap.put(classroom.getName(), backendRoom.getId());
+                    logger.debug("강의실 매핑: {} ({}) -> roomId {}",
+                            classroom.getName(), localKey, backendRoom.getId());
+                } else {
+                    logger.warn("백엔드에서 매칭되지 않은 로컬 강의실: {} ({})",
+                            classroom.getName(), localKey);
+                }
+            }
+
+        }
+    }
+
+    /**
+     * 백엔드 연결 실패 시 사용할 폴백 매핑
+     */
+    private void initializeFallbackMapping() {
+        // 로컬 데이터 기반으로 임시 ID 할당
+        Long currentId = 1L;
+
+        for (Building building : localBuildings) {
+            // 강의실에 임시 ID 할당
+            for (Classroom classroom : building.getClassrooms()) {
+                roomIdMap.put(classroom.getName(), currentId++);
+            }
+
+        }
+
+        logger.info("폴백 매핑 완료: 강의실 {}개",
+                localBuildings.stream().mapToInt(b -> b.getClassrooms().size()).sum());
+    }
+
+    /**
+     * 자동 새로고침 타이머를 시작합니다.
+     * 30초마다 백엔드에서 최신 예약 정보를 가져와서 버튼 색상을 업데이트합니다.
+     */
+    private void startAutoRefresh(List<Building> buildings) {
+        // 기존 타이머가 있으면 중지
+        if (refreshTimer != null) {
+            refreshTimer.stop();
+        }
+
+        // 30초마다 실행되는 타이머 생성
+        refreshTimer = new Timer(30000, e -> {
+            // 현재 선택된 건물과 층이 있을 때만 새로고침
+            String selectedBuilding = (String) buildingCombo.getSelectedItem();
+            Integer selectedFloor = (Integer) floorCombo.getSelectedItem();
+
+            if (selectedBuilding != null && selectedFloor != null) {
+                System.out.println("자동 새로고침 실행: " + selectedBuilding + " " + selectedFloor + "층");
+
+                // 현재 날짜의 예약 정보를 다시 가져와서 업데이트
+                LocalDate today = LocalDate.now();
+                reservationService.getReservationsByDate(today,
+                        reservations -> {
+                            javax.swing.SwingUtilities.invokeLater(() -> {
+                                updateMapWithReservations(buildings, selectedBuilding, selectedFloor, reservations);
+                            });
+                        },
+                        errorMessage -> {
+                            // 오류 시에는 조용히 실패 (사용자에게 알리지 않음)
+                            System.err.println("자동 새로고침 실패: " + errorMessage);
+                        });
+            }
+        });
+
+        // 타이머 시작
+        refreshTimer.start();
+        System.out.println("자동 새로고침 타이머 시작됨 (30초 간격)");
+    }
+
+    /**
+     * 윈도우가 닫힐 때 타이머를 정리합니다.
+     */
+    private void cleanup() {
+        if (refreshTimer != null) {
+            refreshTimer.stop();
+            refreshTimer = null;
+            System.out.println("자동 새로고침 타이머 중지됨");
+        }
+    }
+
+    /**
      * 메인 윈도우 설정
      */
     private void setupMainWindow() {
-        setTitle("🏫 강의실/시설물 예약 시스템");
+        setTitle("🏫 강의실 예약 시스템");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000, 750);
         setResizable(true); // 크기 조정 가능하도록 변경
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
         getContentPane().setBackground(BACKGROUND_COLOR);
+
+        // 윈도우 종료 시 타이머 정리
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                cleanup();
+                System.exit(0);
+            }
+        });
 
         // 윈도우 아이콘 설정 (있다면)
         try {
@@ -168,11 +344,26 @@ public class MainView extends JFrame {
         topRoom.add(floorCombo);
         topPanel.add(topRoom, BorderLayout.CENTER);
 
-        // 상단 우측 - 사용자 드롭다운
+        // 상단 우측 - 현재 시간 표시 및 사용자 드롭다운
         JPanel topButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         topButtons.setBackground(TOPBAR_COLOR);
 
+        // 현재 시간 표시 라벨
+        JLabel timeLabel = createStyledLabel(
+                "🕒 " + java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss")));
+
+        // 시간 표시를 업데이트하는 타이머 (1초마다)
+        Timer timeUpdateTimer = new Timer(1000, e -> {
+            String currentTime = java.time.LocalTime.now()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));
+            timeLabel.setText("🕒 " + currentTime);
+        });
+        timeUpdateTimer.start();
+
         JButton userDropdownBtn = createUserDropdownButton();
+
+        topButtons.add(timeLabel);
+        topButtons.add(Box.createHorizontalStrut(20));
         topButtons.add(userDropdownBtn);
         topPanel.add(topButtons, BorderLayout.EAST);
 
@@ -485,12 +676,13 @@ public class MainView extends JFrame {
 
     /**
      * 선택된 건물/층에 따라 2D 도면에 강의실/시설물 버튼을 배치합니다.
+     * 백엔드 API에서 실시간 예약 정보를 가져와서 현재 시간 기준으로 사용 가능 여부를 판단합니다.
      * 
      * @param buildings 건물 리스트
      *
      *                  - 각 강의실/시설물의 좌표(x, y)에 버튼을 배치
      *                  - 버튼 클릭 시 컨트롤러의 onReservationClicked 호출
-     *                  - 가용 상태에 따라 색상/텍스트 다르게 표시
+     *                  - 백엔드 API 예약 정보를 바탕으로 실시간 사용 가능 여부 판단
      *                  - 콤보박스 변경에 따라 건물/층 구조도 png 변경
      */
     private void updateMap(List<Building> buildings) {
@@ -500,6 +692,31 @@ public class MainView extends JFrame {
         if (selectedFloor == null)
             return; // 층이 선택되지 않은 경우 종료
 
+        // 현재 날짜의 예약 정보를 백엔드에서 가져와서 버튼 색상 업데이트
+        LocalDate today = LocalDate.now();
+        reservationService.getReservationsByDate(today,
+                // 성공 시 콜백
+                reservations -> {
+                    // UI 업데이트는 EDT에서 실행
+                    javax.swing.SwingUtilities.invokeLater(() -> {
+                        updateMapWithReservations(buildings, selectedBuilding, selectedFloor, reservations);
+                    });
+                },
+                // 오류 시 콜백
+                errorMessage -> {
+                    // API 호출 실패 시 기본 로직으로 폴백
+                    System.err.println("예약 정보 조회 실패, 기본 로직 사용: " + errorMessage);
+                    javax.swing.SwingUtilities.invokeLater(() -> {
+                        updateMapWithReservations(buildings, selectedBuilding, selectedFloor, null);
+                    });
+                });
+    }
+
+    /**
+     * 예약 정보를 바탕으로 실제 맵을 업데이트하는 헬퍼 메서드
+     */
+    private void updateMapWithReservations(List<Building> buildings, String selectedBuilding,
+            Integer selectedFloor, List<ReservationDto> reservations) {
         for (Building b : buildings) {
             if (b.getName().equals(selectedBuilding)) {
                 // 강의실 버튼 배치
@@ -512,7 +729,13 @@ public class MainView extends JFrame {
                                 BufferedImage img = ImageIO.read(imageUrl);
                                 mapPanel.setBackgroundImage(img);
                             }
-                            JButton btn = createRoomButton(c.getName(), c.isAvailable());
+
+                            // 백엔드 예약 정보를 바탕으로 현재 사용 가능 여부 판단
+                            boolean isAvailable = reservations != null
+                                    ? AvailabilityChecker.isCurrentlyAvailable(c, reservations, roomIdMap)
+                                    : c.isAvailable(); // API 실패 시 기본값 사용
+
+                            JButton btn = createRoomButton(c.getName(), isAvailable, reservations);
                             btn.setBounds(c.getX(), c.getY(), 110, 60); // 크기를 약간 키움
                             btn.addActionListener(e -> controller.onReservationClicked(c));
                             mapPanel.add(btn);
@@ -522,15 +745,6 @@ public class MainView extends JFrame {
                     }
                 }
 
-                // 시설물 버튼 배치
-                for (Facility f : b.getFacilities()) {
-                    if (f.getFloor() == selectedFloor) {
-                        JButton btn = createRoomButton(f.getName(), f.isAvailable());
-                        btn.setBounds(f.getX(), f.getY(), 110, 60);
-                        btn.addActionListener(e -> controller.onReservationClicked(f));
-                        mapPanel.add(btn);
-                    }
-                }
             }
         }
 
@@ -539,13 +753,25 @@ public class MainView extends JFrame {
     }
 
     /**
-     * 강의실/시설물 버튼을 생성하고 상태에 따라 색상/글자색을 지정합니다.
+     * 강의실 버튼을 생성하고 상태에 따라 색상/글자색을 지정합니다.
      * 
-     * @param name      강의실/시설물 이름
+     * @param name      강의실 이름
      * @param available 가용 여부 (true: 비어있음, false: 사용중)
      * @return JButton 객체
      */
     private JButton createRoomButton(String name, boolean available) {
+        return createRoomButton(name, available, null);
+    }
+
+    /**
+     * 강의실 버튼을 생성하고 예약 정보를 바탕으로 상태에 따라 색상/글자색을 지정합니다.
+     * 
+     * @param name         강의실 이름
+     * @param available    가용 여부 (true: 비어있음, false: 사용중)
+     * @param reservations 현재 날짜의 예약 정보 (추가 정보 표시용)
+     * @return JButton 객체
+     */
+    private JButton createRoomButton(String name, boolean available, List<ReservationDto> reservations) {
         // 텍스트에서 상태 정보 제거하고 아이콘으로 표현
         String displayText = name;
         String statusIcon = available ? "✅" : "❌";
@@ -591,9 +817,47 @@ public class MainView extends JFrame {
             }
         });
 
-        // 툴팁 추가
+        // 향상된 툴팁 추가 (예약 정보 포함)
         String statusText = available ? "예약 가능" : "사용 중";
-        btn.setToolTipText(name + " - " + statusText + " (클릭하여 예약)");
+        String toolTipText = name + " - " + statusText;
+
+        // 예약 정보가 있고 roomIdMap에 해당 강의실이 있으면 추가 정보 표시
+        if (reservations != null && roomIdMap.containsKey(name)) {
+            Long roomId = roomIdMap.get(name);
+            LocalDate today = LocalDate.now();
+
+            // 오늘 해당 강의실의 예약 정보 필터링
+            List<ReservationDto> todaysReservations = reservations.stream()
+                    .filter(r -> r.getRoomId().equals(roomId) && r.getDate().equals(today))
+                    .collect(java.util.stream.Collectors.toList());
+
+            if (!todaysReservations.isEmpty()) {
+                toolTipText += "\n\n📅 오늘의 예약:";
+                for (ReservationDto reservation : todaysReservations) {
+                    toolTipText += "\n• " + reservation.getStartTime() + " - " + reservation.getEndTime() +
+                            " (학번: " + reservation.getStudentId() + ")";
+                }
+            }
+
+            // 다음 예약까지 남은 시간 정보 추가
+            if (available) {
+                Integer minutesToNext = AvailabilityChecker.getMinutesToNextReservation(
+                        new org.javateam11.ClassroomReservation.model.Classroom(name, "", 0, 0, 0),
+                        reservations, roomIdMap);
+                if (minutesToNext != null) {
+                    int hours = minutesToNext / 60;
+                    int minutes = minutesToNext % 60;
+                    if (hours > 0) {
+                        toolTipText += "\n⏰ 다음 예약까지: " + hours + "시간 " + minutes + "분";
+                    } else {
+                        toolTipText += "\n⏰ 다음 예약까지: " + minutes + "분";
+                    }
+                }
+            }
+        }
+
+        toolTipText += "\n\n클릭하여 예약";
+        btn.setToolTipText("<html>" + toolTipText.replace("\n", "<br>") + "</html>");
 
         return btn;
     }
@@ -601,7 +865,7 @@ public class MainView extends JFrame {
     /**
      * 예약 다이얼로그를 띄워 사용자 입력을 받고, ReservationHandler로 결과를 전달합니다.
      * 
-     * @param name    강의실/시설물 이름
+     * @param name    강의실 이름
      * @param handler 예약 처리 콜백 (예약 입력값을 컨트롤러로 전달)
      *
      *                - 사용자에게 예약자, 날짜, 시작/종료 시간 입력을 받음

@@ -2,6 +2,7 @@ package org.javateam11.ClassroomReservation.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.core.type.TypeReference;
 import okhttp3.*;
 import org.javateam11.ClassroomReservation.dto.ErrorResponse;
 import org.slf4j.Logger;
@@ -85,6 +86,35 @@ public class ApiService {
                     logger.debug("GET {} 응답: {}", endpoint, responseBody);
 
                     return objectMapper.readValue(responseBody, responseType);
+                }
+            } catch (IOException e) {
+                logger.error("GET {} 요청 중 오류 발생", endpoint, e);
+                throw new RuntimeException("API 요청 중 오류 발생", e);
+            }
+        });
+    }
+
+    /**
+     * GET 요청을 비동기로 실행 (TypeReference 사용)
+     */
+    public <T> CompletableFuture<T> getAsync(String endpoint, TypeReference<T> typeReference) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Request request = new Request.Builder()
+                        .url(BASE_URL + endpoint)
+                        .get()
+                        .build();
+
+                try (Response response = client.newCall(request).execute()) {
+                    if (!response.isSuccessful()) {
+                        String errorMessage = extractErrorMessage(response);
+                        throw new RuntimeException(errorMessage);
+                    }
+
+                    String responseBody = response.body().string();
+                    logger.debug("GET {} 응답: {}", endpoint, responseBody);
+
+                    return objectMapper.readValue(responseBody, typeReference);
                 }
             } catch (IOException e) {
                 logger.error("GET {} 요청 중 오류 발생", endpoint, e);

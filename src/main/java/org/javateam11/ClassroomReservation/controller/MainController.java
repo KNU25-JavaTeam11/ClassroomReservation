@@ -102,57 +102,6 @@ public class MainController implements IMainController {
     }
 
     /**
-     * 예약 상세정보 창에서 예약하기 버튼 클릭 시 호출되는 메서드
-     * Spring 백엔드를 통해 비동기로 예약을 처리합니다.
-     *
-     * @param facility 클릭된 시설물 객체
-     */
-    public void onFacilityClicked(Facility facility, ReservationDetailView detailView) {
-        logger.info("시설물 예약 시도: {} ({}층 {})", facility.getName(), facility.getFloor(), facility.getBuildingName());
-
-        // 시설물 예약 다이얼로그 띄우기, 예약 정보 받아오기
-        view.showReservationDialog(facility.getName(), (reserver, date, start, end) -> {
-            Reservation reservation = new Reservation(reserver, date, start, end, facility.getName());
-            logger.debug("예약 정보 생성: 예약자={}, 날짜={}, 시간={}-{}, 시설물={}",
-                    reserver, date, start, end, facility.getName());
-
-            // 로딩 표시
-            JDialog loadingDialog = showLoadingDialog("예약 처리 중...");
-
-            // 먼저 예약 가능 여부 확인 (Spring 백엔드)
-            reservationService.checkAvailability(
-                    facility.getBuildingName(),
-                    facility.getFloor(),
-                    facility.getName(),
-                    date.toString(),
-                    start + "-" + end,
-                    // 성공 시 콜백
-                    isAvailable -> {
-                        loadingDialog.dispose();
-                        if (isAvailable) {
-                            logger.info("예약 가능 확인됨: {}", facility.getName());
-                            // 예약 가능하면 예약 생성
-                            createReservationOnServer(reservation, detailView);
-                        } else {
-                            logger.warn("예약 불가능한 시간대: {} ({}-{})", facility.getName(), start, end);
-                            JOptionPane.showMessageDialog(view, "이미 예약된 시간이므로 예약할 수 없습니다.");
-                        }
-                    },
-                    // 오류 시 콜백
-                    errorMessage -> {
-                        loadingDialog.dispose();
-                        logger.error("서버 연결 실패 - 시설물: {}, 오류: {}", facility.getName(), errorMessage);
-                        JOptionPane.showMessageDialog(view,
-                                "백엔드 서버 연결에 실패했습니다.\n" +
-                                        "서버가 실행 중인지 확인해주세요.\n\n" +
-                                        "오류: " + errorMessage,
-                                "연결 오류",
-                                JOptionPane.ERROR_MESSAGE);
-                    });
-        });
-    }
-
-    /**
      * Spring 백엔드에 예약을 생성합니다.
      */
     private void createReservationOnServer(Reservation reservation, ReservationDetailView detailView) {
@@ -203,15 +152,15 @@ public class MainController implements IMainController {
     }
 
     /**
-     * 강의실, 시설물 클릭 시 호출되는 메서드
+     * 강의실 클릭 시 호출되는 메서드
      * 예약 상세정보 창을 띄웁니다.
      *
-     * @param place 클릭된 시설물, 강의실 객체
+     * @param classroom 클릭된 강의실 객체
      */
     @Override
-    public void onReservationClicked(Place place) {
+    public void onReservationClicked(Classroom classroom) {
         ReservationDetailView reservationDetailView = ControllerFactory.getInstance()
-                .createReservationDetailView(place, this);
+                .createReservationDetailView(classroom, this);
         reservationDetailView.setVisible(true);
     }
 

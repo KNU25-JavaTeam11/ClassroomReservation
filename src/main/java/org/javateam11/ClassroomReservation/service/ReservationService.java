@@ -1,9 +1,12 @@
 package org.javateam11.ClassroomReservation.service;
 
 import org.javateam11.ClassroomReservation.model.Reservation;
+import org.javateam11.ClassroomReservation.dto.ReservationDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.core.type.TypeReference;
 import javax.swing.SwingUtilities;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -35,6 +38,29 @@ public class ReservationService {
                 .exceptionally(throwable -> {
                     logger.error("모든 예약 조회 실패", throwable);
                     SwingUtilities.invokeLater(() -> onError.accept("예약 목록 조회 실패: " + throwable.getMessage()));
+                    return null;
+                });
+    }
+
+    /**
+     * 특정 날짜의 모든 예약 조회 (비동기)
+     * 현재 시간 기준으로 강의실 사용 가능 여부 판단을 위해 사용
+     */
+    public void getReservationsByDate(LocalDate date, Consumer<List<ReservationDto>> onSuccess,
+            Consumer<String> onError) {
+        String endpoint = "/api/reservations?date=" + date.toString();
+
+        logger.debug("특정 날짜 예약 조회 요청: {}", date);
+
+        apiService.getAsync(endpoint, new TypeReference<List<ReservationDto>>() {
+        })
+                .thenAccept(reservations -> {
+                    logger.info("특정 날짜 예약 조회 성공: {} - {}개 예약", date, reservations.size());
+                    SwingUtilities.invokeLater(() -> onSuccess.accept(reservations));
+                })
+                .exceptionally(throwable -> {
+                    logger.error("특정 날짜 예약 조회 실패: {}", date, throwable);
+                    SwingUtilities.invokeLater(() -> onError.accept("특정 날짜 예약 조회 실패: " + throwable.getMessage()));
                     return null;
                 });
     }
