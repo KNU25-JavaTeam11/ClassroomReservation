@@ -17,11 +17,4 @@ public enum SlotStatus {
         this.color = c;
     }
 
-    public Color getColor() {
-        return color;
-    }
-
-    public SlotStatus next() {
-        return values()[(ordinal() + 1) % values().length];
-    }
 }

@@ -14,9 +14,7 @@ public class UserDropdownPanel {
      * 사용자 드롭다운 버튼을 생성합니다.
      */
     public static JButton createUserDropdownButton(User currentUser,
-            Runnable myReservationCallback,
-            Runnable myInfoCallback,
-            Runnable logoutCallback) {
+            Runnable myReservationCallback, Runnable logoutCallback) {
 
         String userDisplayText = "👤 " + currentUser.getName() + "(" + currentUser.getStudentId() + ")";
         JButton userBtn = StyleManager.createStyledButton(userDisplayText + " ▼", StyleManager.getPrimaryColor());

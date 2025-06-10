@@ -142,7 +142,6 @@ public class TopPanel extends JPanel {
             userDropdownBtn = UserDropdownPanel.createUserDropdownButton(
                     currentUser,
                     myReservationCallback,
-                    myInfoCallback,
                     logoutCallback);
 
             // 새 버튼 추가
@@ -206,11 +205,6 @@ public class TopPanel extends JPanel {
 
     public void setMyReservationCallback(Runnable callback) {
         this.myReservationCallback = callback;
-        updateUserDropdownButton();
-    }
-
-    public void setMyInfoCallback(Runnable callback) {
-        this.myInfoCallback = callback;
         updateUserDropdownButton();
     }
 

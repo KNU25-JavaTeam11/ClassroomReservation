@@ -1,7 +1,6 @@
 package org.javateam11.ClassroomReservation.view;
 
 import org.javateam11.ClassroomReservation.model.*;
-import org.javateam11.ClassroomReservation.model.Reservation;
 import org.javateam11.ClassroomReservation.service.ReservationService;
 import org.javateam11.ClassroomReservation.view.components.StyleManager;
 import javax.swing.*;

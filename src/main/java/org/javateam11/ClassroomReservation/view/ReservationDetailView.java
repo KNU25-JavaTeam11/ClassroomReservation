@@ -150,13 +150,6 @@ class TimelineTableModel extends AbstractTableModel {
         return SlotStatus.class;
     }
 
-    public LocalTime getTimeSlot(int column) {
-        return timeSlots[column];
-    }
-
-    public SlotStatus getSlotStatus(int column) {
-        return statuses[column];
-    }
 }
 
 /**

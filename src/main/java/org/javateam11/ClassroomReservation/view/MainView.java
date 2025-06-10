@@ -11,9 +11,6 @@ import org.javateam11.ClassroomReservation.dto.RoomDto;
 import org.javateam11.ClassroomReservation.util.AvailabilityChecker;
 import org.javateam11.ClassroomReservation.view.components.*;
 
-import org.javateam11.ClassroomReservation.model.Building;
-import org.javateam11.ClassroomReservation.model.User;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -422,9 +419,7 @@ public class MainView extends JFrame {
                             }
 
                             // 백엔드 예약 정보를 바탕으로 현재 사용 가능 여부 판단
-                            boolean isAvailable = reservations != null
-                                    ? AvailabilityChecker.isCurrentlyAvailable(c, reservations, roomIdMap)
-                                    : c.isAvailable(); // API 실패 시 기본값 사용
+                            boolean isAvailable = AvailabilityChecker.isCurrentlyAvailable(c, reservations, roomIdMap);
 
                             JButton btn = createRoomButton(c.getName(), isAvailable, reservations);
                             btn.setBounds(c.getX(), c.getY(), 110, 60); // 크기를 약간 키움
@@ -453,10 +448,9 @@ public class MainView extends JFrame {
      */
     private JButton createRoomButton(String name, boolean available, List<ReservationDto> reservations) {
         // 텍스트에서 상태 정보 제거하고 아이콘으로 표현
-        String displayText = name;
         String statusIcon = available ? "✅" : "❌";
 
-        JButton btn = new JButton("<html><center>" + statusIcon + "<br/>" + displayText + "</center></html>");
+        JButton btn = new JButton("<html><center>" + statusIcon + "<br/>" + name + "</center></html>");
 
         // 색상 설정
         Color backgroundColor = available ? new Color(46, 204, 113) : new Color(231, 76, 60);
@@ -508,7 +502,7 @@ public class MainView extends JFrame {
             // 오늘 해당 강의실의 예약 정보 필터링
             List<ReservationDto> todaysReservations = reservations.stream()
                     .filter(r -> r.getRoomId().equals(roomId) && r.getDate().equals(today))
-                    .collect(java.util.stream.Collectors.toList());
+                    .toList();
 
             if (!todaysReservations.isEmpty()) {
                 toolTipText += "\n\n📅 오늘의 예약:";

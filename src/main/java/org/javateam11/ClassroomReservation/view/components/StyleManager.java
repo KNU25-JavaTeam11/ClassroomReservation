@@ -157,7 +157,7 @@ public class StyleManager {
                 g2d.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
                 currentValuePane.paintComponent(g, c, comboBox, bounds.x, bounds.y, bounds.width, bounds.height,
-                        c instanceof JComponent ? ((JComponent) c).isOpaque() : true);
+                        !(c instanceof JComponent) || c.isOpaque());
                 g2d.dispose();
             }
 
@@ -290,58 +290,6 @@ public class StyleManager {
         textField.setBackground(Color.WHITE);
         textField.setForeground(TEXT_COLOR);
         return textField;
-    }
-
-    /**
-     * 강의실 버튼을 생성하고 상태에 따라 색상/글자색을 지정합니다.
-     */
-    public static JButton createRoomButton(String name, boolean available) {
-        // 텍스트에서 상태 정보 제거하고 아이콘으로 표현
-        String displayText = name;
-        String statusIcon = available ? "✅" : "❌";
-
-        JButton btn = new JButton("<html><center>" + statusIcon + "<br/>" + displayText + "</center></html>");
-
-        // 색상 설정 - 더 세련된 팔레트 사용
-        Color backgroundColor = available ? new Color(46, 204, 113) : // 세련된 녹색
-                new Color(231, 76, 60); // 세련된 빨강색
-
-        Color textColor = Color.WHITE;
-        Color hoverColor = available ? new Color(39, 174, 96) : new Color(192, 57, 43);
-
-        btn.setBackground(backgroundColor);
-        btn.setForeground(textColor);
-        btn.setFont(new Font("맑은 고딕", Font.BOLD, 10));
-        btn.setOpaque(true);
-        btn.setBorderPainted(false);
-        btn.setFocusPainted(false);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        // 둥근 모서리 효과를 위한 커스텀 버튼
-        btn.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(backgroundColor.darker(), 1),
-                BorderFactory.createEmptyBorder(5, 8, 5, 8)));
-
-        // 호버 효과 추가
-        btn.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                btn.setBackground(hoverColor);
-                btn.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(hoverColor.darker(), 2),
-                        BorderFactory.createEmptyBorder(4, 7, 4, 7)));
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                btn.setBackground(backgroundColor);
-                btn.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(backgroundColor.darker(), 1),
-                        BorderFactory.createEmptyBorder(5, 8, 5, 8)));
-            }
-        });
-
-        return btn;
     }
 
     // Getter 메서드들 (상수 접근용)
