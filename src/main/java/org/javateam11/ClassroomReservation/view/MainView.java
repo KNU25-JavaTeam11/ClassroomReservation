@@ -30,7 +30,6 @@ import java.util.HashMap;
 /**
  * MainView는 Swing 기반의 메인 GUI 화면을 담당합니다.
  * - 건물/층 선택, 2D 도면 스타일의 강의실 배치, 예약 다이얼로그 등 UI를 구현합니다.
- * - MVC 패턴에서 View 역할을 하며, Controller와의 상호작용을 위해 MainController를 참조합니다.
  */
 public class MainView extends JFrame {
 

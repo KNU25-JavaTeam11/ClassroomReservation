@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Spring 백엔드와의 HTTP 통신을 담당하는 기본 API 서비스 클래스
- * 멀티스레드 환경에서 안전하게 동작하도록 설계됨
  */
 public class ApiService {
     private static final Logger logger = LoggerFactory.getLogger(ApiService.class);

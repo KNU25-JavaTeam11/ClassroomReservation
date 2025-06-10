@@ -34,7 +34,6 @@ public class ErrorMessageUtils {
 
         String message = current.getMessage();
         if (message != null && !message.trim().isEmpty()) {
-            // "java.lang.RuntimeException: " 같은 불필요한 접두어 제거
             if (message.startsWith("java.lang.RuntimeException: ")) {
                 message = message.substring("java.lang.RuntimeException: ".length());
             }

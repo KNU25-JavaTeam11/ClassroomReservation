@@ -442,7 +442,7 @@ public class ReservationDetailView extends JFrame {
         panel.setBackground(StyleManager.getBackgroundColor());
         panel.setPreferredSize(new Dimension(0, 20)); // 높이를 줄임
 
-        // 1시간 단위로 주요 시간 표시 (화면이 작아졌으므로 더 조밀하게)
+        // 1시간 단위로 주요 시간 표시
         for (int hour = 9; hour <= 21; hour += 1) {
             JLabel tickLabel = new JLabel(String.format("%02d:00", hour), SwingConstants.LEFT);
             tickLabel.setFont(new Font("맑은 고딕", Font.BOLD, 10));

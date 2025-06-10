@@ -6,8 +6,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 /**
- * MapPanel은 png파일을 사용하여 구조도를 변경하기 위해 만든 클래스입니다.
- * 고품질 렌더링과 부드러운 시각적 효과를 제공합니다.
+ * MapPanel은 png파일을 사용하여 구조도를 표현하기 위해 만든 클래스입니다.
  */
 public class MapPanel extends JPanel {
     private BufferedImage backgroundImage;
